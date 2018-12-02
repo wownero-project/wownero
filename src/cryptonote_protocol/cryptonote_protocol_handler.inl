@@ -401,7 +401,7 @@ namespace cryptonote
     int64_t diff = static_cast<int64_t>(hshd.current_height) - static_cast<int64_t>(m_core.get_current_blockchain_height());
     uint64_t abs_diff = std::abs(diff);
     uint64_t max_block_height = std::max(hshd.current_height,m_core.get_current_blockchain_height());
-    uint64_t last_block_v1 = m_core.get_nettype() == TESTNET ? 624633 : m_core.get_nettype() == MAINNET ? 1009826 : (uint64_t)-1;
+    uint64_t last_block_v1 = m_core.get_nettype() == TESTNET ? 0 : m_core.get_nettype() == MAINNET ? 0 : (uint64_t)-1;
     uint64_t diff_v2 = max_block_height > last_block_v1 ? std::min(abs_diff, max_block_height - last_block_v1) : 0;
     MCLOG(is_inital ? el::Level::Info : el::Level::Debug, "global", el::Color::Yellow, context <<  "Sync data returned a new top block candidate: " << m_core.get_current_blockchain_height() << " -> " << hshd.current_height
       << " [Your node is " << abs_diff << " blocks (" << tools::get_human_readable_timespan((abs_diff - diff_v2) * DIFFICULTY_TARGET_V1 + diff_v2 * DIFFICULTY_TARGET_V2) << ") "
@@ -2232,7 +2232,7 @@ skip:
         }
 
         const uint64_t first_block_height = context.m_last_response_height - context.m_needed_objects.size() + 1;
-        static const uint64_t bp_fork_height = m_core.get_earliest_ideal_height_for_version(8);
+        static const uint64_t bp_fork_height = m_core.get_earliest_ideal_height_for_version(HF_VERSION_SMALLER_BP);
         bool sync_pruned_blocks = m_sync_pruned_blocks && first_block_height >= bp_fork_height && m_core.get_blockchain_pruning_seed();
         span = m_block_queue.reserve_span(first_block_height, context.m_last_response_height, count_limit, context.m_connection_id, context.m_remote_address, sync_pruned_blocks, m_core.get_blockchain_pruning_seed(), context.m_pruning_seed, context.m_remote_blockchain_height, context.m_needed_objects);
         MDEBUG(context << " span from " << first_block_height << ": " << span.first << "/" << span.second);
@@ -2457,7 +2457,7 @@ skip:
         }
       }
       MGINFO_YELLOW(ENDL << "**********************************************************************" << ENDL
-        << "You are now synchronized with the network. You may now start monero-wallet-cli." << ENDL
+        << "You are now synchronized with the network. You may now start wownero-wallet-cli." << ENDL
         << ENDL
         << "Use the \"help\" command to see the list of available commands." << ENDL
         << "**********************************************************************");
@@ -2907,7 +2907,7 @@ skip:
       m_core.set_target_blockchain_height(target);
       if (target == 0 && context.m_state > cryptonote_connection_context::state_before_handshake && !m_stopping)
       {
-        MCWARNING("global", "monerod is now disconnected from the network");
+        MCWARNING("global", "wownerod is now disconnected from the network");
         m_ask_for_txpool_complement = true;
       }
     }

@@ -2,7 +2,7 @@
 
 DIR=$(realpath $(dirname $0))
 
-echo "Checking monerod..."
+echo "Checking wownerod..."
 monerod=""
 for dir in \
   . \
@@ -15,20 +15,20 @@ for dir in \
   "$DIR/build/Windows/master/release/bin" \
   "$DIR/../../build/Windows/master/release/bin"
 do
-  if test -x "$dir/monerod"
+  if test -x "$dir/wownerod"
   then
-    monerod="$dir/monerod"
+    monerod="$dir/wownerod"
     break
   fi
 done
-if test -z "$monerod"
+if test -z "$wownerod"
 then
-  echo "monerod not found"
+  echo "wownerod not found"
   exit 1
 fi
-echo "Found: $monerod"
+echo "Found: $wownerod"
 
-TORDIR="$DIR/monero-over-tor"
+TORDIR="$DIR/wownero-over-tor"
 TORRC="$TORDIR/torrc"
 HOSTNAMEFILE="$TORDIR/hostname"
 echo "Creating configuration..."
@@ -42,7 +42,7 @@ CookieAuthentication 1
 CookieAuthFile $TORDIR/control.authcookie
 CookieAuthFileGroupReadable 1
 HiddenServiceDir $TORDIR
-HiddenServicePort 18083 127.0.0.1:18083
+HiddenServicePort 38083 127.0.0.1:38083
 EOF
 
 echo "Starting Tor..."
@@ -64,18 +64,18 @@ then
   exit 1
 fi
 
-echo "Starting monerod..."
+echo "Starting wownerod..."
 HOSTNAME=$(cat "$HOSTNAMEFILE")
 "$monerod" \
-  --anonymous-inbound "$HOSTNAME":18083,127.0.0.1:18083,25 --tx-proxy tor,127.0.0.1:9050,10 \
-  --add-priority-node zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:18083 \
-  --add-priority-node 2xmrnode5itf65lz.onion:18083 \
+  --anonymous-inbound "$HOSTNAME":38083,127.0.0.1:38083,25 --tx-proxy tor,127.0.0.1:9050,10 \
+  --add-priority-node zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:38083 \
+  --add-priority-node 2xmrnode5itf65lz.onion:38083 \
   --detach
 ready=0
 for i in `seq 10`
 do
   sleep 1
-  status=$("$monerod" status)
+  status=$("$wownerod" status)
   echo "$status" | grep -q "Height:"
   if test $? = 0
   then
@@ -85,8 +85,8 @@ do
 done
 if test "$ready" = 0
 then
-  echo "Error starting monerod"
-  tail -n 400 "$HOME/.bitmonero/bitmonero.log" | grep -Ev stacktrace\|"Error: Couldn't connect to daemon:"\|"src/daemon/main.cpp:.*Monero\ \'" | tail -n 20
+  echo "Error starting wownerod"
+  tail -n 400 "$HOME/.wownero/wownero.log" | grep -Ev stacktrace\|"Error: Couldn't connect to daemon:"\|"src/daemon/main.cpp:.*Wownero\ \'" | tail -n 20
   exit 1
 fi
 

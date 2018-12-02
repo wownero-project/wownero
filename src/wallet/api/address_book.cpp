@@ -167,4 +167,4 @@ AddressBookImpl::~AddressBookImpl()
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitmonero = Wownero;

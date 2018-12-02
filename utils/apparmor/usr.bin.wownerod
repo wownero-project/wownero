@@ -1,0 +1,19 @@
+#include <tunables/global>
+
+profile wownerod /usr/{,local/}bin/wownerod {
+  #include <abstractions/base>
+  #include <abstractions/openssl>
+
+  /etc/inputrc r,
+  /etc/terminfo/** r,
+
+  /sys/devices/**/rotational r,
+
+  owner /home/*/.wownero/{,/testnet/,/stagenet/} w,
+  owner /home/*/.wownero/{,/testnet/,/stagenet/}lmdb/ w,
+  owner /home/*/.wownero/{,/testnet/,/stagenet/}lmdb/* rwk,
+  owner /home/*/.wownero/{,/testnet/,/stagenet/}p2pstate.bin rw,
+  owner /home/*/.wownero/{,/testnet/,/stagenet/}wownero.conf r,
+  owner /home/*/.wownero/{,/testnet/,/stagenet/}wownero.log w,
+
+}

@@ -105,9 +105,9 @@ using namespace cryptonote;
 // used to target a given block weight (additional outputs may be added on top to build fee)
 #define TX_WEIGHT_TARGET(bytes) (bytes*2/3)
 
-#define UNSIGNED_TX_PREFIX "Monero unsigned tx set\005"
-#define SIGNED_TX_PREFIX "Monero signed tx set\005"
-#define MULTISIG_UNSIGNED_TX_PREFIX "Monero multisig unsigned tx set\001"
+#define UNSIGNED_TX_PREFIX "Wownero unsigned tx set\005"
+#define SIGNED_TX_PREFIX "Wownero signed tx set\005"
+#define MULTISIG_UNSIGNED_TX_PREFIX "Wownero multisig unsigned tx set\001"
 
 #define RECENT_OUTPUT_RATIO (0.5) // 50% of outputs are from the recent zone
 #define RECENT_OUTPUT_DAYS (1.8) // last 1.8 day makes up the recent zone (taken from monerolink.pdf, Miller et al)
@@ -121,11 +121,11 @@ using namespace cryptonote;
 #define SUBADDRESS_LOOKAHEAD_MAJOR 50
 #define SUBADDRESS_LOOKAHEAD_MINOR 200
 
-#define KEY_IMAGE_EXPORT_FILE_MAGIC "Monero key image export\003"
+#define KEY_IMAGE_EXPORT_FILE_MAGIC "Wownero key image export\003"
 
-#define MULTISIG_EXPORT_FILE_MAGIC "Monero multisig export\001"
+#define MULTISIG_EXPORT_FILE_MAGIC "Wownero multisig export\001"
 
-#define OUTPUT_EXPORT_FILE_MAGIC "Monero output export\004"
+#define OUTPUT_EXPORT_FILE_MAGIC "Wownero output export\004"
 
 #define SEGREGATION_FORK_HEIGHT 99999999
 #define TESTNET_SEGREGATION_FORK_HEIGHT 99999999
@@ -140,14 +140,14 @@ using namespace cryptonote;
 #define DEFAULT_MIN_OUTPUT_COUNT 5
 #define DEFAULT_MIN_OUTPUT_VALUE (2*COIN)
 
-#define DEFAULT_INACTIVITY_LOCK_TIMEOUT 90 // a minute and a half
+#define DEFAULT_INACTIVITY_LOCK_TIMEOUT 300 // 5 minutes
 
 #define IGNORE_LONG_PAYMENT_ID_FROM_BLOCK_VERSION 12
 
 static const std::string MULTISIG_SIGNATURE_MAGIC = "SigMultisigPkV1";
 static const std::string MULTISIG_EXTRA_INFO_MAGIC = "MultisigxV1";
 
-static const std::string ASCII_OUTPUT_MAGIC = "MoneroAsciiDataV1";
+static const std::string ASCII_OUTPUT_MAGIC = "WowneroAsciiDataV1";
 
 boost::mutex tools::wallet2::default_daemon_address_lock;
 std::string tools::wallet2::default_daemon_address = "";
@@ -159,7 +159,7 @@ namespace
     boost::filesystem::path dir = tools::get_default_data_dir();
     // remove .bitmonero, replace with .shared-ringdb
     dir = dir.remove_filename();
-    dir /= ".shared-ringdb";
+    dir /= ".wow-shared-ringdb";
     return dir.string();
   }
 
@@ -1154,7 +1154,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_refresh_from_block_height(0),
   m_explicit_refresh_from_block_height(true),
   m_confirm_non_default_ring_size(true),
-  m_ask_password(AskPasswordToDecrypt),
+  m_ask_password(AskPasswordOnAction),
   m_max_reorg_depth(ORPHANED_BLOCKS_MAX_COUNT),
   m_min_output_count(0),
   m_min_output_value(0),
@@ -1163,15 +1163,15 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_confirm_backlog_threshold(0),
   m_confirm_export_overwrite(true),
   m_auto_low_priority(true),
-  m_segregate_pre_fork_outputs(true),
-  m_key_reuse_mitigation2(true),
+  m_segregate_pre_fork_outputs(false),
+  m_key_reuse_mitigation2(false),
   m_segregation_height(0),
   m_ignore_fractional_outputs(true),
   m_ignore_outputs_above(MONEY_SUPPLY),
   m_ignore_outputs_below(0),
   m_track_uses(false),
   m_inactivity_lock_timeout(DEFAULT_INACTIVITY_LOCK_TIMEOUT),
-  m_setup_background_mining(BackgroundMiningMaybe),
+  m_setup_background_mining(BackgroundMiningNo),
   m_persistent_rpc_client_id(false),
   m_auto_mine_for_rpc_payment_threshold(-1.0f),
   m_is_initialized(false),
@@ -1843,8 +1843,8 @@ void wallet2::scan_output(const cryptonote::transaction &tx, bool miner_tx, cons
     if (!m_encrypt_keys_after_refresh)
     {
       boost::optional<epee::wipeable_string> pwd = m_callback->on_get_password(pool ? "output found in pool" : "output received");
-      THROW_WALLET_EXCEPTION_IF(!pwd, error::password_needed, tr("Password is needed to compute key image for incoming monero"));
-      THROW_WALLET_EXCEPTION_IF(!verify_password(*pwd), error::password_needed, tr("Invalid password: password is needed to compute key image for incoming monero"));
+      THROW_WALLET_EXCEPTION_IF(!pwd, error::password_needed, tr("Password is needed to compute key image for incoming wownero"));
+      THROW_WALLET_EXCEPTION_IF(!verify_password(*pwd), error::password_needed, tr("Invalid password: password is needed to compute key image for incoming wownero"));
       decrypt_keys(*pwd);
       m_encrypt_keys_after_refresh = *pwd;
     }
@@ -4157,7 +4157,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
     m_ignore_outputs_below = 0;
     m_track_uses = false;
     m_inactivity_lock_timeout = DEFAULT_INACTIVITY_LOCK_TIMEOUT;
-    m_setup_background_mining = BackgroundMiningMaybe;
+    m_setup_background_mining = BackgroundMiningNo;
     m_subaddress_lookahead_major = SUBADDRESS_LOOKAHEAD_MAJOR;
     m_subaddress_lookahead_minor = SUBADDRESS_LOOKAHEAD_MINOR;
     m_original_keys_available = false;
@@ -4786,10 +4786,8 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
  uint64_t wallet2::estimate_blockchain_height()
  {
    // -1 month for fluctuations in block time and machine date/time setup.
-   // avg seconds per block
-   const int seconds_per_block = DIFFICULTY_TARGET_V2;
    // ~num blocks per month
-   const uint64_t blocks_per_month = 60*60*24*30/seconds_per_block;
+   const uint64_t blocks_per_month = 288*30;
 
    // try asking the daemon first
    std::string err;
@@ -6344,8 +6342,7 @@ bool wallet2::is_tx_spendtime_unlocked(uint64_t unlock_time, uint64_t block_heig
     catch(...) { adjusted_time = time(NULL); } // use local time if no daemon to report blockchain time
     // XXX: this needs to be fast, so we'd need to get the starting heights
     // from the daemon to be correct once voting kicks in
-    uint64_t v2height = m_nettype == TESTNET ? 624634 : m_nettype == STAGENET ? 32000  : 1009827;
-    uint64_t leeway = block_height < v2height ? CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS_V1 : CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS_V2;
+    uint64_t leeway = CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS_V2;
     if(adjusted_time + leeway >= unlock_time)
       return true;
     else
@@ -7570,20 +7567,14 @@ int wallet2::get_fee_algorithm()
 uint64_t wallet2::get_min_ring_size()
 {
   if (use_fork_rules(8, 10))
-    return 11;
-  if (use_fork_rules(7, 10))
-    return 7;
-  if (use_fork_rules(6, 10))
-    return 5;
-  if (use_fork_rules(2, 10))
-    return 3;
+    return 22;
   return 0;
 }
 //------------------------------------------------------------------------------------------------------------------------------
 uint64_t wallet2::get_max_ring_size()
 {
   if (use_fork_rules(8, 10))
-    return 11;
+    return 22;
   return 0;
 }
 //------------------------------------------------------------------------------------------------------------------------------
@@ -8291,7 +8282,12 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
       const uint64_t amount = td.is_rct() ? 0 : td.amount();
       std::unordered_set<uint64_t> seen_indices;
       // request more for rct in base recent (locked) coinbases are picked, since they're locked for longer
-      size_t requested_outputs_count = base_requested_outputs_count + (td.is_rct() ? CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW - CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE : 0);
+      uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/313;
+      uint64_t unlock_height = td.m_block_height + std::max<uint64_t>(CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE, CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS);
+      if (td.m_tx.unlock_time < CRYPTONOTE_MAX_BLOCK_NUMBER && td.m_tx.unlock_time > unlock_height)
+        unlock_height = td.m_tx.unlock_time;
+      uint64_t blocks_to_unlock = unlock_height > approx_blockchain_height ? unlock_height - approx_blockchain_height : 0;
+      size_t requested_outputs_count = base_requested_outputs_count + (td.is_rct() ? blocks_to_unlock - CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE : 0) + 288;
       size_t start = req.outputs.size();
       bool use_histogram = amount != 0 || !has_rct_distribution;
 
@@ -8607,7 +8603,12 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
     for(size_t idx: selected_transfers)
     {
       const transfer_details &td = m_transfers[idx];
-      size_t requested_outputs_count = base_requested_outputs_count + (td.is_rct() ? CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW - CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE : 0);
+      uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/313;
+      uint64_t unlock_height = td.m_block_height + std::max<uint64_t>(CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE, CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS);
+      if (td.m_tx.unlock_time < CRYPTONOTE_MAX_BLOCK_NUMBER && td.m_tx.unlock_time > unlock_height)
+        unlock_height = td.m_tx.unlock_time;
+      uint64_t blocks_to_unlock = unlock_height > approx_blockchain_height ? unlock_height - approx_blockchain_height : 0;
+      size_t requested_outputs_count = base_requested_outputs_count + (td.is_rct() ? blocks_to_unlock - CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE : 0) + 288;
       outs.push_back(std::vector<get_outs_entry>());
       outs.back().reserve(fake_outputs_count + 1);
       const rct::key mask = td.is_rct() ? rct::commit(td.amount(), td.m_mask) : rct::zeroCommit(td.amount());
@@ -12221,18 +12222,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
 
 uint64_t wallet2::get_approximate_blockchain_height() const
 {
-  // time of v2 fork
-  const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? 1520937818 : 1458748658;
-  // v2 fork block
-  const uint64_t fork_block = m_nettype == TESTNET ? 624634 : m_nettype == STAGENET ? 32000 : 1009827;
-  // avg seconds per block
-  const int seconds_per_block = DIFFICULTY_TARGET_V2;
-  // Calculated blockchain height
-  uint64_t approx_blockchain_height = fork_block + (time(NULL) - fork_time)/seconds_per_block;
-  // testnet got some huge rollbacks, so the estimation is way off
-  static const uint64_t approximate_testnet_rolled_back_blocks = 342100;
-  if (m_nettype == TESTNET && approx_blockchain_height > approximate_testnet_rolled_back_blocks)
-    approx_blockchain_height -= approximate_testnet_rolled_back_blocks;
+  uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/313;
   LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
   return approx_blockchain_height;
 }
@@ -13669,7 +13659,7 @@ std::string wallet2::make_uri(const std::string &address, const std::string &pay
     }
   }
 
-  std::string uri = "monero:" + address;
+  std::string uri = "wownero:" + address;
   unsigned int n_fields = 0;
 
   if (!payment_id.empty())
@@ -13698,13 +13688,13 @@ std::string wallet2::make_uri(const std::string &address, const std::string &pay
 //----------------------------------------------------------------------------------------------------
 bool wallet2::parse_uri(const std::string &uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error)
 {
-  if (uri.substr(0, 7) != "monero:")
+  if (uri.substr(0, 8) != "wownero:")
   {
-    error = std::string("URI has wrong scheme (expected \"monero:\"): ") + uri;
+    error = std::string("URI has wrong scheme (expected \"wownero:\"): ") + uri;
     return false;
   }
 
-  std::string remainder = uri.substr(7);
+  std::string remainder = uri.substr(8);
   const char *ptr = strchr(remainder.c_str(), '?');
   address = ptr ? remainder.substr(0, ptr-remainder.c_str()) : remainder;
 
@@ -13974,10 +13964,6 @@ uint64_t wallet2::get_segregation_fork_height() const
   {
     // All four MoneroPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = {
-        "segheights.moneropulse.org",
-        "segheights.moneropulse.net",
-        "segheights.moneropulse.co",
-        "segheights.moneropulse.se"
     };
 
     const uint64_t current_height = get_blockchain_current_height();

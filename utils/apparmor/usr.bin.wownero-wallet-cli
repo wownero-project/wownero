@@ -1,0 +1,23 @@
+#include <tunables/global>
+
+# Change to wherever you store your wallet files and start wallet from.
+@{WALLET_DIR} = /home/*/Documents/Wownero
+
+profile wownero-wallet-cli /usr/{,local/}bin/wownero-wallet-cli {
+  #include <abstractions/base>
+  #include <abstractions/openssl>
+
+  # TODO: Use <abstractions/nameservice> when it is fixed.
+  /etc/gai.conf r,
+  /etc/host.conf r,
+  /etc/hosts r,
+  /etc/nsswitch.conf r,
+  /etc/resolv.conf r,
+
+  /etc/inputrc r,
+  /etc/terminfo/** r,
+
+  owner /home/*/.wow-shared-ringdb/* rwk,
+  owner @{WALLET_DIR}/* rwk,
+
+}

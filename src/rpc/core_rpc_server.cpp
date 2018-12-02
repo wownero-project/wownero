@@ -60,8 +60,8 @@ using namespace epee;
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "daemon.rpc"
 
-#define MAX_RESTRICTED_FAKE_OUTS_COUNT 40
-#define MAX_RESTRICTED_GLOBAL_FAKE_OUTS_COUNT 5000
+#define MAX_RESTRICTED_FAKE_OUTS_COUNT 8478
+#define MAX_RESTRICTED_GLOBAL_FAKE_OUTS_COUNT 8478
 
 #define OUTPUT_HISTOGRAM_RECENT_CUTOFF_RESTRICTION (3 * 86400) // 3 days max, the wallet requests 1.8 days
 
@@ -1333,15 +1333,15 @@ namespace cryptonote
     if (lMiner.is_mining() || lMiner.get_is_background_mining_enabled())
       res.address = get_account_address_as_str(nettype(), false, lMiningAdr);
     const uint8_t major_version = m_core.get_blockchain_storage().get_current_hard_fork_version();
-    const unsigned variant = major_version >= 7 ? major_version - 6 : 0;
+    const unsigned variant = major_version >= 13 ? 6 : major_version >= 11 && major_version <= 12 ? 4 : 2;
     switch (variant)
     {
       case 0: res.pow_algorithm = "Cryptonight"; break;
       case 1: res.pow_algorithm = "CNv1 (Cryptonight variant 1)"; break;
       case 2: case 3: res.pow_algorithm = "CNv2 (Cryptonight variant 2)"; break;
-      case 4: case 5: res.pow_algorithm = "CNv4 (Cryptonight variant 4)"; break;
-      case 6: case 7: case 8: case 9: res.pow_algorithm = "RandomX"; break;
-      default: res.pow_algorithm = "RandomX"; break; // assumed
+      case 4: case 5: res.pow_algorithm = "CN/WOW"; break;
+      case 6: case 7: case 8: case 9: res.pow_algorithm = "RandomWOW"; break;
+      default: res.pow_algorithm = "RandomWOW"; break; // assumed
     }
     if (res.is_background_mining_enabled)
     {
@@ -1818,6 +1818,7 @@ namespace cryptonote
     }
 
     res.reserved_offset = reserved_offset;
+    res.unlock_height = b.miner_tx.unlock_time;
     store_difficulty(wdiff, res.difficulty, res.wide_difficulty, res.difficulty_top64);
     blobdata block_blob = t_serializable_object_to_blob(b);
     blobdata hashing_blob = get_block_hashing_blob(b);

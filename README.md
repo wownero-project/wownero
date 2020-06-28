@@ -25,7 +25,7 @@ An Android Wallet for Wownero
 - Twitter: [@w0wn3r0](https://twitter.com/w0wn3r0)
 - Reddit: [/r/wownero](https://www.reddit.com/r/wownero)
 - Mail: [wownero@protonmail.com](mailto:wownero@protonmail.com)
-- GitHub: [https://github.com/wownero/wownero](https://github.com/wownero/wownero)
+- GitHub: [https://git.wownero.com/wownero/wownero](https://git.wownero.com/wownero/wownero)
 - IRC: [#wownero on Freenode](https://kiwiirc.com/client/irc.freenode.net/?nick=suchchatter|?#wownero)
 - Bitmessage Chan: wownero (`BM-2cSzWtrj2pzLva9GF1Jp2TYsnLjrnJpvba`)
 - Wownero Funding System: [https://funding.wownero.com](https://funding.wownero.com)
@@ -113,17 +113,17 @@ Packaging for your favorite distribution would be a welcome contribution!
 * Arch Linux/Manjaro
 
         sudo pacman -Syu && sudo pacman -S base-devel cmake boost openssl zeromq libpgm unbound libsodium git
-        git clone https://github.com/wownero/wownero
+        git clone https://git.wownero.com/wownero/wownero
         cd wownero
-        make
+        make -j2
 
 
 * Debian/Ubuntu
 
         sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libpgm-dev git
-        git clone https://github.com/wownero/wownero
+        git clone https://git.wownero.com/wownero/wownero
         cd wownero
-        make
+        make -j2
 
 
 ## Running Binaries
@@ -181,7 +181,7 @@ HiddenServicePort 44568 127.0.0.1:44568
 ./wownero-wallet-cli --proxy 127.0.0.1:9150 --daemon-address wow7dhbgiljnkspkzpjyy66auegbrye2ptfv4gucgbhireg5rrjza5ad.onion:34568
 ```
 
-Use port `9050` instead of `9150` if you installed Tor as a standalone daemon. For more information, check out [ANONYMITY_NETWORKS](https://github.com/wownero/wownero/blob/master/ANONYMITY_NETWORKS.md).
+Use port `9050` instead of `9150` if you installed Tor as a standalone daemon. For more information, check out [ANONYMITY_NETWORKS](https://git.wownero.com/wownero/wownero/src/branch/master/ANONYMITY_NETWORKS.md).
 
 ## Donating to Wownero Project
 

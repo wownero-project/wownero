@@ -33,7 +33,6 @@ prepare() {
   git config submodule.external/unbound.url "$srcdir/unbound"
   git config submodule.external/miniupnp.url "$srcdir/miniupnp"
   git config submodule.external/rapidjson.url "$srcdir/rapidjson"
-  git config submodule.external/trezor-common.url "$srcdir/trezor-common"
   git config submodule.external/RandomWOW.url "$srcdir/RandomWOW"
   git submodule update
 }

@@ -25,15 +25,19 @@ An Android Wallet for Wownero
 - Twitter: [@w0wn3r0](https://twitter.com/w0wn3r0)
 - Reddit: [/r/wownero](https://www.reddit.com/r/wownero)
 - Mail: [wownero@protonmail.com](mailto:wownero@protonmail.com)
-- GitHub: [https://git.wownero.com/wownero/wownero](https://git.wownero.com/wownero/wownero)
+- GitHub: [git.wownero.com/wownero/wownero](https://git.wownero.com/wownero/wownero)
 - IRC: [#wownero on Freenode](https://kiwiirc.com/client/irc.freenode.net/?nick=suchchatter|?#wownero)
 - Bitmessage Chan: wownero (`BM-2cSzWtrj2pzLva9GF1Jp2TYsnLjrnJpvba`)
-- Wownero Funding System: [https://funding.wownero.com](https://funding.wownero.com)
+- Wownero Funding System: [funding.wownero.com](https://funding.wownero.com)
+- Wownero Forum: [forum.wownero.com](https://forum.wownero.com)
+- Discord: [discord.gg/abgaJbN](https://discord.gg/abgaJbN)
+- Telegram: [t.me/wownero](https://t.me/wownero)
 
 Blockchain Explorers
 - https://explore.wownero.com
 - https://explorer.wowkira.com
 - http://wow5eqtzqvsg5jctqzg5g7uk3u62sfqiacj5x6lo4by7bvnj6jkvubyd.onion
+- https://wownero.xmrauctions.com
 
 Free Public Nodes
 - wow7dhbgiljnkspkzpjyy66auegbrye2ptfv4gucgbhireg5rrjza5ad.onion:34568
@@ -41,6 +45,7 @@ Free Public Nodes
 - such.wow.candy.surf:34568 (CAN)
 - very.wow.candy.surf:34568 (IN)
 - much.wow.candy.surf:34568 (UK)
+- node.suchwow.xyz:34568 (US)
 
 Tor Peers
 - wowp2p5gelm6vhl2d5tvfqills63jilgy6hkvlrqljooov5ktaxgqdad.onion

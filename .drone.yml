@@ -1,0 +1,10 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: wow-ci
+  image: wow-dependencies:v1.0
+  commands:
+  - make release-static-linux-x86_64

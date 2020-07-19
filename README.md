@@ -1,3 +1,4 @@
+[![Build Status](https://ci.wownero.com/api/badges/wownero/wownero/status.svg)](https://ci.wownero.com/wownero/wownero)
 # ~~Mo~~Wownero -  Such privacy! Many coins! Wow! 🐕
 
 Copyright (c) 2014-2020 The Monero Project.   

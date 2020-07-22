@@ -449,26 +449,14 @@ namespace cryptonote
     uint8_t minor_version;  // now used as a voting mechanism, rather than how this particular block is built
     uint64_t timestamp;
     crypto::hash  prev_id;
-    uint64_t nonce;
+    uint32_t nonce;
 
     BEGIN_SERIALIZE()
       VARINT_FIELD(major_version)
       VARINT_FIELD(minor_version)
       VARINT_FIELD(timestamp)
       FIELD(prev_id)
-      if (major_version >= HF_VERSION_SHA3_POW)
-      {
-        FIELD(nonce)
-      }
-      else
-      {
-        uint32_t nonce32;
-        if (typename Archive<W>::is_saving())
-          nonce32 = (uint32_t)nonce;
-        FIELD_N("nonce", nonce32);
-        if (!typename Archive<W>::is_saving())
-          nonce = nonce32;
-      }
+      FIELD(nonce)
     END_SERIALIZE()
   };
 

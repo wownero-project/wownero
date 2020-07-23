@@ -163,7 +163,7 @@ namespace rpc
     uint64_t minor_version;
     uint64_t timestamp;
     crypto::hash  prev_id;
-    uint64_t nonce;
+    uint32_t nonce;
     uint64_t height;
     uint64_t depth;
     crypto::hash hash;

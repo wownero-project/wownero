@@ -181,7 +181,7 @@ namespace cryptonote
     return true;
   }
 
-  bool rpc_payment::submit_nonce(const crypto::public_key &client, uint64_t nonce, const crypto::hash &top, int64_t &error_code, std::string &error_message, uint64_t &credits, crypto::hash &hash, cryptonote::block &block, uint32_t cookie, bool &stale)
+  bool rpc_payment::submit_nonce(const crypto::public_key &client, uint32_t nonce, const crypto::hash &top, int64_t &error_code, std::string &error_message, uint64_t &credits, crypto::hash &hash, cryptonote::block &block, uint32_t cookie, bool &stale)
   {
     boost::lock_guard<boost::mutex> lock(mutex);
     client_info &info = m_client_info[client]; // creates if not found
@@ -235,7 +235,7 @@ namespace cryptonote
 
     block = is_current ? info.block : info.previous_block;
     *(uint32_t*)(hashing_blob.data() + 39) = SWAP32LE(nonce);
-    if (block.major_version >= RX_BLOCK_VERSION && block.major_version < HF_VERSION_SHA3_POW)
+    if (block.major_version >= RX_BLOCK_VERSION)
     {
       const uint64_t seed_height = is_current ? info.seed_height : info.previous_seed_height;
       const crypto::hash &seed_hash = is_current ? info.seed_hash : info.previous_seed_hash;

@@ -116,19 +116,23 @@ Packaging for your favorite distribution would be a welcome contribution!
 
 ## Building from Source
 
+* Docker
+
+        git clone https://git.wownero.com/wownero/wownero && cd wownero
+        docker build -t git-wow:master -m 4g .
+        docker run -it -p 34567:34567 -p 34568:34568 -w /home/wownero/build/release/bin git-wow:master bash
+
 * Arch Linux/Manjaro
 
         sudo pacman -Syu && sudo pacman -S base-devel cmake boost openssl zeromq libpgm unbound libsodium git
-        git clone https://git.wownero.com/wownero/wownero
-        cd wownero
+        git clone https://git.wownero.com/wownero/wownero && cd wownero
         make -j2
 
 
 * Debian/Ubuntu
 
         sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libpgm-dev git
-        git clone https://git.wownero.com/wownero/wownero
-        cd wownero
+        git clone https://git.wownero.com/wownero/wownero && cd wownero
         make -j2
 
 

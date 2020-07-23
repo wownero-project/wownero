@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 //
 // All rights reserved.
 //
@@ -1726,6 +1726,7 @@ namespace cryptonote
     m_check_disk_space_interval.do_call(boost::bind(&core::check_disk_space, this));
     m_block_rate_interval.do_call(boost::bind(&core::check_block_rate, this));
     m_blockchain_pruning_interval.do_call(boost::bind(&core::update_blockchain_pruning, this));
+    m_diff_recalc_interval.do_call(boost::bind(&core::recalculate_difficulties, this));
     m_miner.on_idle();
     m_mempool.on_idle();
     return true;
@@ -1961,6 +1962,12 @@ namespace cryptonote
       }
     }
 
+    return true;
+  }
+  //-----------------------------------------------------------------------------------------------
+  bool core::recalculate_difficulties()
+  {
+    m_blockchain_storage.recalculate_difficulties();
     return true;
   }
   //-----------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2014-2020, The Monero Project
 #
 # All rights reserved.
 #
@@ -31,7 +31,7 @@
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 list(INSERT CMAKE_MODULE_PATH 0
-  "${CMAKE_SOURCE_DIR}/cmake")
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 include(CheckLinkerFlag)
@@ -48,7 +48,12 @@ message(STATUS "CMake version ${CMAKE_VERSION}")
 
 project(monero)
 
-include(FindCcache) # Has to be included after the project() macro, to be able to read the CXX variable.
+option (USE_CCACHE "Use ccache if a usable instance is found" ON)
+if (USE_CCACHE)
+	include(FindCcache) # Has to be included after the project() macro, to be able to read the CXX variable.
+else()
+	message(STATUS "ccache deselected")
+endif()
 
 enable_language(C ASM)
 

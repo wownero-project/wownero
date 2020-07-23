@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -24,6 +24,13 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef _WIN32
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#endif
 
 #include "db_lmdb.h"
 
@@ -1287,6 +1294,26 @@ BlockchainLMDB::BlockchainLMDB(bool batch_transactions): BlockchainDB()
   m_hardfork = nullptr;
 }
 
+void BlockchainLMDB::check_mmap_support()
+{
+#ifndef _WIN32
+  const boost::filesystem::path mmap_test_file = m_folder / boost::filesystem::unique_path();
+  int mmap_test_fd = ::open(mmap_test_file.string().c_str(), O_RDWR | O_CREAT, 0600);
+  if (mmap_test_fd < 0)
+    throw0(DB_ERROR((std::string("Failed to check for mmap support: open failed: ") + strerror(errno)).c_str()));
+  epee::misc_utils::auto_scope_leave_caller scope_exit_handler = epee::misc_utils::create_scope_leave_handler([mmap_test_fd, &mmap_test_file]() {
+    ::close(mmap_test_fd);
+    boost::filesystem::remove(mmap_test_file.string());
+  });
+  if (write(mmap_test_fd, "mmaptest", 8) != 8)
+    throw0(DB_ERROR((std::string("Failed to check for mmap support: write failed: ") + strerror(errno)).c_str()));
+  void *mmap_res = mmap(NULL, 8, PROT_READ, MAP_SHARED, mmap_test_fd, 0);
+  if (mmap_res == MAP_FAILED)
+    throw0(DB_ERROR("This filesystem does not support mmap: use --data-dir to place the blockchain on a filesystem which does"));
+  munmap(mmap_res, 8);
+#endif
+}
+
 void BlockchainLMDB::open(const std::string& filename, const int db_flags)
 {
   int result;
@@ -1327,6 +1354,8 @@ void BlockchainLMDB::open(const std::string& filename, const int db_flags)
   }
 
   m_folder = filename;
+
+  check_mmap_support();
 
 #ifdef __OpenBSD__
   if ((mdb_flags & MDB_WRITEMAP) == 0) {
@@ -2748,6 +2777,44 @@ difficulty_type BlockchainLMDB::get_block_difficulty(const uint64_t& height) con
   }
 
   return diff1 - diff2;
+}
+
+void BlockchainLMDB::correct_block_cumulative_difficulties(const uint64_t& start_height, const std::vector<difficulty_type>& new_cumulative_difficulties)
+{
+  LOG_PRINT_L3("BlockchainLMDB::" << __func__);
+  check_open();
+  mdb_txn_cursors *m_cursors = &m_wcursors;
+
+  int result = 0;
+  block_wtxn_start();
+  CURSOR(block_info)
+
+  const uint64_t bc_height = height();
+  if (start_height + new_cumulative_difficulties.size() != bc_height)
+  {
+    block_wtxn_abort();
+    throw0(DB_ERROR("Incorrect new_cumulative_difficulties size"));
+  }
+
+  for (uint64_t height = start_height; height < bc_height; ++height)
+  {
+    MDB_val_set(key, height);
+    result = mdb_cursor_get(m_cur_block_info, (MDB_val *)&zerokval, &key, MDB_GET_BOTH);
+    if (result)
+      throw1(BLOCK_DNE(lmdb_error("Failed to get block info: ", result).c_str()));
+
+    mdb_block_info bi = *(mdb_block_info*)key.mv_data;
+    const difficulty_type d = new_cumulative_difficulties[height - start_height];
+    bi.bi_diff_hi = ((d >> 64) & 0xffffffffffffffff).convert_to<uint64_t>();
+    bi.bi_diff_lo = (d & 0xffffffffffffffff).convert_to<uint64_t>();
+
+    MDB_val_set(key2, height);
+    MDB_val_set(val, bi);
+    result = mdb_cursor_put(m_cur_block_info, &key2, &val, MDB_CURRENT);
+    if (result)
+      throw0(DB_ERROR(lmdb_error("Failed to overwrite block info to db transaction: ", result).c_str()));
+  }
+  block_wtxn_stop();
 }
 
 uint64_t BlockchainLMDB::get_block_already_generated_coins(const uint64_t& height) const

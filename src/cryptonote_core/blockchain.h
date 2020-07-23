@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 //
 // All rights reserved.
 //
@@ -308,6 +308,22 @@ namespace cryptonote
      * @return the target
      */
     difficulty_type get_difficulty_for_next_block();
+
+    /**
+     * @brief check currently stored difficulties against difficulty checkpoints
+     *
+     * @return {flag, height} flag: true if all difficulty checkpoints pass, height: the last checkpoint height before the difficulty drift bug starts
+     */
+    std::pair<bool, uint64_t> check_difficulty_checkpoints() const;
+
+    /**
+     * @brief recalculate difficulties for blocks after the last difficulty checkpoints to circumvent the annoying 'difficulty drift' bug
+     *
+     * @param start_height: if omitted, starts recalculation from the last difficulty checkpoint
+     *
+     * @return number of blocks whose difficulties got corrected
+     */
+    size_t recalculate_difficulties(boost::optional<uint64_t> start_height = boost::none);
 
     /**
      * @brief adds a block to the blockchain

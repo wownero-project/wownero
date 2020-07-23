@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 //
 // All rights reserved.
 //
@@ -1037,6 +1037,16 @@ public:
    * @return the difficulty
    */
   virtual difficulty_type get_block_difficulty(const uint64_t& height) const = 0;
+
+  /**
+   * @brief correct blocks cumulative difficulties that were incorrectly calculated due to the 'difficulty drift' bug
+   *
+   * If the block does not exist, the subclass should throw BLOCK_DNE
+   *
+   * @param start_height the height where the drift starts
+   * @param new_cumulative_difficulties new cumulative difficulties to be stored
+   */
+  virtual void correct_block_cumulative_difficulties(const uint64_t& start_height, const std::vector<difficulty_type>& new_cumulative_difficulties) = 0;
 
   /**
    * @brief fetch a block's already generated coins

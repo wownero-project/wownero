@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -47,7 +47,6 @@
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
 #include "cryptonote_protocol/cryptonote_protocol_handler.inl"
 #include "core_proxy.h"
-#include "version.h"
 
 #if defined(WIN32)
 #include <crtdbg.h>

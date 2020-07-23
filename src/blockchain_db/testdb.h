@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -69,8 +69,8 @@ public:
   virtual cryptonote::blobdata get_block_blob(const crypto::hash& h) const override { return cryptonote::blobdata(); }
   virtual bool get_tx_blob(const crypto::hash& h, cryptonote::blobdata &tx) const override { return false; }
   virtual bool get_pruned_tx_blob(const crypto::hash& h, cryptonote::blobdata &tx) const override { return false; }
-  virtual bool get_pruned_tx_blobs_from(const crypto::hash& h, size_t count, std::vector<cryptonote::blobdata> &bd) const { return false; }
-  virtual bool get_blocks_from(uint64_t start_height, size_t min_count, size_t max_count, size_t max_size, std::vector<std::pair<std::pair<cryptonote::blobdata, crypto::hash>, std::vector<std::pair<crypto::hash, cryptonote::blobdata>>>>& blocks, bool pruned, bool skip_coinbase, bool get_miner_tx_hash) const { return false; }
+  virtual bool get_pruned_tx_blobs_from(const crypto::hash& h, size_t count, std::vector<cryptonote::blobdata> &bd) const override { return false; }
+  virtual bool get_blocks_from(uint64_t start_height, size_t min_count, size_t max_count, size_t max_size, std::vector<std::pair<std::pair<cryptonote::blobdata, crypto::hash>, std::vector<std::pair<crypto::hash, cryptonote::blobdata>>>>& blocks, bool pruned, bool skip_coinbase, bool get_miner_tx_hash) const override { return false; }
   virtual bool get_prunable_tx_blob(const crypto::hash& h, cryptonote::blobdata &tx) const override { return false; }
   virtual bool get_prunable_tx_hash(const crypto::hash& tx_hash, crypto::hash &prunable_hash) const override { return false; }
   virtual uint64_t get_block_height(const crypto::hash& h) const override { return 0; }
@@ -82,6 +82,7 @@ public:
   virtual std::vector<uint64_t> get_block_weights(uint64_t start_height, size_t count) const override { return {}; }
   virtual cryptonote::difficulty_type get_block_cumulative_difficulty(const uint64_t& height) const override { return 10; }
   virtual cryptonote::difficulty_type get_block_difficulty(const uint64_t& height) const override { return 0; }
+  virtual void correct_block_cumulative_difficulties(const uint64_t& start_height, const std::vector<difficulty_type>& new_cumulative_difficulties) override {}
   virtual uint64_t get_block_already_generated_coins(const uint64_t& height) const override { return 10000000000; }
   virtual uint64_t get_block_long_term_weight(const uint64_t& height) const override { return 128; }
   virtual std::vector<uint64_t> get_long_term_block_weights(uint64_t start_height, size_t count) const override { return {}; }

@@ -7,18 +7,18 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 # CyberWOW
 An Android pruned full node for Wownero
 
-[<img src="https://f-droid.org/badge/get-it-on.png"
+[<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/fdroid_badge.png"
       alt="Get it on F-Droid"
       height="80">](https://f-droid.org/en/packages/org.wownero.cyberwow/)
-<a href='https://play.google.com/store/apps/details?id=org.wownero.cyberwow'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height='80'/></a>
+<a href='https://play.google.com/store/apps/details?id=org.wownero.cyberwow'><img alt='Get it on Google Play' src='https://git.wownero.com/wownero/meta/raw/branch/master/images/google_badge.png' height='80'/></a>
 
 # Wownerujo
 An Android Wallet for Wownero
 
-[<img src="https://f-droid.org/badge/get-it-on.png"
+[<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/fdroid_badge.png"
       alt="Get it on F-Droid"
       height="80">](https://f-droid.org/packages/com.wownero.wownerujo/)
-<a href='https://play.google.com/store/apps/details?id=com.wownero.wownerujo'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height='80'/></a>
+<a href='https://play.google.com/store/apps/details?id=com.wownero.wownerujo'><img alt='Get it on Google Play' src='https://git.wownero.com/wownero/meta/raw/branch/master/images/google_badge.png' height='80'/></a>
 
 ## Resources
 
@@ -56,6 +56,38 @@ Tor Peers
 
 Wownero is a privacy-centric memecoin that was fairly launched on April 1, 2018 with no pre-mine, stealth-mine or ICO. Wownero has a maximum supply of around 184 million WOW with a slow and steady emission over 50 years. It is a fork of Monero, but with its own genesis block, so there is no degradation of privacy due to ring signatures using different participants for the same tx outputs on opposing forks.
 
+## Supporting the project
+
+Wownero is a 100% community-sponsored endeavor. Supporting services are also graciously provided by sponsors:
+
+[<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/macstadium.png"
+      alt="MacStadium"
+      height="100">](https://www.macstadium.com)
+
+Developers are volunteers doing this mostly for shits and giggles. If you would like to support our shenanigans and stimulant addictions, please consider donating to [WFS proposals](https://funding.wownero.com/proposals) or the dev slush fund.
+
+Donation Addresses
+
+WOW: `Wo3MWeKwtA918DU4c69hVSNgejdWFCRCuWjShRY66mJkU2Hv58eygJWDJS1MNa2Ge5M1WjUkGHuLqHkweDxwZZU42d16v94mP`
+
+- view key: `e62e40bfd5ca7e3a7f199602a3c97df511780489e1c1861884b00c28abaea406`
+
+XMR: `44SQVPGLufPasUcuUQSZiF5c9BFzjcP8ucDxzzFDgLf1VkCEFaidJ3u2AhSKMhPLKA3jc2iS8wQHFcaigM6fXmo6AnFRn5B`
+
+- view key: `cb83681c31db0c79adf18f25b2a6d05f86db1109385b4928930e2acf49a3ed0b`
+
+BTC: `bc1qcw9zglp3fxyl25zswemw7jczlqryms2lsmu464`
+
+## Release staging and Contributing
+
+**Anyone is welcome to contribute to Wownero's codebase!** 
+
+If you have a fix or code change, feel free to submit it as a pull request. Ahead of a scheduled software upgrade, a development branch will be created with the new release version tag. Pull requests that address bugs should be made to Master. Pull requests that require review and testing (generally, optimizations and new features) should be made to the development branch. All pull requests will be considered safe until the US dollar valuation of 1 Wownero equals $1000. After this valuation has been reached, more research will be needed to introduce experimental cryptography and/or code into the codebase.
+
+Things to Do, Work in Progress, and Help Wanted tasks are tracked in the [Meta](https://git.wownero.com/wownero/meta/issues) repo. 
+
+Join `#wownero-dev` on IRC freenode to participate in development conversation.
+
 ## Scheduled software upgrades
 
 Wownero uses a fixed-schedule software upgrade (hard fork) mechanism to implement new features. This means that users of Wownero (end users and service providers) should run current versions and upgrade their software on a regular schedule. The required software for these upgrades will be available prior to the scheduled date. Please check the repository prior to this date for the proper Wownero software version. Below is the historical schedule and the projected schedule for the next upgrade.
@@ -70,17 +102,12 @@ Dates are provided in the format YYYY-MM-DD.
 | 81,769                          | 2019-02-19 | Erotic EggplantEmoji    | v0.5.0.0               | v0.5.0.2                  | Cryptonight/wow, LWMA v1 with N=144, Updated Bulletproofs, Fee Per Byte, Auto-churn
 | 114,969                          | 2019-06-14 | F For Fappening    | v0.6.1.0               | v0.6.1.2                  | RandomWOW, new block weight algorithm, slightly more efficient RingCT format
 | 160,777                          | 2019-11-20 | Gaping Goatse    | v0.7.0.0               | v0.7.1.0                  | Only allow >= 2 outputs, change to the block median used to calculate penalty, rct sigs in coinbase forbidden, 4 unlock time as protocol rule
-| 288,888                          | 2021-02-08 | Hallucinogenic Hypnotoad  | v0.8.0.0               | v0.8.0.2                  | SHA3-256 PoW, Dandelion++ support
+| -                         | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0               | v0.8.0.2                  | Dandelion++ support
+| XXXX                         | 2020-09-XX | XXXXX  | v0.9.0.0               | v0.9.0.0                  | RandomWOW v2 (WOWv2), increase coinbase unlock to 8,640 (1 mo.), CLSAG
 
 X's indicate that these details have not been determined as of commit date.
 
 \* indicates estimate as of commit date
-
-## Release staging and Contributing
-
-**Anyone is welcome to contribute to Wownero's codebase!** 
-
-If you have a fix or code change, feel free to submit it as a pull request. Ahead of a scheduled software upgrade, a development branch will be created with the new release version tag. Pull requests that address bugs should be made to Master. Pull requests that require review and testing (generally, optimizations and new features) should be made to the development branch. All pull requests will be considered safe until the US dollar valuation of 1 Wownero equals $1000. After this valuation has been reached, more research will be needed to introduce experimental cryptography and/or code into the codebase.  
 
 ## Installing from a package
 
@@ -124,14 +151,14 @@ Packaging for your favorite distribution would be a welcome contribution!
 
 * Arch Linux/Manjaro
 
-        sudo pacman -Syu && sudo pacman -S base-devel cmake boost openssl zeromq libpgm unbound libsodium git
+        sudo pacman -Syu && sudo pacman -S base-devel cmake boost openssl zeromq libpgm unbound libsodium git libusb systemd
         git clone https://git.wownero.com/wownero/wownero && cd wownero
         make -j2
 
 
 * Debian/Ubuntu
 
-        sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libpgm-dev git
+        sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev libpgm-dev libhidapi-dev libusb-1.0-0-dev libprotobuf-dev protobuf-compiler libudev-dev git -y
         git clone https://git.wownero.com/wownero/wownero && cd wownero
         make -j2
 
@@ -192,13 +219,3 @@ HiddenServicePort 44568 127.0.0.1:44568
 ```
 
 Use port `9050` instead of `9150` if you installed Tor as a standalone daemon. For more information, check out [ANONYMITY_NETWORKS](https://git.wownero.com/wownero/wownero/src/branch/master/ANONYMITY_NETWORKS.md).
-
-## Donating to Wownero Project
-
-Developers are volunteers doing this mostly for shits and giggles. If you would like to support our shenanigans and stimulant addictions, please consider donating to [WFS proposals](https://funding.wownero.com/proposals) or the [dev slush fund](https://dev-funding.webui.wowkira.com).
-
-Donations may also be sent to: 
-
-XMR: `44SQVPGLufPasUcuUQSZiF5c9BFzjcP8ucDxzzFDgLf1VkCEFaidJ3u2AhSKMhPLKA3jc2iS8wQHFcaigM6fXmo6AnFRn5B`
-
-BTC: `bc1qcw9zglp3fxyl25zswemw7jczlqryms2lsmu464`

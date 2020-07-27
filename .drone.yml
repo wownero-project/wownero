@@ -1,10 +1,10 @@
 ---
 kind: pipeline
 type: docker
-name: default
+name: linux-build
 
 steps:
-- name: wow-ci
-  image: wow-dependencies:v1.0
+- name: linux-build
+  image: wownero/wow-dependencies:v1.0
   commands:
   - make -j2 release-static-linux-x86_64

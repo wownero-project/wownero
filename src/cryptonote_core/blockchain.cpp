@@ -1358,6 +1358,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   if (m_nettype == TESTNET) {
     return next_difficulty_test(timestamps, cumulative_difficulties, T, N, HEIGHT);
   }
+  return next_difficulty(timestamps, cumulative_difficulties, target);
 }
 //------------------------------------------------------------------
 // This function does a sanity check on basic things that all miner

@@ -167,7 +167,15 @@ namespace cryptonote
       tx.version = 1;
 
     //lock
-    tx.unlock_time = height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
+    if (hard_fork_version >= HF_VERSION_DYNAMIC_UNLOCK)
+    {
+      crypto::public_key tx_pub_key = get_tx_pub_key_from_extra(tx);
+      std::string hex_str = epee::string_tools::pod_to_hex(tx_pub_key).substr(0, 3);
+      uint64_t unlock_window = (std::stol(hex_str,nullptr,16) * 2) + 288;
+      tx.unlock_time = height + unlock_window;
+    } else {
+      tx.unlock_time = height + 60;
+    }
     tx.vin.push_back(in);
 
     tx.invalidate_hashes();

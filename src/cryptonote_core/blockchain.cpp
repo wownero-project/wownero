@@ -1384,7 +1384,28 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
     return false;
   }
   MDEBUG("Miner tx hash: " << get_transaction_hash(b.miner_tx));
-  CHECK_AND_ASSERT_MES(b.miner_tx.unlock_time == height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW, false, "coinbase transaction transaction has the wrong unlock time=" << b.miner_tx.unlock_time << ", expected " << height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW);
+
+  // Dynamic unlock time from HF 16
+  // To calculate unlock window, use first 3 characters of tx public key (convert to decimal), multiply by 2, plus 288
+  // Unlock minimum 1 day, maximum ~1 month
+  // unlock time = unlock_window + height
+  if (hf_version >= HF_VERSION_DYNAMIC_UNLOCK)
+  {
+    crypto::public_key tx_pub_key = cryptonote::get_tx_pub_key_from_extra(b.miner_tx);
+    std::string hex_str = epee::string_tools::pod_to_hex(tx_pub_key).substr(0, 3);
+    uint64_t unlock_window = (std::stol(hex_str,nullptr,16) * 2) + 288;
+    if (b.miner_tx.unlock_time != height + unlock_window) {
+      MWARNING("Coinbase transaction has the wrong unlock time=" << b.miner_tx.unlock_time << ", expected " << height + unlock_window << 
+        ", unlock window based on first 3 characters of transaction public key, multiply by 2, plus 288.");
+      return false;
+    }
+    LOG_PRINT_L1("+++++ MINER TX UNLOCK TIME INFO\n" << "Height: " << height << ", Unlock window: " << unlock_window << ", Unlock time: " << b.miner_tx.unlock_time << 
+      "\nMiner TX:\t" << get_transaction_hash(b.miner_tx) << "\nTX Pub Key:\t" << tx_pub_key << 
+      "\nHex: " << hex_str << ", Decimal: " << std::stol(hex_str,nullptr,16));
+  } else {
+    CHECK_AND_ASSERT_MES(b.miner_tx.unlock_time == height + 60, false, "coinbase transaction transaction has the wrong unlock time=" 
+      << b.miner_tx.unlock_time << ", expected " << height + 60);
+  }
 
   //check outs overflow
   //NOTE: not entirely sure this is necessary, given that this function is

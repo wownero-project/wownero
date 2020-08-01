@@ -171,7 +171,10 @@ namespace cryptonote
     {
       crypto::public_key tx_pub_key = get_tx_pub_key_from_extra(tx);
       std::string hex_str = epee::string_tools::pod_to_hex(tx_pub_key).substr(0, 3);
-      uint64_t unlock_window = (std::stol(hex_str,nullptr,16) * 2) + 288;
+      uint64_t pub_key_num = std::stol(hex_str,nullptr,16) * 2;
+      uint64_t coin_gen_num = already_generated_coins % 1000;
+      uint64_t h_num = height % 100;
+      uint64_t unlock_window = pub_key_num + coin_gen_num + h_num + 288;
       tx.unlock_time = height + unlock_window;
     } else {
       tx.unlock_time = height + 60;

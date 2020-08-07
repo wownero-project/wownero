@@ -1386,25 +1386,25 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
   MDEBUG("Miner tx hash: " << get_transaction_hash(b.miner_tx));
 
   // Dynamic unlock time from HF 16
-  // To calculate unlock window, use first 3 characters of tx public key (convert hex to decimal), 
-  // multiply by 2, plus last 3 numbers of already_generated_coins, plus last numbers of block height, plus 288
-  // Unlock minimum 1 day (288 blocks), maximum is ~33 days ((4095*2)+999+99+288 = 9576 blocks)
+  // To calculate unlock window, get the block hash at height-1337, convert the 
+  // first 3 characters from hexadecimal to decimal, multiply by 2, and then add 288.
+  // Unlock minimum 1 day (288 blocks), maximum is ~29 days ((4095*2)+288 = 8478 blocks)
   // unlock time = unlock_window + height
   if (hf_version >= HF_VERSION_DYNAMIC_UNLOCK)
   {
-    crypto::public_key tx_pub_key = cryptonote::get_tx_pub_key_from_extra(b.miner_tx);
-    std::string hex_str = epee::string_tools::pod_to_hex(tx_pub_key).substr(0, 3);
-    uint64_t pub_key_num = std::stol(hex_str,nullptr,16) * 2;
-    uint64_t coin_gen_num = m_db->get_block_already_generated_coins(height - 1) % 1000;
-    uint64_t h_num = height % 100;
-    uint64_t unlock_window = pub_key_num + coin_gen_num + h_num + 288;
+    crypto::hash blk_id = get_block_id_by_height(height-1337);
+    std::string hex_str = epee::string_tools::pod_to_hex(blk_id).substr(0, 3);
+    uint64_t blk_num = std::stol(hex_str,nullptr,16)*2;
+    uint64_t unlock_window = blk_num + 288;
+
     if (b.miner_tx.unlock_time != height + unlock_window) {
       MWARNING("Coinbase transaction has the wrong unlock time=" << b.miner_tx.unlock_time << ", expected " << height + unlock_window);
       return false;
     }
-    LOG_PRINT_L1("+++++ MINER TX UNLOCK TIME INFO\n" << "Height: " << height << ", Unlock window: " << unlock_window << ", Unlock time: " << b.miner_tx.unlock_time << 
-      "\nMiner TX:\t" << get_transaction_hash(b.miner_tx) << "\nTX Pub Key:\t" << tx_pub_key << 
-      "\nPub Key Num: " << pub_key_num << ", Coin Gen Num: " << coin_gen_num << ", Height Num: " << h_num);
+    LOG_PRINT_L1("+++++ MINER TX UNLOCK TIME INFO" << 
+      "\nHeight: " << height << ", Unlock window: " << unlock_window << ", Unlock time: " << b.miner_tx.unlock_time << 
+      "\nblk_height: " << height-1337 << ", blk_id: " << blk_id << 
+      "\nhex_str: " << hex_str << ", blk_num: " << blk_num);
   } else {
     CHECK_AND_ASSERT_MES(b.miner_tx.unlock_time == height + 60, false, "coinbase transaction transaction has the wrong unlock time=" 
       << b.miner_tx.unlock_time << ", expected " << height + 60);
@@ -1746,7 +1746,7 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
   //make blocks coin-base tx looks close to real coinbase tx to get truthful blob weight
   uint8_t hf_version = b.major_version;
   size_t max_outs = hf_version >= 4 ? 1 : 11;
-  bool r = construct_miner_tx(height, median_weight, already_generated_coins, txs_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
+  bool r = construct_miner_tx(this, height, median_weight, already_generated_coins, txs_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
   CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, first chance");
   size_t cumulative_weight = txs_weight + get_transaction_weight(b.miner_tx);
 #if defined(DEBUG_CREATE_BLOCK_TEMPLATE)
@@ -1755,7 +1755,7 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
 #endif
   for (size_t try_count = 0; try_count != 10; ++try_count)
   {
-    r = construct_miner_tx(height, median_weight, already_generated_coins, cumulative_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
+    r = construct_miner_tx(this, height, median_weight, already_generated_coins, cumulative_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
 
     CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, second chance");
     size_t coinbase_weight = get_transaction_weight(b.miner_tx);

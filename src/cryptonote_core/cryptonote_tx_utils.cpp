@@ -76,7 +76,7 @@ namespace cryptonote
     LOG_PRINT_L2("destinations include " << num_stdaddresses << " standard addresses and " << num_subaddresses << " subaddresses");
   }
   //---------------------------------------------------------------
-  bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
+  bool construct_miner_tx(const Blockchain *pb, size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
     tx.vin.clear();
     tx.vout.clear();
     tx.extra.clear();
@@ -169,12 +169,10 @@ namespace cryptonote
     //lock
     if (hard_fork_version >= HF_VERSION_DYNAMIC_UNLOCK)
     {
-      crypto::public_key tx_pub_key = get_tx_pub_key_from_extra(tx);
-      std::string hex_str = epee::string_tools::pod_to_hex(tx_pub_key).substr(0, 3);
-      uint64_t pub_key_num = std::stol(hex_str,nullptr,16) * 2;
-      uint64_t coin_gen_num = already_generated_coins % 1000;
-      uint64_t h_num = height % 100;
-      uint64_t unlock_window = pub_key_num + coin_gen_num + h_num + 288;
+      crypto::hash blk_id = pb->get_block_id_by_height(height-1337);
+      std::string hex_str = epee::string_tools::pod_to_hex(blk_id).substr(0, 3);
+      uint64_t blk_num = std::stol(hex_str,nullptr,16)*2;
+      uint64_t unlock_window = blk_num + 288;
       tx.unlock_time = height + unlock_window;
     } else {
       tx.unlock_time = height + 60;

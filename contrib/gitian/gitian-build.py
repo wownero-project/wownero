@@ -5,8 +5,8 @@ import os
 import subprocess
 import sys
 
-gsigs = 'https://github.com/wownero/gitian.sigs.git'
-gbrepo = 'https://github.com/wownero/gitian-builder.git'
+gsigs = 'https://git.wownero.com/qvqc/gitian.sigs.git'
+gbrepo = 'https://git.wownero.com/qvqc/gitian-builder.git'
 
 platforms = {'l': ['Linux', 'linux', 'tar.bz2'],
         'a': ['Android', 'android', 'tar.bz2'],

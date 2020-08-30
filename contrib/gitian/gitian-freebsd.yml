@@ -32,7 +32,7 @@ packages:
 - "libprotobuf-dev"
 - "python3-zmq"
 remotes:
-- "url": "https://git.wownero.com/qvqc/wownero.git"
+- "url": "https://git.wownero.com/wownero/wownero.git"
   "dir": "wownero"
 files: []
 script: |

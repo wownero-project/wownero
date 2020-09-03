@@ -41,12 +41,11 @@ Blockchain Explorers
 - https://wownero.xmrauctions.com
 
 Free Public Nodes
-- wow7dhbgiljnkspkzpjyy66auegbrye2ptfv4gucgbhireg5rrjza5ad.onion:34568
-- so.wow.candy.surf:34568 (US)
-- such.wow.candy.surf:34568 (CAN)
-- very.wow.candy.surf:34568 (IN)
-- much.wow.candy.surf:34568 (UK)
-- node.suchwow.xyz:34568 (US)
+- global.wownodes.com:34568 (Global)
+- node.suchwow.xyz:34568    (US)
+- wow.pwned.systems:34568   (NL)
+- wowbux.org:34568          (CA)
+- wowbuxx535x4exuexja2xfezpwcyznxkofui4ndjiectj4yuh2xheiid.onion:34568
 
 Tor Peers
 - wowp2p5gelm6vhl2d5tvfqills63jilgy6hkvlrqljooov5ktaxgqdad.onion

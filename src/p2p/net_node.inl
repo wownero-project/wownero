@@ -619,11 +619,13 @@ namespace nodetool
     }
     else
     {
-      full_addrs.insert("138.197.199.19:34567");
-      full_addrs.insert("165.22.116.169:34567");
-      full_addrs.insert("139.59.4.6:34567");
-      full_addrs.insert("158.69.60.225:34567");
-      full_addrs.insert("159.65.91.59:34567");
+      full_addrs.insert("158.69.60.225:34567");   //  OVH France
+      full_addrs.insert("159.65.91.59:34567");    //  DigiO london
+      full_addrs.insert("164.90.230.176:34567");  //  de1.wownodes.com
+      full_addrs.insert("64.227.81.144:34567");   //  us1.wownodes.com
+      full_addrs.insert("188.166.237.187:34567"); //  sg1.wownodes.com      
+      full_addrs.insert("54.185.62.197:34567");   //  node.suchwow.xyz
+      full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
     }
     return full_addrs;
   }

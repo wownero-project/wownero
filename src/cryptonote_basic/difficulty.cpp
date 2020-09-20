@@ -401,7 +401,7 @@ namespace cryptonote {
   difficulty_type next_difficulty_test(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, uint64_t T, uint64_t N, uint64_t HEIGHT) {
     assert(timestamps.size() == cumulative_difficulties.size() && timestamps.size() <= N+1 );
 
-    if (HEIGHT < N) { return 1337; }
+    if (HEIGHT < N) { return 100; }
     assert(timestamps.size() == N+1);
 
     uint64_t  L(0), next_D, i, this_timestamp(0), previous_timestamp(0), avg_D;

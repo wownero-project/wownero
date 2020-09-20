@@ -1020,14 +1020,15 @@ size_t Blockchain::recalculate_difficulties(boost::optional<uint64_t> start_heig
   const uint64_t start_height = start_height_opt ? *start_height_opt : check_difficulty_checkpoints().second;
   const uint64_t top_height = m_db->height() - 1;
   MGINFO("Recalculating difficulties from height " << start_height << " to height " << top_height);
-
+  uint8_t version = get_current_hard_fork_version();
+  uint64_t difficulty_blocks_count = version >= 11 ? DIFFICULTY_BLOCKS_COUNT_V3 : version <= 10 && version >= 8 ? DIFFICULTY_BLOCKS_COUNT_V2 : DIFFICULTY_BLOCKS_COUNT;
   std::vector<uint64_t> timestamps;
   std::vector<difficulty_type> difficulties;
-  timestamps.reserve(DIFFICULTY_BLOCKS_COUNT + 1);
-  difficulties.reserve(DIFFICULTY_BLOCKS_COUNT + 1);
+  timestamps.reserve(difficulty_blocks_count + 1);
+  difficulties.reserve(difficulty_blocks_count + 1);
   if (start_height > 1)
   {
-    for (uint64_t i = 0; i < DIFFICULTY_BLOCKS_COUNT; ++i)
+    for (uint64_t i = 0; i < difficulty_blocks_count; ++i)
     {
       uint64_t height = start_height - 1 - i;
       if (height == 0)
@@ -1070,9 +1071,9 @@ size_t Blockchain::recalculate_difficulties(boost::optional<uint64_t> start_heig
       timestamps.push_back(m_db->get_block_timestamp(height));
       difficulties.push_back(recalculated_cum_diff);
     }
-    if (timestamps.size() > DIFFICULTY_BLOCKS_COUNT)
+    if (timestamps.size() > difficulty_blocks_count)
     {
-      CHECK_AND_ASSERT_THROW_MES(timestamps.size() == DIFFICULTY_BLOCKS_COUNT + 1, "Wrong timestamps size: " << timestamps.size());
+      CHECK_AND_ASSERT_THROW_MES(timestamps.size() == difficulty_blocks_count + 1, "Wrong timestamps size: " << timestamps.size());
       timestamps.erase(timestamps.begin());
       difficulties.erase(difficulties.begin());
     }
@@ -3937,15 +3938,18 @@ uint64_t Blockchain::get_adjusted_time(uint64_t height) const
 {
   LOG_PRINT_L3("Blockchain::" << __func__);
 
+  uint8_t version = get_current_hard_fork_version();
+  size_t blockchain_timestamp_check_window = version >= 10 ? BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V2 : BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW;
+  
   // if not enough blocks, no proper median yet, return current time
-  if(height < BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW)
+  if(height < blockchain_timestamp_check_window)
   {
       return static_cast<uint64_t>(time(NULL));
   }
   std::vector<uint64_t> timestamps;
 
   // need most recent 60 blocks, get index of first of those
-  size_t offset = height - BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW;
+  size_t offset = height - blockchain_timestamp_check_window;
   timestamps.reserve(height - offset);
   for(;offset < height; ++offset)
   {
@@ -3955,7 +3959,7 @@ uint64_t Blockchain::get_adjusted_time(uint64_t height) const
 
   // project the median to match approximately when the block being validated will appear
   // the median is calculated from a chunk of past blocks, so we use +1 to offset onto the current block
-  median_ts += (BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW + 1) * DIFFICULTY_TARGET_V2 / 2;
+  median_ts += (blockchain_timestamp_check_window + 1) * DIFFICULTY_TARGET_V2 / 2;
 
   // project the current block's time based on the previous block's time
   // we don't use the current block's time directly to mitigate timestamp manipulation

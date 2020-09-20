@@ -1398,7 +1398,8 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
   // unlock time = unlock_window + height
   if (hf_version >= HF_VERSION_DYNAMIC_UNLOCK)
   {
-    crypto::hash blk_id = get_block_id_by_height(height-1337);
+    uint64_t N = m_nettype == MAINNET ? 1337 : 5;
+    crypto::hash blk_id = get_block_id_by_height(height-N);
     std::string hex_str = epee::string_tools::pod_to_hex(blk_id).substr(0, 3);
     uint64_t blk_num = std::stol(hex_str,nullptr,16)*2;
     uint64_t unlock_window = blk_num + 288;
@@ -1409,7 +1410,7 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
     }
     LOG_PRINT_L1("+++++ MINER TX UNLOCK TIME INFO" << 
       "\nHeight: " << height << ", Unlock window: " << unlock_window << ", Unlock time: " << b.miner_tx.unlock_time << 
-      "\nblk_height: " << height-1337 << ", blk_id: " << blk_id << 
+      "\nblk_height: " << height-N << ", blk_id: " << blk_id << 
       "\nhex_str: " << hex_str << ", blk_num: " << blk_num);
   } else {
     CHECK_AND_ASSERT_MES(b.miner_tx.unlock_time == height + 60, false, "coinbase transaction transaction has the wrong unlock time=" 
@@ -1786,7 +1787,7 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
   //make blocks coin-base tx looks close to real coinbase tx to get truthful blob weight
   uint8_t hf_version = b.major_version;
   size_t max_outs = hf_version >= 4 ? 1 : 11;
-  bool r = construct_miner_tx(this, height, median_weight, already_generated_coins, txs_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
+  bool r = construct_miner_tx(this, m_nettype, height, median_weight, already_generated_coins, txs_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
   CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, first chance");
   size_t cumulative_weight = txs_weight + get_transaction_weight(b.miner_tx);
 #if defined(DEBUG_CREATE_BLOCK_TEMPLATE)
@@ -1795,7 +1796,7 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
 #endif
   for (size_t try_count = 0; try_count != 10; ++try_count)
   {
-    r = construct_miner_tx(this, height, median_weight, already_generated_coins, cumulative_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
+    r = construct_miner_tx(this, m_nettype, height, median_weight, already_generated_coins, cumulative_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
 
     CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, second chance");
     size_t coinbase_weight = get_transaction_weight(b.miner_tx);

@@ -1,21 +1,19 @@
 [submodule "external/unbound"]
 	path = external/unbound
-	url = https://github.com/monero-project/unbound
+	url = https://git.wownero.com/wownero/unbound
 	branch = monero
 [submodule "external/miniupnp"]
 	path = external/miniupnp
-	url = https://github.com/monero-project/miniupnp
+	url = https://git.wownero.com/wownero/miniupnp
 	branch = monero
 [submodule "external/rapidjson"]
 	path = external/rapidjson
-	url = https://github.com/Tencent/rapidjson
-[submodule "external/trezor-common"]
-	path = external/trezor-common
-	url = https://github.com/trezor/trezor-common.git
-[submodule "external/randomx"]
-	path = external/randomx
-	url = https://github.com/tevador/RandomX
+	url = https://git.wownero.com/wownero/rapidjson
+[submodule "external/RandomWOW"]
+	path = external/RandomWOW
+	url = https://git.wownero.com/wownero/RandomWOW
+        branch = 1.1.8-wow
 [submodule "external/supercop"]
 	path = external/supercop
-	url = https://github.com/monero-project/supercop
+	url = https://git.wownero.com/wownero/supercop
 	branch = monero

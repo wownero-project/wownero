@@ -946,37 +946,31 @@ start:
   uint64_t N = DIFFICULTY_WINDOW_V3;
   uint64_t HEIGHT = m_db->height();
 
-  difficulty_type diff = next_difficulty(timestamps, difficulties, target);
+  difficulty_type diff = next_difficulty(timestamps, m_nettype, difficulties, target, HEIGHT);
 
-  if (m_nettype == MAINNET) {
-    if (version >= 11) {
-      diff = next_difficulty_v5(timestamps, difficulties, T, N, HEIGHT);
-    } else if (version == 10) {
-      diff = next_difficulty_v4(timestamps, difficulties, height);
-    } else if (version == 9) {
-      diff = next_difficulty_v3(timestamps, difficulties);
-    } else if (version == 8) {
-      diff = next_difficulty_v2(timestamps, difficulties, target);
-    } else {
-      diff = next_difficulty(timestamps, difficulties, target);
-    }
-  }
-
-  if (m_nettype == TESTNET) {
-    diff = next_difficulty_test(timestamps, difficulties, T, N, HEIGHT);
+  if (version >= 11) {
+    diff = next_difficulty_v5(timestamps, m_nettype, difficulties, T, N, HEIGHT);
+  } else if (version == 10) {
+    diff = next_difficulty_v4(timestamps, m_nettype, difficulties, HEIGHT);
+  } else if (version == 9) {
+    diff = next_difficulty_v3(timestamps, m_nettype, difficulties, HEIGHT);
+  } else if (version == 8) {
+    diff = next_difficulty_v2(timestamps, m_nettype, difficulties, target, HEIGHT);
+  } else {
+    diff = next_difficulty(timestamps, m_nettype, difficulties, target, HEIGHT);
   }
 
   CRITICAL_REGION_LOCAL1(m_difficulty_lock);
   m_difficulty_for_next_block_top_hash = top_hash;
   m_difficulty_for_next_block = diff;
-  if (D && D != diff)
+  if (D && D != diff && m_nettype == MAINNET)
   {
     ss << "XXX Mismatch at " << height << "/" << top_hash << "/" << get_tail_id() << ": cached " << D << ", real " << diff << std::endl;
     print = true;
   }
 
   ++done;
-  if (done == 1 && D && D != diff)
+  if (done == 1 && D && D != diff && m_nettype == MAINNET)
   {
     print = true;
     ss << "Might be a race. Let's see what happens if we try again..." << std::endl;
@@ -984,12 +978,12 @@ start:
     goto start;
   }
   ss << "Diff for " << top_hash << ": " << diff << std::endl;
-  if (print)
+  if (print && m_nettype == MAINNET)
   {
     MGINFO("START DUMP");
     MGINFO(ss.str());
     MGINFO("END DUMP");
-    MGINFO("Please send moneromooo on Freenode the contents of this log, from a couple dozen lines before START DUMP to END DUMP");
+    MGINFO("Please send wowario on Freenode #wownero-dev the contents of this log, from a couple dozen lines before START DUMP to END DUMP");
   }
   return diff;
 }
@@ -1041,8 +1035,23 @@ size_t Blockchain::recalculate_difficulties(boost::optional<uint64_t> start_heig
   std::vector<difficulty_type> new_cumulative_difficulties;
   for (uint64_t height = start_height; height <= top_height; ++height)
   {
+    uint64_t T = DIFFICULTY_TARGET_V2;
+    uint64_t N = DIFFICULTY_WINDOW_V3;
+    uint64_t HEIGHT = m_db->height();
     size_t target = get_ideal_hard_fork_version(height) < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
-    difficulty_type recalculated_diff = next_difficulty(timestamps, difficulties, target);
+    difficulty_type recalculated_diff = next_difficulty(timestamps, m_nettype, difficulties, target, HEIGHT);
+    
+    if (version >= 11) {
+      recalculated_diff = next_difficulty_v5(timestamps, m_nettype, difficulties, T, N, HEIGHT);
+    } else if (version == 10) {
+      recalculated_diff = next_difficulty_v4(timestamps, m_nettype, difficulties, HEIGHT);
+    } else if (version == 9) {
+      recalculated_diff = next_difficulty_v3(timestamps, m_nettype, difficulties, HEIGHT);
+    } else if (version == 8) {
+      recalculated_diff = next_difficulty_v2(timestamps, m_nettype, difficulties, target, HEIGHT);
+    } else {
+      recalculated_diff = next_difficulty(timestamps, m_nettype, difficulties, target, HEIGHT);
+    }
 
     boost::multiprecision::uint256_t recalculated_cum_diff_256 = boost::multiprecision::uint256_t(recalculated_diff) + last_cum_diff;
     CHECK_AND_ASSERT_THROW_MES(recalculated_cum_diff_256 <= std::numeric_limits<difficulty_type>::max(), "Difficulty overflow!");
@@ -1346,24 +1355,18 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   uint64_t HEIGHT = m_db->height();
 
   // calculate the difficulty target for the block and return it
-  if (m_nettype == MAINNET) {
-    if (version >= 11) {
-      return next_difficulty_v5(timestamps, cumulative_difficulties, T, N, HEIGHT);
-    } else if (version == 10) {
-      return next_difficulty_v4(timestamps, cumulative_difficulties, height);
-    } else if (version == 9) {
-      return next_difficulty_v3(timestamps, cumulative_difficulties);
-    } else if (version == 8) {
-      return next_difficulty_v2(timestamps, cumulative_difficulties, target);
-    } else {
-      return next_difficulty(timestamps, cumulative_difficulties, target);
-    }
+  if (version >= 11) {
+    return next_difficulty_v5(timestamps, m_nettype, cumulative_difficulties, T, N, HEIGHT);
+  } else if (version == 10) {
+    return next_difficulty_v4(timestamps, m_nettype, cumulative_difficulties, HEIGHT);
+  } else if (version == 9) {
+    return next_difficulty_v3(timestamps, m_nettype, cumulative_difficulties, HEIGHT);
+  } else if (version == 8) {
+    return next_difficulty_v2(timestamps, m_nettype, cumulative_difficulties, target, HEIGHT);
+  } else {
+    return next_difficulty(timestamps, m_nettype, cumulative_difficulties, target, HEIGHT);
   }
-
-  if (m_nettype == TESTNET) {
-    return next_difficulty_test(timestamps, cumulative_difficulties, T, N, HEIGHT);
-  }
-  return next_difficulty(timestamps, cumulative_difficulties, target);
+  return next_difficulty(timestamps, m_nettype, cumulative_difficulties, target, HEIGHT);
 }
 //------------------------------------------------------------------
 // This function does a sanity check on basic things that all miner

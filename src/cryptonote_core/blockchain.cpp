@@ -1035,6 +1035,7 @@ size_t Blockchain::recalculate_difficulties(boost::optional<uint64_t> start_heig
   std::vector<difficulty_type> new_cumulative_difficulties;
   for (uint64_t height = start_height; height <= top_height; ++height)
   {
+    uint8_t version = get_current_hard_fork_version();
     uint64_t T = DIFFICULTY_TARGET_V2;
     uint64_t N = DIFFICULTY_WINDOW_V3;
     uint64_t HEIGHT = m_db->height();

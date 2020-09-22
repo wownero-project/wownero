@@ -1773,6 +1773,7 @@ namespace cryptonote
     }
 
     res.reserved_offset = reserved_offset;
+    res.unlock_height = b.miner_tx.unlock_time;
     store_difficulty(wdiff, res.difficulty, res.wide_difficulty, res.difficulty_top64);
     blobdata block_blob = t_serializable_object_to_blob(b);
     blobdata hashing_blob = get_block_hashing_blob(b);

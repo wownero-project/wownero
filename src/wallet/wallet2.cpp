@@ -4726,7 +4726,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
    // avg seconds per block
    const int seconds_per_block = DIFFICULTY_TARGET_V2;
    // ~num blocks per month
-   const uint64_t blocks_per_month = 60*60*24*30/seconds_per_block;
+   const uint64_t blocks_per_month = 288*30;
 
    // try asking the daemon first
    std::string err;
@@ -12113,7 +12113,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
 
 uint64_t wallet2::get_approximate_blockchain_height() const
 {
-  uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/317;
+  uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/315;
   LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
   return approx_blockchain_height;
 }

@@ -182,6 +182,17 @@ namespace cryptonote
   {
     if (nettype == TESTNET)
     {
+    ADD_CHECKPOINT2(1,   "c47b8effcc84e22ddd1b876d059c8fbd3e26e4bdffb6bed8b8f4fe283104a7af", "0x2");
+    ADD_CHECKPOINT2(5,   "292add330f6cf5f3845dc4cd2f28ce8d211dd487ddcfe1b5d1d545d7b90ff7d1", "0x5df");  //Hard fork to v8
+    ADD_CHECKPOINT2(10,  "fbdf7d812aa6dd4c5915aadcbf023e722eab1d8ad47c24a230634e688d314798", "0xfa3");  //Hard fork to v9
+    ADD_CHECKPOINT2(15,  "9b86e40b959d7cfe75366686dfd2657699e85b8c658aa8c20b23f7bc01b38af0", "0x1967"); //Hard fork to v10
+    ADD_CHECKPOINT2(20,  "8f65c309ba3ed2bf25df2b7d91e1db40c864230aa3caaf823db81bc19e0bd6a3", "0x232b"); //Hard fork to v11
+    ADD_CHECKPOINT2(25,  "35f2957fdba45d5421561ba2f126a61ec0101b5c2eb79b9e296310acbbdbbe58", "0x2cef"); //Hard fork to v12
+    ADD_CHECKPOINT2(30,  "32cc5aacce8bea10ae869313e194ba51a30720810f3665433ffeea2818938429", "0x36b3"); //Hard fork to v13
+    ADD_CHECKPOINT2(35,  "7f1cdd2c4a6002772343ad9de6c5dba743a0be1d326a6f63924511f08b15863a", "0x4077"); //Hard fork to v14
+    ADD_CHECKPOINT2(40,  "63cf4f703489a881baf63bacd6a3af2b5bde79b558ce123e97313890be6f747f", "0x4a3b"); //Hard fork to v15
+    ADD_CHECKPOINT2(45,  "65da4c966ae02983c6c8b7ab9b959df612863c379c5e48669061cbbb1e02a3ab", "0x53ff"); //Hard fork to v16
+    ADD_CHECKPOINT2(50,  "8c68a444b6743a14152f130357be9751e42e82a84f69f25320eda532a830c7b0", "0x5dc3"); //Hard fork to v17
       return true;
     }
     if (nettype == STAGENET)

@@ -1,5 +1,5 @@
 ---
-name: "monero-linux-0.17"
+name: "wownero-linux-0.9"
 enable_cache: true
 suites:
 - "bionic"
@@ -43,13 +43,13 @@ packages:
 - "libprotobuf-dev"
 - "python3-zmq"
 remotes:
-- "url": "https://github.com/monero-project/monero.git"
-  "dir": "monero"
+- "url": "https://git.wownero.com/wownero/wownero.git"
+  "dir": "wownero"
 files: []
 script: |
 
   WRAP_DIR=$HOME/wrapped
-  HOSTS="x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu i686-linux-gnu"
+  HOSTS="x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu"
   FAKETIME_HOST_PROGS=""
   FAKETIME_PROGS="date"
   HOST_CFLAGS="-O2 -g"
@@ -115,7 +115,7 @@ script: |
   export SOURCE_DATE_EPOCH=`date -d 2000-01-01T12:00:00 +%s`
 
   git config --global core.abbrev 9
-  cd monero
+  cd wownero
   # Set the version string that gets added to the tar archive name
   version="`git describe`"
   if [[ $version == *"-"*"-"* ]]; then
@@ -164,7 +164,7 @@ script: |
     chmod 755 bin/*
     cp ../LICENSE bin
     chmod 644 bin/LICENSE
-    DISTNAME=monero-${i}-${version}
+    DISTNAME=wownero-${i}-${version}
     mv bin ${DISTNAME}
     find ${DISTNAME}/ | sort | tar --no-recursion --owner=0 --group=0 -c -T - | bzip2 -9 > ${OUTDIR}/${DISTNAME}.tar.bz2
     cd ..

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -400,8 +400,8 @@ struct WalletListener
     /**
      * @brief called by device when passphrase entry is needed
      */
-    virtual optional<std::string> onDevicePassphraseRequest(bool on_device) {
-        if (!on_device) throw std::runtime_error("Not supported");
+    virtual optional<std::string> onDevicePassphraseRequest(bool & on_device) {
+        on_device = true;
         return optional<std::string>();
     }
 
@@ -533,9 +533,10 @@ struct Wallet
      * \param daemon_username
      * \param daemon_password
      * \param lightWallet - start wallet in light mode, connect to a openmonero compatible server.
+     * \param proxy_address - set proxy address, empty string to disable
      * \return  - true on success
      */
-    virtual bool init(const std::string &daemon_address, uint64_t upper_transaction_size_limit = 0, const std::string &daemon_username = "", const std::string &daemon_password = "", bool use_ssl = false, bool lightWallet = false) = 0;
+    virtual bool init(const std::string &daemon_address, uint64_t upper_transaction_size_limit = 0, const std::string &daemon_username = "", const std::string &daemon_password = "", bool use_ssl = false, bool lightWallet = false, const std::string &proxy_address = "") = 0;
 
    /*!
     * \brief createWatchOnly - Creates a watch only wallet
@@ -594,6 +595,7 @@ struct Wallet
     virtual ConnectionStatus connected() const = 0;
     virtual void setTrustedDaemon(bool arg) = 0;
     virtual bool trustedDaemon() const = 0;
+    virtual bool setProxy(const std::string &address) = 0;
     virtual uint64_t balance(uint32_t accountIndex = 0) const = 0;
     uint64_t balanceAll() const {
         uint64_t result = 0;
@@ -879,6 +881,14 @@ struct Wallet
      */
     virtual void disposeTransaction(PendingTransaction * t) = 0;
 
+    /*!
+     * \brief Estimates transaction fee.
+     * \param destinations Vector consisting of <address, amount> pairs.
+     * \return Estimated fee.
+     */
+    virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
+                                            PendingTransaction::Priority priority) const = 0;
+
    /*!
     * \brief exportKeyImages - exports key images to file
     * \param filename
@@ -1085,10 +1095,12 @@ struct WalletManager
      * \param  nettype        Network type
      * \param  restoreHeight  restore from start height
      * \param  kdf_rounds     Number of rounds for key derivation function
+     * \param  seed_offset    Seed offset passphrase (optional)
      * \return                Wallet instance (Wallet::status() needs to be called to check if recovered successfully)
      */
     virtual Wallet * recoveryWallet(const std::string &path, const std::string &password, const std::string &mnemonic,
-                                    NetworkType nettype = MAINNET, uint64_t restoreHeight = 0, uint64_t kdf_rounds = 1) = 0;
+                                    NetworkType nettype = MAINNET, uint64_t restoreHeight = 0, uint64_t kdf_rounds = 1,
+                                    const std::string &seed_offset = {}) = 0;
     Wallet * recoveryWallet(const std::string &path, const std::string &password, const std::string &mnemonic,
                                     bool testnet = false, uint64_t restoreHeight = 0)           // deprecated
     {
@@ -1283,7 +1295,14 @@ struct WalletManager
     virtual std::string resolveOpenAlias(const std::string &address, bool &dnssec_valid) const = 0;
 
     //! checks for an update and returns version, hash and url
-    static std::tuple<bool, std::string, std::string, std::string, std::string> checkUpdates(const std::string &software, std::string subdir);
+    static std::tuple<bool, std::string, std::string, std::string, std::string> checkUpdates(
+        const std::string &software,
+        std::string subdir,
+        const char *buildtag = nullptr,
+        const char *current_version = nullptr);
+
+    //! sets proxy address, empty string to disable
+    virtual bool setProxy(const std::string &address) = 0;
 };
 
 

@@ -6,7 +6,7 @@
 
 */
 
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -85,7 +85,7 @@ public:
 
   bool print_connections();
 
-  bool print_blockchain_info(uint64_t start_block_index, uint64_t end_block_index);
+  bool print_blockchain_info(int64_t start_block_index, uint64_t end_block_index);
 
   bool set_log_level(int8_t level);
 
@@ -97,7 +97,7 @@ public:
 
   bool print_block_by_height(uint64_t height, bool include_hex);
 
-  bool print_transaction(crypto::hash transaction_hash, bool include_hex, bool include_json);
+  bool print_transaction(crypto::hash transaction_hash, bool include_metadata, bool include_hex, bool include_json);
 
   bool is_key_image_spent(const crypto::key_image &ki);
 
@@ -163,6 +163,8 @@ public:
 
   bool print_net_stats();
 
+  bool version();
+
   bool set_bootstrap_daemon(
     const std::string &address,
     const std::string &username,
@@ -170,7 +172,7 @@ public:
 
   bool rpc_payments();
 
-  bool flush_cache(bool bad_txs);
+  bool flush_cache(bool bad_txs, bool invalid_blocks);
 };
 
 } // namespace daemonize

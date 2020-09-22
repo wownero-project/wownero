@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -88,7 +88,7 @@ void hash_extra_skein(const void *data, size_t length, char *hash);
 
 void tree_hash(const char (*hashes)[HASH_SIZE], size_t count, char *root_hash);
 
-#define RX_BLOCK_VERSION	12
+#define RX_BLOCK_VERSION	13
 void rx_slow_hash_allocate_state(void);
 void rx_slow_hash_free_state(void);
 uint64_t rx_seedheight(const uint64_t height);

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 //
 // All rights reserved.
 //
@@ -174,7 +174,7 @@ int check_flush(cryptonote::core &core, std::vector<block_complete_entry> &block
     for(auto& tx_blob: block_entry.txs)
     {
       tx_verification_context tvc = AUTO_VAL_INIT(tvc);
-      core.handle_incoming_tx(tx_blob, tvc, true, true, false);
+      core.handle_incoming_tx(tx_blob, tvc, relay_method::block, true);
       if(tvc.m_verifivation_failed)
       {
         MERROR("transaction verification failed, tx_id = "
@@ -629,7 +629,7 @@ int main(int argc, char* argv[])
 
   if (command_line::get_arg(vm, command_line::arg_help))
   {
-    std::cout << "Monero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << ENDL << ENDL;
+    std::cout << "Wownero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << ENDL << ENDL;
     std::cout << desc_options << std::endl;
     return 1;
   }
@@ -666,7 +666,7 @@ int main(int argc, char* argv[])
   }
   m_config_folder = command_line::get_arg(vm, cryptonote::arg_data_dir);
 
-  mlog_configure(mlog_get_default_log_path("monero-blockchain-import.log"), true);
+  mlog_configure(mlog_get_default_log_path("wownero-blockchain-import.log"), true);
   if (!command_line::is_arg_defaulted(vm, arg_log_level))
     mlog_set_log(command_line::get_arg(vm, arg_log_level).c_str());
   else

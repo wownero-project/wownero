@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2019, The Monero Project
+# Copyright (c) 2016-2020, The Monero Project
 #
 # All rights reserved.
 #
@@ -31,7 +31,8 @@ set(ringct_basic_sources
   rctTypes.cpp
   rctCryptoOps.c
   multiexp.cc
-  bulletproofs.cc)
+  bulletproofs.cc
+  bulletproofs2.cc)
 
 set(ringct_basic_private_headers
   rctOps.h

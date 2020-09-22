@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -32,6 +32,7 @@
 #include "chaingen_tests_list.h"
 #include "common/util.h"
 #include "common/command_line.h"
+#include "tx_pool.h"
 #include "transaction_tests.h"
 
 namespace po = boost::program_options;
@@ -155,6 +156,14 @@ int main(int argc, char* argv[])
     GENERATE_AND_PLAY(gen_tx_output_is_not_txout_to_key);
     GENERATE_AND_PLAY(gen_tx_signatures_are_invalid);
 
+    // Mempool
+    GENERATE_AND_PLAY(txpool_spend_key_public);
+    GENERATE_AND_PLAY(txpool_spend_key_all);
+    GENERATE_AND_PLAY(txpool_double_spend_norelay);
+    GENERATE_AND_PLAY(txpool_double_spend_local);
+    GENERATE_AND_PLAY(txpool_double_spend_keyimage);
+    GENERATE_AND_PLAY(txpool_stem_loop);
+
     // Double spend
     GENERATE_AND_PLAY(gen_double_spend_in_tx<false>);
     GENERATE_AND_PLAY(gen_double_spend_in_tx<true>);
@@ -239,7 +248,8 @@ int main(int argc, char* argv[])
     GENERATE_AND_PLAY(gen_multisig_tx_invalid_48_1_no_signers);
     GENERATE_AND_PLAY(gen_multisig_tx_invalid_48_1_23_no_threshold);
 
-    GENERATE_AND_PLAY(gen_bp_tx_valid_1);
+    GENERATE_AND_PLAY(gen_bp_tx_valid_1_before_12);
+    GENERATE_AND_PLAY(gen_bp_tx_invalid_1_from_12);
     GENERATE_AND_PLAY(gen_bp_tx_invalid_1_1);
     GENERATE_AND_PLAY(gen_bp_tx_valid_2);
     GENERATE_AND_PLAY(gen_bp_tx_valid_3);
@@ -254,6 +264,11 @@ int main(int argc, char* argv[])
     GENERATE_AND_PLAY(gen_bp_tx_invalid_too_many_proofs);
     GENERATE_AND_PLAY(gen_bp_tx_invalid_wrong_amount);
     GENERATE_AND_PLAY(gen_bp_tx_invalid_borromean_type);
+    GENERATE_AND_PLAY(gen_bp_tx_invalid_bulletproof2_type);
+
+    GENERATE_AND_PLAY(gen_rct2_tx_clsag_malleability);
+
+    GENERATE_AND_PLAY(gen_block_low_coinbase);
 
     el::Level level = (failed_tests.empty() ? el::Level::Info : el::Level::Error);
     if (!list_tests)

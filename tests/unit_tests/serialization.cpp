@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -42,7 +42,7 @@
 #include "serialization/json_archive.h"
 #include "serialization/debug_archive.h"
 #include "serialization/variant.h"
-#include "serialization/vector.h"
+#include "serialization/containers.h"
 #include "serialization/binary_utils.h"
 #include "wallet/wallet2.h"
 #include "gtest/gtest.h"
@@ -477,6 +477,7 @@ TEST(Serialization, serializes_ringct_types)
   rct::ecdhTuple ecdh0, ecdh1;
   rct::boroSig boro0, boro1;
   rct::mgSig mg0, mg1;
+  rct::clsag clsag0, clsag1;
   rct::Bulletproof bp0, bp1;
   rct::rctSig s0, s1;
   cryptonote::transaction tx0, tx1;
@@ -592,9 +593,11 @@ TEST(Serialization, serializes_ringct_types)
   rct::skpkGen(Sk, Pk);
   destinations.push_back(Pk);
   //compute rct data with mixin 3
-  const rct::RCTConfig rct_config{ rct::RangeProofPaddedBulletproof, 0 };
+  const rct::RCTConfig rct_config{ rct::RangeProofPaddedBulletproof, 2 };
   s0 = rct::genRctSimple(rct::zero(), sc, pc, destinations, inamounts, amounts, amount_keys, NULL, NULL, 0, 3, rct_config, hw::get_device("default"));
 
+  ASSERT_FALSE(s0.p.MGs.empty());
+  ASSERT_TRUE(s0.p.CLSAGs.empty());
   mg0 = s0.p.MGs[0];
   ASSERT_TRUE(serialization::dump_binary(mg0, blob));
   ASSERT_TRUE(serialization::parse_binary(blob, mg1));
@@ -614,6 +617,23 @@ TEST(Serialization, serializes_ringct_types)
   ASSERT_TRUE(serialization::parse_binary(blob, bp1));
   bp1.V = bp0.V; // this is not saved, as it is reconstructed from other tx data
   ASSERT_EQ(bp0, bp1);
+
+  const rct::RCTConfig rct_config_clsag{ rct::RangeProofPaddedBulletproof, 3 };
+  s0 = rct::genRctSimple(rct::zero(), sc, pc, destinations, inamounts, amounts, amount_keys, NULL, NULL, 0, 3, rct_config_clsag, hw::get_device("default"));
+
+  ASSERT_FALSE(s0.p.CLSAGs.empty());
+  ASSERT_TRUE(s0.p.MGs.empty());
+  clsag0 = s0.p.CLSAGs[0];
+  ASSERT_TRUE(serialization::dump_binary(clsag0, blob));
+  ASSERT_TRUE(serialization::parse_binary(blob, clsag1));
+  ASSERT_TRUE(clsag0.s.size() == clsag1.s.size());
+  for (size_t n = 0; n < clsag0.s.size(); ++n)
+  {
+    ASSERT_TRUE(clsag0.s[n] == clsag1.s[n]);
+  }
+  ASSERT_TRUE(clsag0.c1 == clsag1.c1);
+  // I is not serialized, they are meant to be reconstructed
+  ASSERT_TRUE(clsag0.D == clsag1.D);
 }
 
 TEST(Serialization, portability_wallet)
@@ -735,7 +755,6 @@ TEST(Serialization, portability_wallet)
     auto address_book_row = w.m_address_book.begin();
     ASSERT_TRUE(epee::string_tools::pod_to_hex(address_book_row->m_address.m_spend_public_key) == "9bc53a6ff7b0831c9470f71b6b972dbe5ad1e8606f72682868b1dda64e119fb3");
     ASSERT_TRUE(epee::string_tools::pod_to_hex(address_book_row->m_address.m_view_public_key) == "49fece1ef97dc0c0f7a5e2106e75e96edd910f7e86b56e1e308cd0cf734df191");
-    ASSERT_TRUE(epee::string_tools::pod_to_hex(address_book_row->m_payment_id) == "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
     ASSERT_TRUE(address_book_row->m_description == "testnet wallet 9y52S6");
   }
 }

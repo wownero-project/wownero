@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019, The Monero Project
+// Copyright (c) 2018-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -100,6 +100,11 @@ namespace cryptonote
     if (ts > now + TIMESTAMP_LEEWAY)
     {
       MDEBUG("Timestamp is in the future");
+      return false;
+    }
+    if (ts < now - TIMESTAMP_LEEWAY)
+    {
+      MDEBUG("Timestamp is too old");
       return false;
     }
     return true;

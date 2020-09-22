@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2020, The Monero Project
 //
 // All rights reserved.
 //
@@ -67,10 +67,11 @@ namespace trezor {
       bool m_live_refresh_enabled;
       size_t m_num_transations_to_sign;
 
+      unsigned client_version();
       void transaction_versions_check(const ::tools::wallet2::unsigned_tx_set & unsigned_tx, hw::tx_aux_data & aux_data);
       void transaction_pre_check(std::shared_ptr<messages::monero::MoneroTransactionInitRequest> init_msg);
       void transaction_check(const protocol::tx::TData & tdata, const hw::tx_aux_data & aux_data);
-      void device_state_reset_unsafe() override;
+      void device_state_initialize_unsafe() override;
       void live_refresh_start_unsafe();
       void live_refresh_finish_unsafe();
       void live_refresh_thread_main();

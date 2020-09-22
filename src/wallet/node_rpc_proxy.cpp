@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -36,7 +36,7 @@
   do { \
     CHECK_AND_ASSERT_MES(error.code == 0, error.message, error.message); \
     handle_payment_changes(res, std::integral_constant<bool, HasCredits<decltype(res)>::Has>()); \
-    CHECK_AND_ASSERT_MES(r, std::string(), "Failed to connect to daemon"); \
+    CHECK_AND_ASSERT_MES(r, std::string("Failed to connect to daemon"), "Failed to connect to daemon"); \
     /* empty string -> not connection */ \
     CHECK_AND_ASSERT_MES(!res.status.empty(), res.status, "No connection to daemon"); \
     CHECK_AND_ASSERT_MES(res.status != CORE_RPC_STATUS_BUSY, res.status, "Daemon busy"); \
@@ -51,7 +51,7 @@ namespace tools
 
 static const std::chrono::seconds rpc_timeout = std::chrono::minutes(3) + std::chrono::seconds(30);
 
-NodeRPCProxy::NodeRPCProxy(epee::net_utils::http::http_simple_client &http_client, rpc_payment_state_t &rpc_payment_state, boost::recursive_mutex &mutex)
+NodeRPCProxy::NodeRPCProxy(epee::net_utils::http::abstract_http_client &http_client, rpc_payment_state_t &rpc_payment_state, boost::recursive_mutex &mutex)
   : m_http_client(http_client)
   , m_rpc_payment_state(rpc_payment_state)
   , m_daemon_rpc_mutex(mutex)
@@ -72,11 +72,17 @@ void NodeRPCProxy::invalidate()
   m_rpc_version = 0;
   m_target_height = 0;
   m_block_weight_limit = 0;
+  m_adjusted_time = 0;
   m_get_info_time = 0;
   m_rpc_payment_info_time = 0;
   m_rpc_payment_seed_height = 0;
   m_rpc_payment_seed_hash = crypto::null_hash;
   m_rpc_payment_next_seed_hash = crypto::null_hash;
+  m_height_time = 0;
+  m_rpc_payment_diff = 0;
+  m_rpc_payment_credits_per_hash_found = 0;
+  m_rpc_payment_height = 0;
+  m_rpc_payment_cookie = 0;
 }
 
 boost::optional<std::string> NodeRPCProxy::get_rpc_version(uint32_t &rpc_version)
@@ -101,6 +107,7 @@ boost::optional<std::string> NodeRPCProxy::get_rpc_version(uint32_t &rpc_version
 void NodeRPCProxy::set_height(uint64_t h)
 {
   m_height = h;
+  m_height_time = time(NULL);
 }
 
 boost::optional<std::string> NodeRPCProxy::get_info()
@@ -125,13 +132,22 @@ boost::optional<std::string> NodeRPCProxy::get_info()
     m_height = resp_t.height;
     m_target_height = resp_t.target_height;
     m_block_weight_limit = resp_t.block_weight_limit ? resp_t.block_weight_limit : resp_t.block_size_limit;
+    m_adjusted_time = resp_t.adjusted_time;
     m_get_info_time = now;
+    m_height_time = now;
   }
   return boost::optional<std::string>();
 }
 
 boost::optional<std::string> NodeRPCProxy::get_height(uint64_t &height)
 {
+  const time_t now = time(NULL);
+  if (now < m_height_time + 30) // re-cache every 30 seconds
+  {
+    height = m_height;
+    return boost::optional<std::string>();
+  }
+
   auto res = get_info();
   if (res)
     return res;
@@ -155,6 +171,15 @@ boost::optional<std::string> NodeRPCProxy::get_block_weight_limit(uint64_t &bloc
     return res;
   block_weight_limit = m_block_weight_limit;
   return boost::optional<std::string>();
+}
+
+boost::optional<std::string> NodeRPCProxy::get_adjusted_time(uint64_t &adjusted_time)
+{
+    auto res = get_info();
+    if (res)
+        return res;
+    adjusted_time = m_adjusted_time;
+    return boost::optional<std::string>();
 }
 
 boost::optional<std::string> NodeRPCProxy::get_earliest_height(uint8_t version, uint64_t &earliest_height)

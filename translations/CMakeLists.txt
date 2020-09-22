@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2019, The Monero Project
+# Copyright (c) 2017-2020, The Monero Project
 #
 # All rights reserved.
 #
@@ -50,13 +50,11 @@ endif()
 
 if(LRELEASE STREQUAL "LRELEASE-NOTFOUND")
   set(ts_files "")
-  message(WARNING "lrelease program not found, translation files not built")
 else()
   execute_process(COMMAND ${LRELEASE} -version
     RESULT_VARIABLE lrelease_ret)
   if(NOT lrelease_ret EQUAL "0")
     set(ts_files "")
-    message(WARNING "lrelease program not working, translation files not built")
   else()
     file(GLOB ts_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" *.ts)
     foreach(ts_file ${ts_files})

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, The Monero Project
+// Copyright (c) 2019-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -168,6 +168,17 @@ TEST(rolling_median, history_blind)
     else
       ASSERT_EQ(median, m.median());
   }
+}
+
+TEST(rolling_median, overflow)
+{
+  epee::misc_utils::rolling_median_t<uint64_t> m(2);
+
+  uint64_t over_half = static_cast<uint64_t>(3) << static_cast<uint64_t>(62);
+  m.insert(over_half);
+  m.insert(over_half);
+  ASSERT_EQ((over_half + over_half) < over_half, true);
+  ASSERT_EQ(over_half, m.median());
 }
 
 TEST(rolling_median, size)

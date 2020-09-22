@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -82,7 +82,7 @@ namespace
 
     lo = mul128(0x1111111111111111, 0x1111111111111111, &hi);
     ASSERT_EQ(lo, 0x0fedcba987654321);
-    ASSERT_EQ(hi, 0x0123456789abcdf0);;
+    ASSERT_EQ(hi, 0x0123456789abcdf0);
   }
 
   TEST(mul128_with_carry_1_only, multiplies_correctly)

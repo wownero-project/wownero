@@ -465,7 +465,7 @@ eof:
   bool run_default_console_handler_no_srv_param(t_server* ptsrv, t_handler handlr, std::function<std::string(void)> prompt, const std::string& usage = "")
   {
     async_console_handler console_handler;
-    return console_handler.run(ptsrv, boost::bind<bool>(no_srv_param_adapter<t_server, t_handler>, _1, _2, handlr), prompt, usage);
+    return console_handler.run(ptsrv, std::bind<bool>(no_srv_param_adapter<t_server, t_handler>, std::placeholders::_1, std::placeholders::_2, handlr), prompt, usage);
   }
 
   template<class t_server, class t_handler>
@@ -543,6 +543,31 @@ eof:
       return it->second.second;
     }
 
+    std::vector<std::string> get_command_list(const std::vector<std::string>& keywords = std::vector<std::string>())
+    {
+      std::vector<std::string> list;
+      list.reserve(m_command_handlers.size());
+      for(auto const& x:m_command_handlers)
+      {
+        bool take = true;
+        for(auto const& y:keywords)
+        {
+          bool in_usage = x.second.second.first.find(y) != std::string::npos;
+          bool in_description = x.second.second.second.find(y) != std::string::npos;
+          if (!(in_usage || in_description))
+          {
+            take = false;
+            break;
+          }
+        }
+        if (take)
+        {
+          list.push_back(x.first);
+        }
+      }
+      return list;
+    }
+
     void set_handler(const std::string& cmd, const callback& hndlr, const std::string& usage = "", const std::string& description = "")
     {
       lookup::mapped_type & vt = m_command_handlers[cmd];
@@ -605,10 +630,21 @@ eof:
     std::unique_ptr<boost::thread> m_console_thread;
     async_console_handler m_console_handler;
   public:
+    ~console_handlers_binder() {
+      try
+      {
+        stop_handling();
+        if (m_console_thread.get() != nullptr)
+        {
+          m_console_thread->join();
+        }
+      }
+      catch (const std::exception &e) { /* ignore */ }
+    }
+
     bool start_handling(std::function<std::string(void)> prompt, const std::string& usage_string = "", std::function<void(void)> exit_handler = NULL)
     {
       m_console_thread.reset(new boost::thread(boost::bind(&console_handlers_binder::run_handling, this, prompt, usage_string, exit_handler)));
-      m_console_thread->detach();
       return true;
     }
     bool start_handling(const std::string &prompt, const std::string& usage_string = "", std::function<void(void)> exit_handler = NULL)
@@ -623,7 +659,7 @@ eof:
 
     bool run_handling(std::function<std::string(void)> prompt, const std::string& usage_string, std::function<void(void)> exit_handler = NULL)
     {
-      return m_console_handler.run(boost::bind(&console_handlers_binder::process_command_str, this, _1), prompt, usage_string, exit_handler);
+      return m_console_handler.run(std::bind(&console_handlers_binder::process_command_str, this, std::placeholders::_1), prompt, usage_string, exit_handler);
     }
 
     void print_prompt()

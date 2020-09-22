@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 //
 // All rights reserved.
 //
@@ -60,7 +60,7 @@ namespace Monero {
 
 namespace {
     // copy-pasted from simplewallet
-    static const size_t DEFAULT_MIXIN = 6;
+    static const size_t DEFAULT_MIXIN = 21;
     static const int    DEFAULT_REFRESH_INTERVAL_MILLIS = 1000 * 10;
     // limit maximum refresh interval as one minute
     static const int    MAX_REFRESH_INTERVAL_MILLIS = 1000 * 60 * 1;
@@ -74,7 +74,7 @@ namespace {
       boost::filesystem::path dir = tools::get_default_data_dir();
       // remove .bitmonero, replace with .shared-ringdb
       dir = dir.remove_filename();
-      dir /= ".shared-ringdb";
+      dir /= ".wow-shared-ringdb";
       if (nettype == cryptonote::TESTNET)
         dir /= "testnet";
       else if (nettype == cryptonote::STAGENET)
@@ -157,7 +157,7 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
         }
     }
 
-    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time)
+    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, bool is_change, uint64_t unlock_time)
     {
 
         std::string tx_hash =  epee::string_tools::pod_to_hex(txid);
@@ -267,13 +267,15 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
       return boost::none;
     }
 
-    virtual boost::optional<epee::wipeable_string> on_device_passphrase_request(bool on_device)
+    virtual boost::optional<epee::wipeable_string> on_device_passphrase_request(bool & on_device)
     {
       if (m_listener) {
         auto passphrase = m_listener->onDevicePassphraseRequest(on_device);
-        if (!on_device && passphrase) {
+        if (passphrase) {
           return boost::make_optional(epee::wipeable_string((*passphrase).data(), (*passphrase).size()));
         }
+      } else {
+        on_device = true;
       }
       return boost::none;
     }
@@ -725,7 +727,7 @@ bool WalletImpl::recover(const std::string &path, const std::string &seed)
     return recover(path, "", seed);
 }
 
-bool WalletImpl::recover(const std::string &path, const std::string &password, const std::string &seed)
+bool WalletImpl::recover(const std::string &path, const std::string &password, const std::string &seed, const std::string &seed_offset/* = {}*/)
 {
     clearStatus();
     m_errorString.clear();
@@ -742,6 +744,10 @@ bool WalletImpl::recover(const std::string &path, const std::string &password, c
     if (!crypto::ElectrumWords::words_to_bytes(seed, recovery_key, old_language)) {
         setStatusError(tr("Electrum-style word list failed verification"));
         return false;
+    }
+    if (!seed_offset.empty())
+    {
+        recovery_key = cryptonote::decrypt_key(recovery_key, seed_offset);
     }
 
     if (old_language == crypto::ElectrumWords::old_language_name)
@@ -932,13 +938,13 @@ string WalletImpl::keysFilename() const
     return m_wallet->get_keys_file();
 }
 
-bool WalletImpl::init(const std::string &daemon_address, uint64_t upper_transaction_size_limit, const std::string &daemon_username, const std::string &daemon_password, bool use_ssl, bool lightWallet)
+bool WalletImpl::init(const std::string &daemon_address, uint64_t upper_transaction_size_limit, const std::string &daemon_username, const std::string &daemon_password, bool use_ssl, bool lightWallet, const std::string &proxy_address)
 {
     clearStatus();
     m_wallet->set_light_wallet(lightWallet);
     if(daemon_username != "")
         m_daemon_login.emplace(daemon_username, daemon_password);
-    return doInit(daemon_address, upper_transaction_size_limit, use_ssl);
+    return doInit(daemon_address, proxy_address, upper_transaction_size_limit, use_ssl);
 }
 
 bool WalletImpl::lightWalletLogin(bool &isNewWallet) const
@@ -1671,6 +1677,27 @@ void WalletImpl::disposeTransaction(PendingTransaction *t)
     delete t;
 }
 
+uint64_t WalletImpl::estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
+                                            PendingTransaction::Priority priority) const
+{
+    const size_t pubkey_size = 33;
+    const size_t encrypted_paymentid_size = 11;
+    const size_t extra_size = pubkey_size + encrypted_paymentid_size;
+
+    return m_wallet->estimate_fee(
+        m_wallet->use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0),
+        m_wallet->use_fork_rules(4, 0),
+        1,
+        m_wallet->get_min_ring_size() - 1,
+        destinations.size() + 1,
+        extra_size,
+        m_wallet->use_fork_rules(8, 0),
+        m_wallet->use_fork_rules(HF_VERSION_CLSAG, 0),
+        m_wallet->get_base_fee(),
+        m_wallet->get_fee_multiplier(m_wallet->adjust_priority(static_cast<uint32_t>(priority))),
+        m_wallet->get_fee_quantization_mask());
+}
+
 TransactionHistory *WalletImpl::history()
 {
     return m_history.get();
@@ -1971,7 +1998,7 @@ bool WalletImpl::checkReserveProof(const std::string &address, const std::string
 
 std::string WalletImpl::signMessage(const std::string &message)
 {
-  return m_wallet->sign(message);
+  return m_wallet->sign(message, tools::wallet2::sign_with_spend_key);
 }
 
 bool WalletImpl::verifySignedMessage(const std::string &message, const std::string &address, const std::string &signature) const
@@ -1981,7 +2008,7 @@ bool WalletImpl::verifySignedMessage(const std::string &message, const std::stri
   if (!cryptonote::get_account_address_from_str(info, m_wallet->nettype(), address))
     return false;
 
-  return m_wallet->verify(message, info.address, signature);
+  return m_wallet->verify(message, info.address, signature).valid;
 }
 
 std::string WalletImpl::signMultisigParticipant(const std::string &message) const
@@ -2060,6 +2087,11 @@ void WalletImpl::setTrustedDaemon(bool arg)
 bool WalletImpl::trustedDaemon() const
 {
     return m_wallet->is_trusted_daemon();
+}
+
+bool WalletImpl::setProxy(const std::string &address)
+{
+    return m_wallet->set_proxy(address);
 }
 
 bool WalletImpl::watchOnly() const
@@ -2215,9 +2247,9 @@ void WalletImpl::pendingTxPostProcess(PendingTransactionImpl * pending)
   pending->m_pending_tx = exported_txs.ptx;
 }
 
-bool WalletImpl::doInit(const string &daemon_address, uint64_t upper_transaction_size_limit, bool ssl)
+bool WalletImpl::doInit(const string &daemon_address, const std::string &proxy_address, uint64_t upper_transaction_size_limit, bool ssl)
 {
-    if (!m_wallet->init(daemon_address, m_daemon_login, boost::asio::ip::tcp::endpoint{}, upper_transaction_size_limit))
+    if (!m_wallet->init(daemon_address, m_daemon_login, proxy_address, upper_transaction_size_limit))
        return false;
 
     // in case new wallet, this will force fast-refresh (pulling hashes instead of blocks)

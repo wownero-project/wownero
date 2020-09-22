@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -28,7 +28,6 @@
 
 #include "common/dns_utils.h"
 #include "common/command_line.h"
-#include "version.h"
 #include "daemon/command_parser_executor.h"
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
@@ -154,6 +153,16 @@ bool t_command_parser_executor::print_blockchain_info(const std::vector<std::str
   }
   uint64_t start_index = 0;
   uint64_t end_index = 0;
+  if (args[0][0] == '-')
+  {
+    int64_t nblocks;
+    if(!epee::string_tools::get_xtype_from_string(nblocks, args[0]))
+    {
+      std::cout << "wrong number of blocks" << std::endl;
+      return false;
+    }
+    return m_executor.print_blockchain_info(nblocks, (uint64_t)-nblocks);
+  }
   if(!epee::string_tools::get_xtype_from_string(start_index, args[0]))
   {
     std::cout << "wrong starter block index parameter" << std::endl;
@@ -244,12 +253,15 @@ bool t_command_parser_executor::print_block(const std::vector<std::string>& args
 
 bool t_command_parser_executor::print_transaction(const std::vector<std::string>& args)
 {
+  bool include_metadata = false;
   bool include_hex = false;
   bool include_json = false;
 
   // Assumes that optional flags come after mandatory argument <transaction_hash>
   for (unsigned int i = 1; i < args.size(); ++i) {
-    if (args[i] == "+hex")
+    if (args[i] == "+meta")
+      include_metadata = true;
+    else if (args[i] == "+hex")
       include_hex = true;
     else if (args[i] == "+json")
       include_json = true;
@@ -261,7 +273,7 @@ bool t_command_parser_executor::print_transaction(const std::vector<std::string>
   }
   if (args.empty())
   {
-    std::cout << "expected: print_tx <transaction_hash> [+hex] [+json]" << std::endl;
+    std::cout << "expected: print_tx <transaction_hash> [+meta] [+hex] [+json]" << std::endl;
     return true;
   }
 
@@ -269,7 +281,7 @@ bool t_command_parser_executor::print_transaction(const std::vector<std::string>
   crypto::hash tx_hash;
   if (parse_hash256(str_hash, tx_hash))
   {
-    m_executor.print_transaction(tx_hash, include_hex, include_json);
+    m_executor.print_transaction(tx_hash, include_metadata, include_hex, include_json);
   }
 
   return true;
@@ -803,8 +815,7 @@ bool t_command_parser_executor::rpc_payments(const std::vector<std::string>& arg
 
 bool t_command_parser_executor::version(const std::vector<std::string>& args)
 {
-  std::cout << "Monero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << std::endl;
-  return true;
+  return m_executor.version();
 }
 
 bool t_command_parser_executor::prune_blockchain(const std::vector<std::string>& args)
@@ -813,10 +824,10 @@ bool t_command_parser_executor::prune_blockchain(const std::vector<std::string>&
 
   if (args.empty() || args[0] != "confirm")
   {
-    std::cout << "Warning: pruning from within monerod will not shrink the database file size." << std::endl;
+    std::cout << "Warning: pruning from within wownerod will not shrink the database file size." << std::endl;
     std::cout << "Instead, parts of the file will be marked as free, so the file will not grow" << std::endl;
     std::cout << "until that newly free space is used up. If you want a smaller file size now," << std::endl;
-    std::cout << "exit monerod and run monero-blockchain-prune (you will temporarily need more" << std::endl;
+    std::cout << "exit wownerod and run wownero-blockchain-prune (you will temporarily need more" << std::endl;
     std::cout << "disk space for the database conversion though). If you are OK with the database" << std::endl;
     std::cout << "file keeping the same size, re-run this command with the \"confirm\" parameter." << std::endl;
     return true;
@@ -846,13 +857,27 @@ bool t_command_parser_executor::set_bootstrap_daemon(const std::vector<std::stri
 
 bool t_command_parser_executor::flush_cache(const std::vector<std::string>& args)
 {
+  bool bad_txs = false, bad_blocks = false;
+  std::string arg;
+
   if (args.empty())
     goto show_list;
-  if (args[0] == "bad-txs")
-    return m_executor.flush_cache(true);
+
+  for (size_t i = 0; i < args.size(); ++i)
+  {
+    arg = args[i];
+    if (arg == "bad-txs")
+      bad_txs = true;
+    else if (arg == "bad-blocks")
+      bad_blocks = true;
+    else
+      goto show_list;
+  }
+  return m_executor.flush_cache(bad_txs, bad_blocks);
 
 show_list:
-  std::cout << "Cache type needed: bad-txs" << std::endl;
+  std::cout << "Invalid cache type: " << arg << std::endl;
+  std::cout << "Cache types: bad-txs bad-blocks" << std::endl;
   return true;
 }
 

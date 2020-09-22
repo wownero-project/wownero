@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -120,6 +120,10 @@ namespace daemon_args
         return std::to_string(config::stagenet::ZMQ_RPC_DEFAULT_PORT);
       return val;
     }
+  };
+  const command_line::arg_descriptor<std::vector<std::string>> arg_zmq_pub = {
+    "zmq-pub"
+  , "Address for ZMQ pub - tcp://ip:port or ipc://path"
   };
 
   const command_line::arg_descriptor<bool> arg_zmq_rpc_disabled = {

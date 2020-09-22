@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -47,6 +47,7 @@ namespace net_load_tests
 {
   struct test_connection_context : epee::net_utils::connection_context_base
   {
+    test_connection_context(): epee::net_utils::connection_context_base(boost::uuids::nil_uuid(), {}, false, false), m_closed(false) {}
     volatile bool m_closed;
   };
 

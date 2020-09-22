@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 //
 // All rights reserved.
 //
@@ -34,6 +34,7 @@
 #include "string_tools.h"
 #include "storages/portable_storage_template_helper.h" // epee json include
 #include "serialization/keyvalue_serialization.h"
+#include <functional>
 #include <vector>
 
 using namespace epee;
@@ -71,7 +72,7 @@ namespace cryptonote
   {
   }
   //---------------------------------------------------------------------------
-  bool checkpoints::add_checkpoint(uint64_t height, const std::string& hash_str)
+  bool checkpoints::add_checkpoint(uint64_t height, const std::string& hash_str, const std::string& difficulty_str)
   {
     crypto::hash h = crypto::null_hash;
     bool r = epee::string_tools::hex_to_pod(hash_str, h);
@@ -83,6 +84,23 @@ namespace cryptonote
       CHECK_AND_ASSERT_MES(h == m_points[height], false, "Checkpoint at given height already exists, and hash for new checkpoint was different!");
     }
     m_points[height] = h;
+    if (!difficulty_str.empty())
+    {
+      try
+      {
+        difficulty_type difficulty(difficulty_str);
+        if (m_difficulty_points.count(height))
+        {
+          CHECK_AND_ASSERT_MES(difficulty == m_difficulty_points[height], false, "Difficulty checkpoint at given height already exists, and difficulty for new checkpoint was different!");
+        }
+        m_difficulty_points[height] = difficulty;
+      }
+      catch (...)
+      {
+        LOG_ERROR("Failed to parse difficulty checkpoint: " << difficulty_str);
+        return false;
+      }
+    }
     return true;
   }
   //---------------------------------------------------------------------------
@@ -133,16 +151,19 @@ namespace cryptonote
   //---------------------------------------------------------------------------
   uint64_t checkpoints::get_max_height() const
   {
-    std::map< uint64_t, crypto::hash >::const_iterator highest = 
-        std::max_element( m_points.begin(), m_points.end(),
-                         ( boost::bind(&std::map< uint64_t, crypto::hash >::value_type::first, _1) < 
-                           boost::bind(&std::map< uint64_t, crypto::hash >::value_type::first, _2 ) ) );
-    return highest->first;
+    if (m_points.empty())
+      return 0;
+    return m_points.rbegin()->first;
   }
   //---------------------------------------------------------------------------
   const std::map<uint64_t, crypto::hash>& checkpoints::get_points() const
   {
     return m_points;
+  }
+  //---------------------------------------------------------------------------
+  const std::map<uint64_t, difficulty_type>& checkpoints::get_difficulty_points() const
+  {
+    return m_difficulty_points;
   }
 
   bool checkpoints::check_for_conflicts(const checkpoints& other) const
@@ -161,56 +182,37 @@ namespace cryptonote
   {
     if (nettype == TESTNET)
     {
-      ADD_CHECKPOINT(0,     "48ca7cd3c8de5b6a4d53d2861fbdaedca141553559f9be9520068053cda8430b");
-      ADD_CHECKPOINT(1000000, "46b690b710a07ea051bc4a6b6842ac37be691089c0f7758cfeec4d5fc0b4a258");
-      ADD_CHECKPOINT(1058600, "12904f6b4d9e60fd875674e07147d2c83d6716253f046af7b894c3e81da7e1bd");
+    ADD_CHECKPOINT2(1,   "c47b8effcc84e22ddd1b876d059c8fbd3e26e4bdffb6bed8b8f4fe283104a7af", "0x2");
+    ADD_CHECKPOINT2(5,   "292add330f6cf5f3845dc4cd2f28ce8d211dd487ddcfe1b5d1d545d7b90ff7d1", "0x5df");  //Hard fork to v8
+    ADD_CHECKPOINT2(10,  "fbdf7d812aa6dd4c5915aadcbf023e722eab1d8ad47c24a230634e688d314798", "0xfa3");  //Hard fork to v9
+    ADD_CHECKPOINT2(15,  "9b86e40b959d7cfe75366686dfd2657699e85b8c658aa8c20b23f7bc01b38af0", "0x1967"); //Hard fork to v10
+    ADD_CHECKPOINT2(20,  "8f65c309ba3ed2bf25df2b7d91e1db40c864230aa3caaf823db81bc19e0bd6a3", "0x232b"); //Hard fork to v11
+    ADD_CHECKPOINT2(25,  "35f2957fdba45d5421561ba2f126a61ec0101b5c2eb79b9e296310acbbdbbe58", "0x2cef"); //Hard fork to v12
+    ADD_CHECKPOINT2(30,  "32cc5aacce8bea10ae869313e194ba51a30720810f3665433ffeea2818938429", "0x36b3"); //Hard fork to v13
+    ADD_CHECKPOINT2(35,  "7f1cdd2c4a6002772343ad9de6c5dba743a0be1d326a6f63924511f08b15863a", "0x4077"); //Hard fork to v14
+    ADD_CHECKPOINT2(40,  "63cf4f703489a881baf63bacd6a3af2b5bde79b558ce123e97313890be6f747f", "0x4a3b"); //Hard fork to v15
+    ADD_CHECKPOINT2(45,  "65da4c966ae02983c6c8b7ab9b959df612863c379c5e48669061cbbb1e02a3ab", "0x53ff"); //Hard fork to v16
+    ADD_CHECKPOINT2(50,  "8c68a444b6743a14152f130357be9751e42e82a84f69f25320eda532a830c7b0", "0x5dc3"); //Hard fork to v17
       return true;
     }
     if (nettype == STAGENET)
     {
-      ADD_CHECKPOINT(0,       "76ee3cc98646292206cd3e86f74d88b4dcc1d937088645e9b0cbca84b7ce74eb");
-      ADD_CHECKPOINT(10000,   "1f8b0ce313f8b9ba9a46108bfd285c45ad7c2176871fd41c3a690d4830ce2fd5");
       return true;
     }
-    ADD_CHECKPOINT(1,     "771fbcd656ec1464d3a02ead5e18644030007a0fc664c0a964d30922821a8148");
-    ADD_CHECKPOINT(10,    "c0e3b387e47042f72d8ccdca88071ff96bff1ac7cde09ae113dbb7ad3fe92381");
-    ADD_CHECKPOINT(100,   "ac3e11ca545e57c49fca2b4e8c48c03c23be047c43e471e1394528b1f9f80b2d");
-    ADD_CHECKPOINT(1000,  "5acfc45acffd2b2e7345caf42fa02308c5793f15ec33946e969e829f40b03876");
-    ADD_CHECKPOINT(10000, "c758b7c81f928be3295d45e230646de8b852ec96a821eac3fea4daf3fcac0ca2");
-    ADD_CHECKPOINT(22231, "7cb10e29d67e1c069e6e11b17d30b809724255fee2f6868dc14cfc6ed44dfb25");
-    ADD_CHECKPOINT(29556, "53c484a8ed91e4da621bb2fa88106dbde426fe90d7ef07b9c1e5127fb6f3a7f6");
-    ADD_CHECKPOINT(50000, "0fe8758ab06a8b9cb35b7328fd4f757af530a5d37759f9d3e421023231f7b31c");
-    ADD_CHECKPOINT(80000, "a62dcd7b536f22e003ebae8726e9e7276f63d594e264b6f0cd7aab27b66e75e3");
-    ADD_CHECKPOINT(202612, "bbd604d2ba11ba27935e006ed39c9bfdd99b76bf4a50654bc1e1e61217962698");
-    ADD_CHECKPOINT(202613, "e2aa337e78df1f98f462b3b1e560c6b914dec47b610698b7b7d1e3e86b6197c2");
-    ADD_CHECKPOINT(202614, "c29e3dc37d8da3e72e506e31a213a58771b24450144305bcba9e70fa4d6ea6fb");
-    ADD_CHECKPOINT(205000, "5d3d7a26e6dc7535e34f03def711daa8c263785f73ec1fadef8a45880fde8063");
-    ADD_CHECKPOINT(220000, "9613f455933c00e3e33ac315cc6b455ee8aa0c567163836858c2d9caff111553");
-    ADD_CHECKPOINT(230300, "bae7a80c46859db355556e3a9204a337ae8f24309926a1312323fdecf1920e61");
-    ADD_CHECKPOINT(230700, "93e631240ceac831da1aebfc5dac8f722c430463024763ebafa888796ceaeedf");
-    ADD_CHECKPOINT(231350, "b5add137199b820e1ea26640e5c3e121fd85faa86a1e39cf7e6cc097bdeb1131");
-    ADD_CHECKPOINT(232150, "955de8e6b6508af2c24f7334f97beeea651d78e9ade3ab18fec3763be3201aa8");
-    ADD_CHECKPOINT(249380, "654fb0a81ce3e5caf7e3264a70f447d4bd07586c08fa50f6638cc54da0a52b2d");
-    ADD_CHECKPOINT(460000, "75037a7aed3e765db96c75bcf908f59d690a5f3390baebb9edeafd336a1c4831");
-    ADD_CHECKPOINT(500000, "2428f0dbe49796be05ed81b347f53e1f7f44aed0abf641446ec2b94cae066b02");
-    ADD_CHECKPOINT(600000, "f5828ebf7d7d1cb61762c4dfe3ccf4ecab2e1aad23e8113668d981713b7a54c5");
-    ADD_CHECKPOINT(700000, "12be9b3d210b93f574d2526abb9c1ab2a881b479131fd0d4f7dac93875f503cd");
-    ADD_CHECKPOINT(825000, "56503f9ad766774b575be3aff73245e9d159be88132c93d1754764f28da2ff60");
-    ADD_CHECKPOINT(900000, "d9958d0e7dcf91a5a7b11de225927bf7efc6eb26240315ce12372be902cc1337");
-    ADD_CHECKPOINT(913193, "5292d5d56f6ba4de33a58d9a34d263e2cb3c6fee0aed2286fd4ac7f36d53c85f");
-    ADD_CHECKPOINT(1000000, "a886ef5149902d8342475fee9bb296341b891ac67c4842f47a833f23c00ed721");
-    ADD_CHECKPOINT(1100000, "3fd720c5c8b3072fc1ccda922dec1ef25f9ed88a1e6ad4103d0fe00b180a5903");
-    ADD_CHECKPOINT(1150000, "1dd16f626d18e1e988490dfd06de5920e22629c972c58b4d8daddea0038627b2");
-    ADD_CHECKPOINT(1200000, "fa7d13a90850882060479d100141ff84286599ae39c3277c8ea784393f882d1f");
-    ADD_CHECKPOINT(1300000, "31b34272343a44a9f4ac7de7a8fcf3b7d8a3124d7d6870affd510d2f37e74cd0");
-    ADD_CHECKPOINT(1390000, "a8f5649dd4ded60eedab475f2bec8c934681c07e3cf640e9be0617554f13ff6c");
-    ADD_CHECKPOINT(1450000, "ac94e8860093bc7c83e4e91215cba1d663421ecf4067a0ae609c3a8b52bcfac2");
-    ADD_CHECKPOINT(1530000, "01759bce497ec38e63c78b1038892169203bb78f87e488172f6b854fcd63ba7e");
-    ADD_CHECKPOINT(1579000, "7d0d7a2346373afd41ed1e744a939fc5d474a7dbaa257be5c6fff4009e789241");
-    ADD_CHECKPOINT(1668900, "ac2dcaf3d2f58ffcf8391639f0f1ebafcb8eac43c49479c7c37f611868d07568");
-    ADD_CHECKPOINT(1775600, "1c6e01c661dc22cab939e79ec6a5272190624ce8356d2f7b958e4f9a57fdb05e");
-    ADD_CHECKPOINT(1856000, "9b57f17f29c71a3acd8a7904b93c41fa6eb8d2b7c73936ce4f1702d14880ba29");
-    ADD_CHECKPOINT(1958000, "98a5d6e51afdf3146e0eefb10a66e8648d8d4d5c2742be8835e976ba217c9bb2");
+    // make RPC call to daemon
+    // curl http://127.0.0.1:34568/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":247600}}' -H 'Content-Type: application/json'
+    // "wide_cumulative_difficulty": "0x14eb4d0131fe8",
+    ADD_CHECKPOINT2(1,       "97f4ce4d7879b3bea54dcec738cd2ebb7952b4e9bb9743262310cd5fec749340", "0x2");
+    ADD_CHECKPOINT2(6969,    "aa7b66e8c461065139b55c29538a39c33ceda93e587f84d490ed573d80511c87", "0x118eef693fd");  //Hard fork to v8
+    ADD_CHECKPOINT2(53666,   "3f43f56f66ef0c43cf2fd14d0d28fa2aae0ef8f40716773511345750770f1255", "0xb677d6405ae");  //Hard fork to v9
+    ADD_CHECKPOINT2(63469,   "4e33a9343fc5b86661ec0affaeb5b5a065290602c02d817337e4a979fe5747d8", "0xe7cd9819062");  //Hard fork to v10
+    ADD_CHECKPOINT2(81769,   "41db9fef8d0ccfa78b570ee9525d4f55de77b510c3ae4b08a1d51b9aec9ade1d", "0x150066455b88"); //Hard fork to v11
+    ADD_CHECKPOINT2(82069,   "fdea800d23d0b2eea19dec8af31e453e883e8315c97e25c8bb3e88ca164f8369", "0x15079b5fdaa8"); //Hard fork to v12
+    ADD_CHECKPOINT2(114969,  "b48245956b87f243048fd61021f4b3e5443e57eee7ff8ba4762d18926e80b80c", "0x1ca552b3ec68"); //Hard fork to v13
+    ADD_CHECKPOINT2(115257,  "338e056551087fe23d6c4b4280244bc5362b004716d85ec799a775f190f9fea9", "0x1cb25f5d4628"); //Hard fork to v14
+    ADD_CHECKPOINT2(160777,  "9496690579af21f38f00e67e11c2e85a15912fe4f412aad33d1162be1579e755", "0x5376eaa196a8"); //Hard fork to v15
+    ADD_CHECKPOINT2(247600,  "f5ecf7b9d2376d7b1d4ca7843c7d39c5854b8f94c968bf9bc2072fa2e0c92ef7", "0x14eb4d0131fe8");
+
     return true;
   }
 
@@ -255,22 +257,13 @@ namespace cryptonote
     std::vector<std::string> records;
 
     // All four MoneroPulse domains have DNSSEC on and valid
-    static const std::vector<std::string> dns_urls = { "checkpoints.moneropulse.se"
-						     , "checkpoints.moneropulse.org"
-						     , "checkpoints.moneropulse.net"
-						     , "checkpoints.moneropulse.co"
+    static const std::vector<std::string> dns_urls = { 
     };
 
-    static const std::vector<std::string> testnet_dns_urls = { "testpoints.moneropulse.se"
-							     , "testpoints.moneropulse.org"
-							     , "testpoints.moneropulse.net"
-							     , "testpoints.moneropulse.co"
+    static const std::vector<std::string> testnet_dns_urls = { 
     };
 
-    static const std::vector<std::string> stagenet_dns_urls = { "stagenetpoints.moneropulse.se"
-                   , "stagenetpoints.moneropulse.org"
-                   , "stagenetpoints.moneropulse.net"
-                   , "stagenetpoints.moneropulse.co"
+    static const std::vector<std::string> stagenet_dns_urls = { 
     };
 
     if (!tools::dns_utils::load_txt_records_from_dns(records, nettype == TESTNET ? testnet_dns_urls : nettype == STAGENET ? stagenet_dns_urls : dns_urls))

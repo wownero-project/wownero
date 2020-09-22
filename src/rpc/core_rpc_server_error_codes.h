@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -48,6 +48,7 @@
 #define CORE_RPC_ERROR_CODE_PAYMENT_TOO_LOW       -16
 #define CORE_RPC_ERROR_CODE_DUPLICATE_PAYMENT     -17
 #define CORE_RPC_ERROR_CODE_STALE_PAYMENT         -18
+#define CORE_RPC_ERROR_CODE_RESTRICTED            -19
 
 static inline const char *get_rpc_server_error_message(int64_t code)
 {
@@ -70,6 +71,7 @@ static inline const char *get_rpc_server_error_message(int64_t code)
     case CORE_RPC_ERROR_CODE_PAYMENT_TOO_LOW: return "Payment too low";
     case CORE_RPC_ERROR_CODE_DUPLICATE_PAYMENT: return "Duplicate payment";
     case CORE_RPC_ERROR_CODE_STALE_PAYMENT: return "Stale payment";
+    case CORE_RPC_ERROR_CODE_RESTRICTED: return "Parameters beyond restricted allowance";
     default: MERROR("Unknown error: " << code); return "Unknown error";
   }
 }

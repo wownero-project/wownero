@@ -32,10 +32,11 @@ from .rpc import JSONRPC
 
 class Daemon(object):
 
-    def __init__(self, protocol='http', host='127.0.0.1', port=0, idx=0):
+    def __init__(self, protocol='http', host='127.0.0.1', port=0, idx=0, restricted_rpc = False):
+        base = 18480 if restricted_rpc else 18180
         self.host = host
         self.port = port
-        self.rpc = JSONRPC('{protocol}://{host}:{port}'.format(protocol=protocol, host=host, port=port if port else 18180+idx))
+        self.rpc = JSONRPC('{protocol}://{host}:{port}'.format(protocol=protocol, host=host, port=port if port else base+idx))
 
     def getblocktemplate(self, address, prev_block = "", client = ""):
         getblocktemplate = {
@@ -464,7 +465,7 @@ class Daemon(object):
 
     def in_peers(self, in_peers):
         in_peers = {
-            'client': client,
+            'in_peers': in_peers,
         }
         return self.rpc.send_request('/in_peers', in_peers)
 
@@ -552,6 +553,16 @@ class Daemon(object):
             'id': '0'
         }
         return self.rpc.send_json_rpc_request(flush_cache)
+
+    def sync_txpool(self):
+        sync_txpool = {
+            'method': 'sync_txpool',
+            'params': {
+            },
+            'jsonrpc': '2.0',
+            'id': '0'
+        }
+        return self.rpc.send_json_rpc_request(sync_txpool)
 
     def rpc_access_info(self, client):
         rpc_access_info = {

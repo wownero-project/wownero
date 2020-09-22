@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2014-2020, The Monero Project
 #
 # All rights reserved.
 #
@@ -40,9 +40,11 @@ set(core_tests_sources
   ring_signature_1.cpp
   transaction_tests.cpp
   tx_validation.cpp
+  tx_pool.cpp
   v2_tests.cpp
   rct.cpp
   bulletproofs.cpp
+  rct2.cpp
   wallet_tools.cpp)
 
 set(core_tests_headers
@@ -57,11 +59,13 @@ set(core_tests_headers
   integer_overflow.h
   multisig.h
   ring_signature_1.h
+  tx_pool.h
   transaction_tests.h
   tx_validation.h
   v2_tests.h
   rct.h
   bulletproofs.h
+  rct2.h
   wallet_tools.h)
 
 add_executable(core_tests

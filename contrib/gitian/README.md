@@ -62,7 +62,7 @@ echo "%sudo ALL=NOPASSWD: /usr/bin/lxc-execute" >> /etc/sudoers.d/gitian-lxc
 # make /etc/rc.local script that sets up bridge between guest and host
 echo '#!/bin/sh -e' > /etc/rc.local
 echo 'brctl addbr br0' >> /etc/rc.local
-echo 'ip addr add 10.0.3.1/24 broadcast 10.0.3.255 dev br0' >> /etc/rc.local
+echo 'ip addr add 10.0.2.2/24 broadcast 10.0.2.255 dev br0' >> /etc/rc.local
 echo 'ip link set br0 up' >> /etc/rc.local
 echo 'firewall-cmd --zone=trusted --add-interface=br0' >> /etc/rc.local
 echo 'exit 0' >> /etc/rc.local
@@ -70,8 +70,8 @@ chmod +x /etc/rc.local
 # make sure that USE_LXC is always set when logging in as gitianuser,
 # and configure LXC IP addresses
 echo 'export USE_LXC=1' >> /home/gitianuser/.profile
-echo 'export GITIAN_HOST_IP=10.0.3.1' >> /home/gitianuser/.profile
-echo 'export LXC_GUEST_IP=10.0.3.5' >> /home/gitianuser/.profile
+echo 'export GITIAN_HOST_IP=10.0.2.2' >> /home/gitianuser/.profile
+echo 'export LXC_GUEST_IP=10.0.2.5' >> /home/gitianuser/.profile
 reboot
 ```
 
@@ -126,7 +126,7 @@ Setup for LXC:
 
 ```bash
 GH_USER=fluffypony
-VERSION=v0.15.0.0
+VERSION=v0.17.0.0
 
 ./gitian-build.py --setup $GH_USER $VERSION
 ```
@@ -167,13 +167,12 @@ If all went well, this produces a number of (uncommitted) `.assert` files in the
 Checking your work
 ------------------
 
-Take a look in the assert files and note the SHA256 checksums listed there. eg for `v0.15.0.0` you should get this checksum:
+Take a look in the assert files and note the SHA256 checksums listed there.
 
-```
-2b95118f53d98d542a85f8732b84ba13b3cd20517ccb40332b0edd0ddf4f8c62  monero-x86_64-linux-gnu.tar.gz
-```
+You should verify that the checksum that is listed matches each of the binaries you actually built.
+This may be done on Linux using the `sha256sum` command or on MacOS using `shasum --algorithm 256` for example.
 
-You should verify that this is really the checksum you get on that file you built.  You can also look in the gitian.sigs repo and / or [getmonero.org release checksums](https://web.getmonero.org/downloads/hashes.txt) to see if others got the same checksum for the same version tag.  If there is ever a mismatch -- **STOP! Something is wrong**.  Contact others on IRC / github to figure out what is going on.
+You can also look in the [gitian.sigs](https://github.com/monero-project/gitian.sigs/) repo and / or [getmonero.org release checksums](https://web.getmonero.org/downloads/hashes.txt) to see if others got the same checksum for the same version tag.  If there is ever a mismatch -- **STOP! Something is wrong**.  Contact others on IRC / github to figure out what is going on.
 
 
 Signing assert files
@@ -183,13 +182,13 @@ If you chose to do detached signing using `--detach-sign` above (recommended), y
 
 ```bash
 GH_USER=fluffypony
-VERSION=v0.15.0.0
+VERSION=v0.17.0.0
 
 gpg --detach-sign ${VERSION}-linux/${GH_USER}/monero-linux-*-build.assert
 gpg --detach-sign ${VERSION}-win/${GH_USER}/monero-win-*-build.assert
 gpg --detach-sign ${VERSION}-osx/${GH_USER}/monero-osx-*-build.assert
+gpg --detach-sign ${VERSION}-android/${GH_USER}/monero-android-*-build.assert
 ```
-<!-- TODO: Replace * above with ${VERSION} once gitian builds correct file name -->
 
 This will create a `.sig` file for each `.assert` file above (2 files for each platform).
 
@@ -225,4 +224,20 @@ To get all build options run:
 ```bash
 ./gitian-build.py --help
 ```
+
+Doing Successive Builds
+-----------------------
+
+If you need to do multiple iterations (while developing/testing) you can use the
+`--rebuild` option instead of `--build` on subsequent iterations. This skips the
+initial check for the freshness of the depends tools. In particular, doing this
+check all the time prevents rebuilding when you have no network access.
+
+
+Local-Only Builds
+-----------------
+
+If you need to run builds while disconnected from the internet, make sure you have
+local up-to-date repos in advance. Then specify your local repo using the `--url`
+option when building. This will avoid attempts to git pull across a network.
 

@@ -31,6 +31,7 @@
 #include "misc_log_ex.h"
 #include "cryptonote_config.h"
 #include "rctTypes.h"
+#include "int-util.h"
 using namespace crypto;
 using namespace std;
 
@@ -118,40 +119,22 @@ namespace rct {
     //uint long long to 32 byte key
     void d2h(key & amounth, const xmr_amount in) {
         sc_0(amounth.bytes);
-        xmr_amount val = in;
-        int i = 0;
-        while (val != 0) {
-            amounth[i] = (unsigned char)(val & 0xFF);
-            i++;
-            val /= (xmr_amount)256;
-        }
+        memcpy_swap64le(amounth.bytes, &in, 1);
     }
     
     //uint long long to 32 byte key
     key d2h(const xmr_amount in) {
         key amounth;
-        sc_0(amounth.bytes);
-        xmr_amount val = in;
-        int i = 0;
-        while (val != 0) {
-            amounth[i] = (unsigned char)(val & 0xFF);
-            i++;
-            val /= (xmr_amount)256;
-        }
+        d2h(amounth, in);
         return amounth;
     }
 
     //uint long long to int[64]
     void d2b(bits  amountb, xmr_amount val) {
         int i = 0;
-        while (val != 0) {
-            amountb[i] = val & 1;
-            i++;
-            val >>= 1;
-        }
         while (i < 64) {
-            amountb[i] = 0;
-            i++;
+            amountb[i++] = val & 1;
+            val >>= 1;
         }
     }
     
@@ -172,15 +155,10 @@ namespace rct {
         int val = 0, i = 0, j = 0;
         for (j = 0; j < 8; j++) {
             val = (unsigned char)test.bytes[j];
-            i = 8 * j;
-            while (val != 0) {
-                amountb2[i] = val & 1;
-                i++;
+            i = 0;
+            while (i < 8) {
+                amountb2[j*8+i++] = val & 1;
                 val >>= 1;
-            }
-            while (i < 8 * (j + 1)) {
-                amountb2[i] = 0;
-                i++;
             }
         }
     }
@@ -215,8 +193,10 @@ namespace rct {
         switch (type)
         {
             case RCTTypeSimple:
+            case RCTTypeSimpleBulletproof:
             case RCTTypeBulletproof:
             case RCTTypeBulletproof2:
+            case RCTTypeCLSAG:
                 return true;
             default:
                 return false;
@@ -227,12 +207,32 @@ namespace rct {
     {
         switch (type)
         {
+            case RCTTypeSimpleBulletproof:
+            case RCTTypeFullBulletproof:
             case RCTTypeBulletproof:
             case RCTTypeBulletproof2:
+            case RCTTypeCLSAG:
                 return true;
             default:
                 return false;
         }
+    }
+
+    bool is_rct_old_bulletproof(int type)
+    {
+      switch (type)
+        {
+        case RCTTypeSimpleBulletproof:
+        case RCTTypeFullBulletproof:
+          return true;
+        default:
+          return false;
+        }
+    }
+
+    bool is_rct_new_bulletproof(int type)
+    {
+      return is_rct_bulletproof(type) && !is_rct_old_bulletproof(type);
     }
 
     bool is_rct_borromean(int type)
@@ -247,6 +247,25 @@ namespace rct {
         }
     }
 
+    size_t n_bulletproof_v1_amounts(const Bulletproof &proof)
+    {
+        CHECK_AND_ASSERT_MES(proof.L.size() >= 6, 0, "Invalid bulletproof L size");
+        CHECK_AND_ASSERT_MES(proof.L.size() <= 31, 0, "Insane bulletproof L size");
+        return 1 << (proof.L.size() - 6);
+    }
+    size_t n_bulletproof_v1_amounts(const std::vector<Bulletproof> &proofs)
+    {
+        size_t n = 0;
+        for (const Bulletproof &proof: proofs)
+        {
+            size_t n2 = n_bulletproof_v1_amounts(proof);
+            CHECK_AND_ASSERT_MES(n2 < std::numeric_limits<uint32_t>::max() - n, 0, "Invalid number of bulletproofs");
+            if (n2 == 0)
+                return 0;
+            n += n2;
+        }
+        return n;
+    }
     size_t n_bulletproof_amounts(const Bulletproof &proof)
     {
         CHECK_AND_ASSERT_MES(proof.L.size() >= 6, 0, "Invalid bulletproof L size");

@@ -1299,7 +1299,7 @@ namespace cryptonote
           txpool_tx_meta_t meta;
           if (!m_blockchain.get_txpool_tx_meta(txid, meta))
           {
-            MERROR("Failed to find tx meta in txpool");
+            MDEBUG("Failed to find tx meta in txpool");
             // continue, not fatal
             continue;
           }
@@ -1391,7 +1391,7 @@ namespace cryptonote
       txpool_tx_meta_t meta;
       if (!m_blockchain.get_txpool_tx_meta(sorted_it->second, meta))
       {
-        MERROR("  failed to find tx meta");
+        MDEBUG("  failed to find tx meta");
         continue;
       }
       LOG_PRINT_L2("Considering " << sorted_it->second << ", weight " << meta.weight << ", current block weight " << total_weight << "/" << max_total_weight << ", current coinbase " << print_money(best_coinbase) << ", relay method " << (unsigned)meta.get_relay_method());

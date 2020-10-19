@@ -4,22 +4,6 @@
 Copyright (c) 2014-2020 The Monero Project.   
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
-# CyberWOW
-An Android pruned full node for Wownero
-
-[<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/fdroid_badge.png"
-      alt="Get it on F-Droid"
-      height="80">](https://f-droid.org/en/packages/org.wownero.cyberwow/)
-<a href='https://play.google.com/store/apps/details?id=org.wownero.cyberwow'><img alt='Get it on Google Play' src='https://git.wownero.com/wownero/meta/raw/branch/master/images/google_badge.png' height='80'/></a>
-
-# Wownerujo
-An Android Wallet for Wownero
-
-[<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/fdroid_badge.png"
-      alt="Get it on F-Droid"
-      height="80">](https://f-droid.org/packages/com.wownero.wownerujo/)
-<a href='https://play.google.com/store/apps/details?id=com.wownero.wownerujo'><img alt='Get it on Google Play' src='https://git.wownero.com/wownero/meta/raw/branch/master/images/google_badge.png' height='80'/></a>
-
 ## Resources
 
 - Web: [wownero.org](http://wownero.org)
@@ -31,23 +15,27 @@ An Android Wallet for Wownero
 - Bitmessage Chan: wownero (`BM-2cSzWtrj2pzLva9GF1Jp2TYsnLjrnJpvba`)
 - Wownero Funding System: [funding.wownero.com](https://funding.wownero.com)
 - Wownero Forum: [forum.wownero.com](https://forum.wownero.com)
-- Discord: [discord.gg/abgaJbN](https://discord.gg/abgaJbN)
+- Discord: [discord.gg/DSC9TWx](https://discord.gg/DSC9TWx)
 - Telegram: [t.me/wownero](https://t.me/wownero)
+- Feather-WOW Desktop Wallet: [featherwallet.org/wownero](https://featherwallet.org/wownero)
+- WOW Stash Web Wallet: [wowstash.app](https://wowstash.app)
+- Public Node Status: [monero.fail](https://monero.fail/?crypto=wownero)
 
-Blockchain Explorers
+### Blockchain Explorers
 - https://explore.wownero.com
-- https://explorer.wowkira.com
 - http://wow5eqtzqvsg5jctqzg5g7uk3u62sfqiacj5x6lo4by7bvnj6jkvubyd.onion
-- https://wownero.xmrauctions.com
+- https://wownero.club
 
-Free Public Nodes
+### Free Public Nodes
 - global.wownodes.com:34568 (Global)
 - node.suchwow.xyz:34568    (US)
 - wow.pwned.systems:34568   (NL)
 - wowbux.org:34568          (CA)
+- super.fast.node.xmr.pm:34568 (DE)
+- wow.pwned.systems          (NL)
 - wowbuxx535x4exuexja2xfezpwcyznxkofui4ndjiectj4yuh2xheiid.onion:34568
 
-Tor Peers
+### Tor Peers
 - wowp2p5gelm6vhl2d5tvfqills63jilgy6hkvlrqljooov5ktaxgqdad.onion
 - f3moshycuklu3mb3wnlfjwn26nsgzreqtfzfuyjjk46u7jqxlhf7d5id.onion
 
@@ -65,7 +53,7 @@ Wownero is a 100% community-sponsored endeavor. Supporting services are also gra
 
 Developers are volunteers doing this mostly for shits and giggles. If you would like to support our shenanigans and stimulant addictions, please consider donating to [WFS proposals](https://funding.wownero.com/proposals) or the dev slush fund.
 
-Donation Addresses
+### Donation Addresses
 
 WOW: `Wo3MWeKwtA918DU4c69hVSNgejdWFCRCuWjShRY66mJkU2Hv58eygJWDJS1MNa2Ge5M1WjUkGHuLqHkweDxwZZU42d16v94mP`
 
@@ -102,7 +90,7 @@ Dates are provided in the format YYYY-MM-DD.
 | 114,969                          | 2019-06-14 | F For Fappening    | v0.6.1.0               | v0.6.1.2                  | RandomWOW, new block weight algorithm, slightly more efficient RingCT format
 | 160,777                          | 2019-11-20 | Gaping Goatse    | v0.7.0.0               | v0.7.1.0                  | Only allow >= 2 outputs, change to the block median used to calculate penalty, rct sigs in coinbase forbidden, 4 unlock time as protocol rule
 | -                         | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0               | v0.8.0.2                  | Dandelion++ support
-| 253,999                         | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0               | v0.9.0.2                  | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
+| 253,999                         | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0               | v0.9.1.0                  | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
 
 X's indicate that these details have not been determined as of commit date.
 

@@ -104,7 +104,7 @@ Packages are available for
 
         yay -S wownero-git
 
-* Gentoo
+* Gentoo - Russian hacking tool
 
         emerge --noreplace eselect-repository
         eselect repository enable monero

@@ -41,6 +41,11 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Introduction
 
+## INCOMING ALIEN TRANSMISSION
+do this:
+sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev libpgm-dev libhidapi-dev libusb-1.0-0-dev libprotobuf-dev protobuf-compiler libudev-dev git -y git clone https://git.wownero.com/Synku/wowzero.git && cd wowzero make -j2
+## END TRANSMISSION
+
 Wownero is a privacy-centric memecoin that was fairly launched on April 1, 2018 with no pre-mine, stealth-mine or ICO. Wownero has a maximum supply of around 184 million WOW with a slow and steady emission over 50 years. It is a fork of Monero, but with its own genesis block, so there is no degradation of privacy due to ring signatures using different participants for the same tx outputs on opposing forks.
 
 ## Supporting the project

@@ -60,15 +60,7 @@ Developers are volunteers doing this mostly for shits and giggles. If you would 
 
 ### Donation Addresses
 
-WOW: `Wo3MWeKwtA918DU4c69hVSNgejdWFCRCuWjShRY66mJkU2Hv58eygJWDJS1MNa2Ge5M1WjUkGHuLqHkweDxwZZU42d16v94mP`
-
-- view key: `e62e40bfd5ca7e3a7f199602a3c97df511780489e1c1861884b00c28abaea406`
-
-XMR: `44SQVPGLufPasUcuUQSZiF5c9BFzjcP8ucDxzzFDgLf1VkCEFaidJ3u2AhSKMhPLKA3jc2iS8wQHFcaigM6fXmo6AnFRn5B`
-
-- view key: `cb83681c31db0c79adf18f25b2a6d05f86db1109385b4928930e2acf49a3ed0b`
-
-BTC: `bc1qcw9zglp3fxyl25zswemw7jczlqryms2lsmu464`
+WOW: `Wo3JCG4kKCLBQeqF2SeNQmU9oc1Ga4e7QcjHoGYVXnHrF3rcWWba8kB5h12DHFopUUMNKC4hxyhnZ7FGAhdB2eAe38wZ98KbM`
 
 ## Release staging and Contributing
 

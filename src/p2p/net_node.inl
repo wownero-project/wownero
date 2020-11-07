@@ -71,6 +71,17 @@
 
 #define MIN_WANTED_SEED_NODES 12
 
+static inline boost::asio::ip::address_v4 make_address_v4_from_v6(const boost::asio::ip::address_v6& a)
+{
+  const auto &bytes = a.to_bytes();
+  uint32_t v4 = 0;
+  v4 = (v4 << 8) | bytes[12];
+  v4 = (v4 << 8) | bytes[13];
+  v4 = (v4 << 8) | bytes[14];
+  v4 = (v4 << 8) | bytes[15];
+  return boost::asio::ip::address_v4(v4);
+}
+
 namespace nodetool
 {
   template<class t_payload_net_handler>
@@ -106,6 +117,7 @@ namespace nodetool
     command_line::add_arg(desc, arg_p2p_seed_node);
     command_line::add_arg(desc, arg_tx_proxy);
     command_line::add_arg(desc, arg_anonymous_inbound);
+    command_line::add_arg(desc, arg_ban_list);
     command_line::add_arg(desc, arg_p2p_hide_my_port);
     command_line::add_arg(desc, arg_no_sync);
     command_line::add_arg(desc, arg_no_igd);
@@ -245,6 +257,10 @@ namespace nodetool
         zone.second.m_net_server.get_config_object().close(c);
 
       conns.clear();
+
+      peerlist_entry pe{};
+      pe.adr = addr;
+      zone.second.m_peerlist.remove_from_peer_white(pe);
     }
 
     MCLOG_CYAN(el::Level::Info, "global", "Host " << addr.host_str() << " blocked.");
@@ -439,6 +455,36 @@ namespace nodetool
 
       if (!parse_peers_and_add_to_container(vm, arg_p2p_seed_node, m_seed_nodes))
         return false;
+    }
+
+    if (!command_line::is_arg_defaulted(vm, arg_ban_list))
+    {
+      const std::string ban_list = command_line::get_arg(vm, arg_ban_list);
+
+      const boost::filesystem::path ban_list_path(ban_list);
+      boost::system::error_code ec;
+      if (!boost::filesystem::exists(ban_list_path, ec))
+      {
+        throw std::runtime_error("Can't find ban list file " + ban_list + " - " + ec.message());
+      }
+
+      std::string banned_ips;
+      if (!epee::file_io_utils::load_file_to_string(ban_list_path.string(), banned_ips))
+      {
+        throw std::runtime_error("Failed to read ban list file " + ban_list);
+      }
+
+      std::istringstream iss(banned_ips);
+      for (std::string line; std::getline(iss, line); )
+      {
+        const expect<epee::net_utils::network_address> parsed_addr = net::get_network_address(line, 0);
+        if (!parsed_addr)
+        {
+          MERROR("Invalid IP address: " << line << " - " << parsed_addr.error());
+          continue;
+        }
+        block_host(*parsed_addr, std::numeric_limits<time_t>::max());
+      }
     }
 
     if(command_line::has_arg(vm, arg_p2p_hide_my_port))
@@ -1228,7 +1274,10 @@ namespace nodetool
   template<class t_payload_net_handler>
   bool node_server<t_payload_net_handler>::try_to_connect_and_handshake_with_new_peer(const epee::net_utils::network_address& na, bool just_take_peerlist, uint64_t last_seen_stamp, PeerType peer_type, uint64_t first_seen_stamp)
   {
-    network_zone& zone = m_network_zones.at(na.get_zone());
+    const auto i = m_network_zones.find(na.get_zone());
+    if (i == m_network_zones.end())
+      return false;
+    network_zone& zone = i->second;
     if (zone.m_connect == nullptr) // outgoing connections in zone not possible
       return false;
 
@@ -1428,17 +1477,44 @@ namespace nodetool
             const uint32_t actual_ip = na.as<const epee::net_utils::ipv4_network_address>().ip();
             classB.insert(actual_ip & 0x0000ffff);
           }
+          else if (cntxt.m_remote_address.get_type_id() == epee::net_utils::ipv6_network_address::get_type_id())
+          {
+            const epee::net_utils::network_address na = cntxt.m_remote_address;
+            const boost::asio::ip::address_v6 &actual_ip = na.as<const epee::net_utils::ipv6_network_address>().ip();
+            if (actual_ip.is_v4_mapped())
+            {
+              boost::asio::ip::address_v4 v4ip = make_address_v4_from_v6(actual_ip);
+              uint32_t actual_ipv4;
+              memcpy(&actual_ipv4, v4ip.to_bytes().data(), sizeof(actual_ipv4));
+              classB.insert(actual_ipv4 & ntohl(0xffff0000));
+            }
+          }
           return true;
         });
       }
 
+      auto get_host_string = [](const epee::net_utils::network_address &address) {
+        if (address.get_type_id() == epee::net_utils::ipv6_network_address::get_type_id())
+        {
+          boost::asio::ip::address_v6 actual_ip = address.as<const epee::net_utils::ipv6_network_address>().ip();
+          if (actual_ip.is_v4_mapped())
+          {
+            boost::asio::ip::address_v4 v4ip = make_address_v4_from_v6(actual_ip);
+            uint32_t actual_ipv4;
+            memcpy(&actual_ipv4, v4ip.to_bytes().data(), sizeof(actual_ipv4));
+            return epee::net_utils::ipv4_network_address(actual_ipv4, 0).host_str();
+          }
+        }
+        return address.host_str();
+      };
+      std::unordered_set<std::string> hosts_added;
       std::deque<size_t> filtered;
       const size_t limit = use_white_list ? 20 : std::numeric_limits<size_t>::max();
       for (int step = 0; step < 2; ++step)
       {
         bool skip_duplicate_class_B = step == 0;
         size_t idx = 0, skipped = 0;
-        zone.m_peerlist.foreach (use_white_list, [&classB, &filtered, &idx, &skipped, skip_duplicate_class_B, limit, next_needed_pruning_stripe](const peerlist_entry &pe){
+        zone.m_peerlist.foreach (use_white_list, [&classB, &filtered, &idx, &skipped, skip_duplicate_class_B, limit, next_needed_pruning_stripe, &hosts_added, &get_host_string](const peerlist_entry &pe){
           if (filtered.size() >= limit)
             return false;
           bool skip = false;
@@ -1448,6 +1524,27 @@ namespace nodetool
             uint32_t actual_ip = na.as<const epee::net_utils::ipv4_network_address>().ip();
             skip = classB.find(actual_ip & 0x0000ffff) != classB.end();
           }
+          else if (skip_duplicate_class_B && pe.adr.get_type_id() == epee::net_utils::ipv6_network_address::get_type_id())
+          {
+            const epee::net_utils::network_address na = pe.adr;
+            const boost::asio::ip::address_v6 &actual_ip = na.as<const epee::net_utils::ipv6_network_address>().ip();
+            if (actual_ip.is_v4_mapped())
+            {
+              boost::asio::ip::address_v4 v4ip = make_address_v4_from_v6(actual_ip);
+              uint32_t actual_ipv4;
+              memcpy(&actual_ipv4, v4ip.to_bytes().data(), sizeof(actual_ipv4));
+              skip = classB.find(actual_ipv4 & ntohl(0xffff0000)) != classB.end();
+            }
+          }
+
+          // consider each host once, to avoid giving undue inflence to hosts running several nodes
+          if (!skip)
+          {
+            const auto i = hosts_added.find(get_host_string(pe.adr));
+            if (i != hosts_added.end())
+              skip = true;
+          }
+
           if (skip)
             ++skipped;
           else if (next_needed_pruning_stripe == 0 || pe.pruning_seed == 0)
@@ -1455,16 +1552,17 @@ namespace nodetool
           else if (next_needed_pruning_stripe == tools::get_pruning_stripe(pe.pruning_seed))
             filtered.push_front(idx);
           ++idx;
+          hosts_added.insert(get_host_string(pe.adr));
           return true;
         });
         if (skipped == 0 || !filtered.empty())
           break;
         if (skipped)
-          MINFO("Skipping " << skipped << " possible peers as they share a class B with existing peers");
+          MDEBUG("Skipping " << skipped << " possible peers as they share a class B with existing peers");
       }
       if (filtered.empty())
       {
-        MDEBUG("No available peer in " << (use_white_list ? "white" : "gray") << " list filtered by " << next_needed_pruning_stripe);
+        MINFO("No available peer in " << (use_white_list ? "white" : "gray") << " list filtered by " << next_needed_pruning_stripe);
         return false;
       }
       if (use_white_list)

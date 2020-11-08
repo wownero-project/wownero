@@ -1,5 +1,5 @@
 ---
-name: "wownero-win-0.9"
+name: "wowzero-win-0.9"
 enable_cache: true
 suites:
 - "bionic"
@@ -36,8 +36,8 @@ alternatives:
   package: "x86_64-w64-mingw32-gcc"
   path: "/usr/bin/x86_64-w64-mingw32-gcc-posix"
 remotes:
-- "url": "https://git.wownero.com/wownero/wownero.git"
-  "dir": "wownero"
+- "url": "https://git.wownero.com/synku/wowzero.git"
+  "dir": "wowzero"
 files: []
 script: |
   WRAP_DIR=$HOME/wrapped
@@ -91,7 +91,7 @@ script: |
   export SOURCE_DATE_EPOCH=`date -d 2000-01-01T12:00:00 +%s`
 
   git config --global core.abbrev 9
-  cd wownero
+  cd wowzero
   # Set the version string that gets added to the tar archive name
   version="`git describe`"
   if [[ $version == *"-"*"-"* ]]; then
@@ -128,7 +128,7 @@ script: |
     cmake .. -DCMAKE_TOOLCHAIN_FILE=${BASEPREFIX}/${i}/share/toolchain.cmake
     make ${MAKEOPTS}
     cp ../LICENSE bin
-    DISTNAME=wownero-${i}-${version}
+    DISTNAME=wowzero-${i}-${version}
     mv bin ${DISTNAME}
     find ${DISTNAME}/ | sort | zip -X@ ${OUTDIR}/${DISTNAME}.zip
     cd .. && rm -rf build

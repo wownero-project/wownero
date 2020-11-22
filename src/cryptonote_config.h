@@ -77,7 +77,7 @@
 #define ORPHANED_BLOCKS_MAX_COUNT                       100
 
 
-#define DIFFICULTY_TARGET_V2                            300
+#define DIFFICULTY_TARGET_V2                            100
 #define DIFFICULTY_TARGET_V1                            300
 #define DIFFICULTY_WINDOW_V3                            144
 #define DIFFICULTY_WINDOW_V2                            60

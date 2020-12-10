@@ -7,4 +7,4 @@ steps:
 - name: linux-build
   image: wownero/wow-dependencies:v1.0
   commands:
-  - make -j2 release-static-linux-x86_64
+  - make release-static-linux-x86_64

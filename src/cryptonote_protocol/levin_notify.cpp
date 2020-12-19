@@ -36,6 +36,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include "byte_slice.h"
 #include "common/expect.h"
 #include "common/varint.h"
 #include "cryptonote_config.h"
@@ -52,7 +53,7 @@
 
 namespace
 {
-  int get_command_from_message(const cryptonote::blobdata &msg)
+  int get_command_from_message(const epee::byte_slice &msg)
   {
     return msg.size() >= sizeof(epee::levin::bucket_head2) ? SWAP32LE(((epee::levin::bucket_head2*)msg.data())->m_command) : 0;
   }
@@ -105,8 +106,44 @@ namespace levin
       return std::chrono::steady_clock::duration{crypto::rand_range(rep(0), range.count())};
     }
 
-    //! \return Outgoing connections supporting fragments in `connections` filtered by remote blockchain height.
-    std::vector<boost::uuids::uuid> get_out_connections(connections& p2p, uint64_t min_blockchain_height)
+    uint64_t get_median_remote_height(connections& p2p)
+    {
+        std::vector<uint64_t> remote_heights;
+        remote_heights.reserve(connection_id_reserve_size);
+        p2p.foreach_connection([&remote_heights] (detail::p2p_context& context) {
+          if (!context.m_is_income)
+          {
+            remote_heights.emplace_back(context.m_remote_blockchain_height);
+          }
+          return true;
+        });
+
+        if (remote_heights.empty())
+        {
+          return 0;
+        }
+
+        const size_t n = remote_heights.size() / 2;
+        std::sort(remote_heights.begin(), remote_heights.end());
+        if (remote_heights.size() % 2 != 0)
+        {
+          return remote_heights[n];
+        }
+        return remote_heights[n-1];
+    }
+
+    uint64_t get_blockchain_height(connections& p2p, const i_core_events* core)
+    {
+      const uint64_t local_blockchain_height = core->get_current_blockchain_height();
+      if (core->is_synchronized())
+      {
+        return local_blockchain_height;
+      }
+      return std::max(local_blockchain_height, get_median_remote_height(p2p));
+    }
+
+    //! \return Outgoing connections supporting fragments in `connections` filtered by blockchain height.
+    std::vector<boost::uuids::uuid> get_out_connections(connections& p2p, uint64_t blockchain_height)
     {
       std::vector<boost::uuids::uuid> outs;
       outs.reserve(connection_id_reserve_size);
@@ -115,16 +152,22 @@ namespace levin
          the reserve call so a strand is not used. Investigate if there is lots
          of waiting in here. */
 
-      p2p.foreach_connection([&outs, min_blockchain_height] (detail::p2p_context& context) {
-        if (!context.m_is_income && context.m_remote_blockchain_height >= min_blockchain_height)
+      p2p.foreach_connection([&outs, blockchain_height] (detail::p2p_context& context) {
+        if (!context.m_is_income && context.m_remote_blockchain_height >= blockchain_height)
           outs.emplace_back(context.m_connection_id);
         return true;
       });
 
+      MDEBUG("Found " << outs.size() << " out connections having height >= " << blockchain_height);
       return outs;
     }
 
-    std::string make_tx_payload(std::vector<blobdata>&& txs, const bool pad, const bool fluff)
+    std::vector<boost::uuids::uuid> get_out_connections(connections& p2p, const i_core_events* core)
+    {
+      return get_out_connections(p2p, get_blockchain_height(p2p, core));
+    }
+
+    epee::byte_slice make_tx_payload(std::vector<blobdata>&& txs, const bool pad, const bool fluff)
     {
       NOTIFY_NEW_TRANSACTIONS::request request{};
       request.txs = std::move(txs);
@@ -146,7 +189,7 @@ namespace levin
           padding -= overhead;
         request._ = std::string(padding, ' ');
 
-        std::string arg_buff;
+        epee::byte_slice arg_buff;
         epee::serialization::store_t_to_binary(request, arg_buff);
 
         // we probably lowballed the payload size a bit, so added a but too much. Fix this now.
@@ -158,7 +201,7 @@ namespace levin
         // if the size of _ moved enough, we might lose byte in size encoding, we don't care
       }
 
-      std::string fullBlob;
+      epee::byte_slice fullBlob;
       if (!epee::serialization::store_t_to_binary(request, fullBlob))
         throw std::runtime_error{"Failed to serialize to epee binary format"};
 
@@ -167,12 +210,12 @@ namespace levin
 
     bool make_payload_send_txs(connections& p2p, std::vector<blobdata>&& txs, const boost::uuids::uuid& destination, const bool pad, const bool fluff)
     {
-      const cryptonote::blobdata blob = make_tx_payload(std::move(txs), pad, fluff);
+      const epee::byte_slice blob = make_tx_payload(std::move(txs), pad, fluff);
       p2p.for_connection(destination, [&blob](detail::p2p_context& context) {
         on_levin_traffic(context, true, true, false, blob.size(), get_command_from_message(blob));
         return true;
       });
-      return p2p.notify(NOTIFY_NEW_TRANSACTIONS::ID, epee::strspan<std::uint8_t>(blob), destination);
+      return p2p.notify(NOTIFY_NEW_TRANSACTIONS::ID, epee::to_span(blob), destination);
     }
 
     /* The current design uses `asio::strand`s. The documentation isn't as clear
@@ -233,7 +276,7 @@ namespace levin
   {
     struct zone
     {
-      explicit zone(boost::asio::io_service& io_service, std::shared_ptr<connections> p2p, epee::byte_slice noise_in, bool is_public, bool pad_txs)
+      explicit zone(boost::asio::io_service& io_service, std::shared_ptr<connections> p2p, epee::byte_slice noise_in, epee::net_utils::zone zone, bool pad_txs)
         : p2p(std::move(p2p)),
           noise(std::move(noise_in)),
           next_epoch(io_service),
@@ -243,6 +286,7 @@ namespace levin
           channels(),
           connection_count(0),
           flush_callbacks(0),
+          nzone(zone),
           is_public(is_public),
           pad_txs(pad_txs),
           fluffing(false)
@@ -260,6 +304,7 @@ namespace levin
       std::deque<noise_channel> channels;  //!< Never touch after init; only update elements on `noise_channel.strand`
       std::atomic<std::size_t> connection_count; //!< Only update in strand, can be read at any time
       std::uint32_t flush_callbacks;             //!< Number of active fluff flush callbacks queued
+      const epee::net_utils::zone nzone;         //!< Zone is public ipv4/ipv6 connections, or i2p or tor
       const bool is_public;                      //!< Zone is public ipv4/ipv6 connections
       const bool pad_txs;                        //!< Pad txs to the next boundary for privacy
       bool fluffing;                             //!< Zone is in Dandelion++ fluff epoch
@@ -297,7 +342,8 @@ namespace levin
         if (!channel.connection.is_nil())
           channel.queue.push_back(std::move(message_));
         else if (destination_ == 0 && zone_->connection_count == 0)
-          MWARNING("Unable to send transaction(s) over anonymity network - no available outbound connections");
+          MWARNING("Unable to send transaction(s) to " << epee::net_utils::zone_to_string(zone_->nzone) <<
+			" - no available outbound connections");
       }
     };
 
@@ -399,7 +445,7 @@ namespace levin
         zone->p2p->foreach_connection([txs, now, &zone, &source, &in_duration, &out_duration, &next_flush] (detail::p2p_context& context)
         {
           // When i2p/tor, only fluff to outbound connections
-          if (source != context.m_connection_id && (zone->is_public || !context.m_is_income))
+          if (source != context.m_connection_id && (zone->nzone == epee::net_utils::zone::public_ || !context.m_is_income))
           {
             if (context.fluff_txs.empty())
               context.flush_time = now + (context.m_is_income ? in_duration() : out_duration());
@@ -526,7 +572,7 @@ namespace levin
             }
 
             // connection list may be outdated, try again
-            update_channels::run(zone_, get_out_connections(*zone_->p2p, core_->get_target_blockchain_height()));
+            update_channels::run(zone_, get_out_connections(*zone_->p2p, core_));
           }
 
           MERROR("Unable to send transaction(s) via Dandelion++ stem");
@@ -562,7 +608,7 @@ namespace levin
 
         assert(zone_->strand.running_in_this_thread());
 
-        if (zone_->is_public)
+        if (zone_->nzone == epee::net_utils::zone::public_)
           MDEBUG("Starting new Dandelion++ epoch: " << (fluffing_ ? "fluff" : "stem"));
 
         zone_->map = std::move(map_);
@@ -630,10 +676,12 @@ namespace levin
           {
             channel.active = nullptr;
             channel.connection = boost::uuids::nil_uuid();
+            auto height = get_blockchain_height(*zone_->p2p, core_);
 
-            auto connections = get_out_connections(*zone_->p2p, core_->get_target_blockchain_height());
+            auto connections = get_out_connections(*zone_->p2p, height);
             if (connections.empty())
-              MWARNING("Lost all outbound connections to anonymity network - currently unable to send transaction(s)");
+              MWARNING("Unable to send transaction(s) to " << epee::net_utils::zone_to_string(zone_->nzone) <<
+			" - no suitable outbound connections at height " << height);
 
             zone_->strand.post(update_channels{zone_, std::move(connections)});
           }
@@ -664,7 +712,7 @@ namespace levin
 
         const bool fluffing = crypto::rand_idx(unsigned(100)) < CRYPTONOTE_DANDELIONPP_FLUFF_PROBABILITY;
         const auto start = std::chrono::steady_clock::now();
-        auto connections = get_out_connections(*(zone_->p2p), core_->get_target_blockchain_height());
+        auto connections = get_out_connections(*(zone_->p2p), core_);
         zone_->strand.dispatch(
           change_channels{zone_, net::dandelionpp::connection_map{std::move(connections), count_}, fluffing}
         );
@@ -676,15 +724,15 @@ namespace levin
     };
   } // anonymous
 
-  notify::notify(boost::asio::io_service& service, std::shared_ptr<connections> p2p, epee::byte_slice noise, const bool is_public, const bool pad_txs, i_core_events& core)
-    : zone_(std::make_shared<detail::zone>(service, std::move(p2p), std::move(noise), is_public, pad_txs))
+  notify::notify(boost::asio::io_service& service, std::shared_ptr<connections> p2p, epee::byte_slice noise, epee::net_utils::zone zone, const bool pad_txs, i_core_events& core)
+    : zone_(std::make_shared<detail::zone>(service, std::move(p2p), std::move(noise), zone, pad_txs))
     , core_(std::addressof(core))
   {
     if (!zone_->p2p)
       throw std::logic_error{"cryptonote::levin::notify cannot have nullptr p2p argument"};
 
     const bool noise_enabled = !zone_->noise.empty();
-    if (noise_enabled || is_public)
+    if (noise_enabled || zone == epee::net_utils::zone::public_)
     {
       const auto now = std::chrono::steady_clock::now();
       const auto min_epoch = noise_enabled ? noise_min_epoch : dandelionpp_min_epoch;
@@ -715,7 +763,7 @@ namespace levin
       return;
 
     zone_->strand.dispatch(
-      update_channels{zone_, get_out_connections(*(zone_->p2p), core_->get_target_blockchain_height())}
+      update_channels{zone_, get_out_connections(*(zone_->p2p), core_)}
     );
   }
 
@@ -778,9 +826,9 @@ namespace levin
 
       // Padding is not useful when using noise mode. Send as stem so receiver
       // forwards in Dandelion++ mode.
-      const std::string payload = make_tx_payload(std::move(txs), false, false);
+      const epee::byte_slice payload = make_tx_payload(std::move(txs), false, false);
       epee::byte_slice message = epee::levin::make_fragmented_notify(
-        zone_->noise, NOTIFY_NEW_TRANSACTIONS::ID, epee::strspan<std::uint8_t>(payload)
+        zone_->noise, NOTIFY_NEW_TRANSACTIONS::ID, epee::to_span(payload)
       );
       if (CRYPTONOTE_MAX_FRAGMENTS * zone_->noise.size() < message.size())
       {
@@ -806,7 +854,7 @@ namespace levin
         case relay_method::stem:
         case relay_method::forward:
         case relay_method::local:
-          if (zone_->is_public)
+          if (zone_->nzone == epee::net_utils::zone::public_)
           {
             // this will change a local/forward tx to stem or fluff ...
             zone_->strand.dispatch(

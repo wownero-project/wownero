@@ -45,4 +45,4 @@ foreach(BLOB_NAME checkpoints)
     )
 endforeach()
 
-add_library(blocks STATIC blocks.cpp ${GENERATED_SOURCES})
+monero_add_library(blocks blocks.cpp ${GENERATED_SOURCES})

@@ -54,6 +54,13 @@ if (USE_CCACHE)
 else()
 	message(STATUS "ccache deselected")
 endif()
+option (USE_COMPILATION_TIME_PROFILER "Use compilation time profiler (for CLang >= 9 only)" OFF)
+if (USE_COMPILATION_TIME_PROFILER)
+	if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+		message(FATAL_ERROR "The flag USE_COMPILATION_TIME_PROFILER is meant to be set only for CLang compiler!")
+	endif()
+	add_compile_options("-ftime-trace")
+endif()
 
 # Job pool feature requires Ninja.
 if (${CMAKE_VERSION} VERSION_GREATER "3.0.0")
@@ -68,6 +75,20 @@ if (${CMAKE_VERSION} VERSION_GREATER "3.0.0")
     set_property(GLOBAL APPEND PROPERTY JOB_POOLS link_job_pool=${WOWNERO_PARALLEL_LINK_JOBS})
     set(CMAKE_JOB_POOL_LINK link_job_pool)
   endif ()
+endif ()
+  
+option (USE_CLANG_TIDY_C   "Lint the code with clang-tidy - variant C"   OFF)
+option (USE_CLANG_TIDY_CXX "Lint the code with clang-tidy - variant C++" OFF)
+if (USE_CLANG_TIDY_C AND USE_CLANG_TIDY_CXX)
+	message(FATAL_ERROR "Enabling both USE_CLANG_TIDY_C and USE_CLANG_TIDY_CXX simultaneously crashes clang-tidy.")
+endif()
+if (USE_CLANG_TIDY_C OR USE_CLANG_TIDY_CXX)
+	include(SetClangTidy)
+endif()
+if (USE_CLANG_TIDY_C)
+	monero_clang_tidy("C")
+elseif (USE_CLANG_TIDY_CXX)
+	monero_clang_tidy("CXX")
 endif()
 
 enable_language(C ASM)
@@ -124,6 +145,24 @@ function (add_definition_if_library_exists library function header var)
   if(${${supported}})
     add_definitions("-D${var}")
   endif()
+endfunction()
+
+option(RELINK_TARGETS "Relink targets, when just a dependant .so changed, but not its header?" OFF)
+function (monero_set_target_no_relink target)
+  if (RELINK_TARGETS MATCHES OFF)
+    # Will not relink the target, when just its dependant .so has changed, but not it's interface
+    set_target_properties("${target}" PROPERTIES LINK_DEPENDS_NO_SHARED true)
+  endif()
+endfunction()
+
+function (monero_add_minimal_executable name)
+  source_group("${name}"
+    FILES
+      ${ARGN})
+
+  add_executable("${name}"
+    ${ARGN})
+    monero_set_target_no_relink( ${name} )
 endfunction()
 
 if(NOT CMAKE_BUILD_TYPE)

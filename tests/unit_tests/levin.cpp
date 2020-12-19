@@ -120,7 +120,12 @@ namespace
     {
         std::map<cryptonote::relay_method, std::vector<cryptonote::blobdata>> relayed_;
 
-        uint64_t get_target_blockchain_height() const override
+        virtual bool is_synchronized() const final
+        {
+            return false;
+        }
+
+        virtual uint64_t get_current_blockchain_height() const final
         {
             return 0;
         }
@@ -233,9 +238,9 @@ namespace
             return {connection, std::move(request)};
         }
 
-        virtual int invoke(int command, const epee::span<const uint8_t> in_buff, std::string& buff_out, cryptonote::levin::detail::p2p_context& context) override final
+        virtual int invoke(int command, const epee::span<const uint8_t> in_buff, epee::byte_slice& buff_out, cryptonote::levin::detail::p2p_context& context) override final
         {
-            buff_out.clear();
+            buff_out = nullptr;
             invoked_.push_back(
                 {context.m_connection_id, command, std::string{reinterpret_cast<const char*>(in_buff.data()), in_buff.size()}}
             );
@@ -329,7 +334,8 @@ namespace
             epee::byte_slice noise = nullptr;
             if (noise_size)
                 noise = epee::levin::make_noise_notify(noise_size);
-            return cryptonote::levin::notify{io_service_, connections_, std::move(noise), is_public, pad_txs, events_};
+            epee::net_utils::zone zone = is_public ? epee::net_utils::zone::public_ : epee::net_utils::zone::i2p;
+            return cryptonote::levin::notify{io_service_, connections_, std::move(noise), zone, pad_txs, events_};
         }
 
         boost::uuids::random_generator random_generator_;

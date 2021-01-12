@@ -55,7 +55,8 @@ public:
   bool init(const boost::program_options::variables_map& vm) {return true ;}
   bool deinit(){return true;}
   bool get_short_chain_history(std::list<crypto::hash>& ids) const { return true; }
-  bool have_block(const crypto::hash& id) const {return true;}
+  bool have_block(const crypto::hash& id, int *where = NULL) const {return false;}
+  bool have_block_unlocked(const crypto::hash& id, int *where = NULL) const {return false;}
   void get_blockchain_top(uint64_t& height, crypto::hash& top_id)const{height=0;top_id=crypto::null_hash;}
   bool handle_incoming_tx(const cryptonote::tx_blob_entry& tx_blob, cryptonote::tx_verification_context& tvc, cryptonote::relay_method tx_relay, bool relayed) { return true; }
   bool handle_incoming_txs(const std::vector<cryptonote::tx_blob_entry>& tx_blob, std::vector<cryptonote::tx_verification_context>& tvc, cryptonote::relay_method tx_relay, bool relayed) { return true; }
@@ -93,6 +94,7 @@ public:
   bool has_block_weights(uint64_t height, uint64_t nblocks) const { return false; }
   bool get_txpool_complement(const std::vector<crypto::hash> &hashes, std::vector<cryptonote::blobdata> &txes) { return false; }
   bool get_pool_transaction_hashes(std::vector<crypto::hash>& txs, bool include_unrelayed_txes = true) const { return false; }
+  crypto::hash get_block_id_by_height(uint64_t height) const { return crypto::null_hash; }
   void stop() {}
 };
 

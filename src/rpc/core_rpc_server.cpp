@@ -190,6 +190,7 @@ namespace cryptonote
 
     request.gray = true;
     request.white = true;
+    request.include_blocked = false;
     if (!on_get_public_nodes(request, response) || response.status != CORE_RPC_STATUS_OK)
     {
       return {};
@@ -500,6 +501,7 @@ namespace cryptonote
     res.version = restricted ? "" : MONERO_VERSION_FULL;
     res.synchronized = check_core_ready();
     res.busy_syncing = m_p2p.get_payload_object().is_busy_syncing();
+    res.synchronized = check_core_ready();
 
     res.status = CORE_RPC_STATUS_OK;
     return true;
@@ -564,12 +566,12 @@ namespace cryptonote
       }
     }
 
-    size_t max_blocks = COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT;
+    size_t max_blocks = COMMAND_RPC_GET_BLOCKS_FAST_MAX_BLOCK_COUNT;
     if (m_rpc_payment)
     {
       max_blocks = res.credits / COST_PER_BLOCK;
-      if (max_blocks > COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT)
-        max_blocks = COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT;
+      if (max_blocks > COMMAND_RPC_GET_BLOCKS_FAST_MAX_BLOCK_COUNT)
+        max_blocks = COMMAND_RPC_GET_BLOCKS_FAST_MAX_BLOCK_COUNT;
       if (max_blocks == 0)
       {
         res.status = CORE_RPC_STATUS_PAYMENT_REQUIRED;
@@ -578,7 +580,7 @@ namespace cryptonote
     }
 
     std::vector<std::pair<std::pair<cryptonote::blobdata, crypto::hash>, std::vector<std::pair<crypto::hash, cryptonote::blobdata> > > > bs;
-    if(!m_core.find_blockchain_supplement(req.start_height, req.block_ids, bs, res.current_height, res.start_height, req.prune, !req.no_miner_tx, max_blocks))
+    if(!m_core.find_blockchain_supplement(req.start_height, req.block_ids, bs, res.current_height, res.start_height, req.prune, !req.no_miner_tx, max_blocks, COMMAND_RPC_GET_BLOCKS_FAST_MAX_TX_COUNT))
     {
       res.status = "Failed";
       add_host_fail(ctx);
@@ -1383,6 +1385,8 @@ namespace cryptonote
 
     for (auto & entry : white_list)
     {
+      if (!req.include_blocked && m_p2p.is_host_blocked(entry.adr, NULL))
+        continue;
       if (entry.adr.get_type_id() == epee::net_utils::ipv4_network_address::get_type_id())
         res.white_list.emplace_back(entry.id, entry.adr.as<epee::net_utils::ipv4_network_address>().ip(),
             entry.adr.as<epee::net_utils::ipv4_network_address>().port(), entry.last_seen, entry.pruning_seed, entry.rpc_port, entry.rpc_credits_per_hash);
@@ -1395,6 +1399,8 @@ namespace cryptonote
 
     for (auto & entry : gray_list)
     {
+      if (!req.include_blocked && m_p2p.is_host_blocked(entry.adr, NULL))
+        continue;
       if (entry.adr.get_type_id() == epee::net_utils::ipv4_network_address::get_type_id())
         res.gray_list.emplace_back(entry.id, entry.adr.as<epee::net_utils::ipv4_network_address>().ip(),
             entry.adr.as<epee::net_utils::ipv4_network_address>().port(), entry.last_seen, entry.pruning_seed, entry.rpc_port, entry.rpc_credits_per_hash);
@@ -1413,8 +1419,10 @@ namespace cryptonote
   {
     RPC_TRACKER(get_public_nodes);
 
+    COMMAND_RPC_GET_PEER_LIST::request peer_list_req;
     COMMAND_RPC_GET_PEER_LIST::response peer_list_res;
-    const bool success = on_get_peer_list(COMMAND_RPC_GET_PEER_LIST::request(), peer_list_res, ctx);
+    peer_list_req.include_blocked = req.include_blocked;
+    const bool success = on_get_peer_list(peer_list_req, peer_list_res, ctx);
     res.status = peer_list_res.status;
     if (!success)
     {      

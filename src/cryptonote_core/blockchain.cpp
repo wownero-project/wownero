@@ -2780,7 +2780,7 @@ bool Blockchain::find_blockchain_supplement(const std::list<crypto::hash>& qbloc
 // find split point between ours and foreign blockchain (or start at
 // blockchain height <req_start_block>), and return up to max_count FULL
 // blocks by reference.
-bool Blockchain::find_blockchain_supplement(const uint64_t req_start_block, const std::list<crypto::hash>& qblock_ids, std::vector<std::pair<std::pair<cryptonote::blobdata, crypto::hash>, std::vector<std::pair<crypto::hash, cryptonote::blobdata> > > >& blocks, uint64_t& total_height, uint64_t& start_height, bool pruned, bool get_miner_tx_hash, size_t max_count) const
+bool Blockchain::find_blockchain_supplement(const uint64_t req_start_block, const std::list<crypto::hash>& qblock_ids, std::vector<std::pair<std::pair<cryptonote::blobdata, crypto::hash>, std::vector<std::pair<crypto::hash, cryptonote::blobdata> > > >& blocks, uint64_t& total_height, uint64_t& start_height, bool pruned, bool get_miner_tx_hash, size_t max_block_count, size_t max_tx_count) const
 {
   LOG_PRINT_L3("Blockchain::" << __func__);
   CRITICAL_REGION_LOCAL(m_blockchain_lock);
@@ -2805,8 +2805,8 @@ bool Blockchain::find_blockchain_supplement(const uint64_t req_start_block, cons
 
   db_rtxn_guard rtxn_guard(m_db);
   total_height = get_current_blockchain_height();
-  blocks.reserve(std::min(std::min(max_count, (size_t)10000), (size_t)(total_height - start_height)));
-  CHECK_AND_ASSERT_MES(m_db->get_blocks_from(start_height, 3, max_count, FIND_BLOCKCHAIN_SUPPLEMENT_MAX_SIZE, blocks, pruned, true, get_miner_tx_hash),
+  blocks.reserve(std::min(std::min(max_block_count, (size_t)10000), (size_t)(total_height - start_height)));
+  CHECK_AND_ASSERT_MES(m_db->get_blocks_from(start_height, 3, max_block_count, max_tx_count, FIND_BLOCKCHAIN_SUPPLEMENT_MAX_SIZE, blocks, pruned, true, get_miner_tx_hash),
       false, "Error getting blocks");
 
   return true;
@@ -2837,30 +2837,42 @@ void Blockchain::flush_invalid_blocks()
   m_invalid_blocks.clear();
 }
 //------------------------------------------------------------------
-bool Blockchain::have_block(const crypto::hash& id) const
+bool Blockchain::have_block_unlocked(const crypto::hash& id, int *where) const
 {
+  // WARNING: this function does not take m_blockchain_lock, and thus should only call read only
+  // m_db functions which do not depend on one another (ie, no getheight + gethash(height-1), as
+  // well as not accessing class members, even read only (ie, m_invalid_blocks). The caller must
+  // lock if it is otherwise needed.
   LOG_PRINT_L3("Blockchain::" << __func__);
-  CRITICAL_REGION_LOCAL(m_blockchain_lock);
 
   if(m_db->block_exists(id))
   {
     LOG_PRINT_L2("block " << id << " found in main chain");
+    if (where) *where = HAVE_BLOCK_MAIN_CHAIN;
     return true;
   }
 
   if(m_db->get_alt_block(id, NULL, NULL))
   {
     LOG_PRINT_L2("block " << id << " found in alternative chains");
+    if (where) *where = HAVE_BLOCK_ALT_CHAIN;
     return true;
   }
 
   if(m_invalid_blocks.count(id))
   {
     LOG_PRINT_L2("block " << id << " found in m_invalid_blocks");
+    if (where) *where = HAVE_BLOCK_INVALID;
     return true;
   }
 
   return false;
+}
+//------------------------------------------------------------------
+bool Blockchain::have_block(const crypto::hash& id, int *where) const
+{
+  CRITICAL_REGION_LOCAL(m_blockchain_lock);
+  return have_block_unlocked(id, where);
 }
 //------------------------------------------------------------------
 bool Blockchain::handle_block_to_main_chain(const block& bl, block_verification_context& bvc, bool notify/* = true*/)
@@ -4807,6 +4819,8 @@ uint64_t Blockchain::prevalidate_block_hashes(uint64_t height, const std::vector
 
   CHECK_AND_ASSERT_MES(weights.empty() || weights.size() == hashes.size(), 0, "Unexpected weights size");
 
+  CRITICAL_REGION_LOCAL(m_blockchain_lock);
+
   // easy case: height >= hashes
   if (height >= m_blocks_hash_of_hashes.size() * HASH_OF_HASHES_STEP)
     return hashes.size();
@@ -5446,7 +5460,7 @@ void Blockchain::cancel()
 }
 
 #if defined(PER_BLOCK_CHECKPOINT)
-static const char expected_block_hashes_hash[] = "bd1d32aed063dd71c1355dc950eb0fc22b10e41530029f54d40a0fd6f6b328f1";
+static const char expected_block_hashes_hash[] = "44393af098c4738ecbe664292bc345c0acb40573562cac8bb67cea75debe9f1b";
 void Blockchain::load_compiled_in_block_hashes(const GetCheckpointsCallback& get_checkpoints)
 {
   if (get_checkpoints == nullptr || !m_fast_sync)

@@ -128,7 +128,8 @@
 
 #define CRYPTONOTE_MAX_FRAGMENTS                        20 // ~20 * NOISE_BYTES max payload size for covert/noise send
 
-#define COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT           1000
+#define COMMAND_RPC_GET_BLOCKS_FAST_MAX_BLOCK_COUNT     1000
+#define COMMAND_RPC_GET_BLOCKS_FAST_MAX_TX_COUNT        20000
 
 #define P2P_LOCAL_WHITE_PEERLIST_LIMIT                  1000
 #define P2P_LOCAL_GRAY_PEERLIST_LIMIT                   5000
@@ -202,6 +203,8 @@
 //#define CRYPTONOTE_PRUNING_DEBUG_SPOOF_SEED
 
 #define RPC_CREDITS_PER_HASH_SCALE ((float)(1<<24))
+
+#define DNS_BLOCKLIST_LIFETIME (86400 * 8)
 
 // New constants are intended to go here
 namespace config

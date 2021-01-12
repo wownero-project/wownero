@@ -143,6 +143,7 @@ typedef cryptonote::simple_wallet sw;
 #define CREDITS_TARGET 50000
 #define MAX_PAYMENT_DIFF 10000
 #define MIN_PAYMENT_RATE 0.01f // per hash
+#define MAX_MNEW_ADDRESSES 1000
 
 enum TransferType {
   Transfer,
@@ -181,7 +182,7 @@ namespace
   const command_line::arg_descriptor< std::vector<std::string> > arg_command = {"command", ""};
 
   const char* USAGE_START_MINING("start_mining [<number_of_threads>] [bg_mining] [ignore_battery]");
-  const char* USAGE_SET_DAEMON("set_daemon <host>[:<port>] [trusted|untrusted]");
+  const char* USAGE_SET_DAEMON("set_daemon <host>[:<port>] [trusted|untrusted|this-is-probably-a-spy-node]");
   const char* USAGE_SHOW_BALANCE("balance [detail]");
   const char* USAGE_INCOMING_TRANSFERS("incoming_transfers [available|unavailable] [verbose] [uses] [index=<N1>[,<N2>[,...]]]");
   const char* USAGE_PAYMENTS("payments <PID_1> [<PID_2> ... <PID_N>]");
@@ -203,7 +204,7 @@ namespace
                             "  account tag <tag_name> <account_index_1> [<account_index_2> ...]\n"
                             "  account untag <account_index_1> [<account_index_2> ...]\n"
                             "  account tag_description <tag_name> <description>");
-  const char* USAGE_ADDRESS("address [ new <label text with white spaces allowed> | all | <index_min> [<index_max>] | label <index> <label text with white spaces allowed> | device [<index>] | one-off <account> <subaddress>]");
+  const char* USAGE_ADDRESS("address [ new <label text with white spaces allowed> | mnew <amount of new addresses> | all | <index_min> [<index_max>] | label <index> <label text with white spaces allowed> | device [<index>] | one-off <account> <subaddress>]");
   const char* USAGE_INTEGRATED_ADDRESS("integrated_address [device] [<payment_id> | <address>]");
   const char* USAGE_ADDRESS_BOOK("address_book [(add (<address>|<integrated address>) [<description possibly with whitespaces>])|(delete <index>)]");
   const char* USAGE_SET_VARIABLE("set <option> [<value>]");
@@ -2286,6 +2287,7 @@ bool simple_wallet::public_nodes(const std::vector<std::string> &args)
   {
     fail_msg_writer() << tr("Error retrieving public node list: ") << e.what();
   }
+  message_writer(console_color_red, true) << tr("Most of these nodes are probably spies. You should not use them unless connecting via Tor or I2P");
   return true;
 }
 
@@ -3222,7 +3224,7 @@ simple_wallet::simple_wallet()
   m_cmd_binder.set_handler("set_daemon",
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::set_daemon, _1),
                            tr(USAGE_SET_DAEMON),
-                           tr("Set another daemon to connect to."));
+                           tr("Set another daemon to connect to. If it's not yours, it'll probably spy on you."));
   m_cmd_binder.set_handler("save_bc",
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::save_bc, _1),
                            tr("Save the current blockchain data."));
@@ -3302,7 +3304,7 @@ simple_wallet::simple_wallet()
   m_cmd_binder.set_handler("address",
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::print_address, _1),
                            tr(USAGE_ADDRESS),
-                           tr("If no arguments are specified or <index> is specified, the wallet shows the default or specified address. If \"all\" is specified, the wallet shows all the existing addresses in the currently selected account. If \"new \" is specified, the wallet creates a new address with the provided label text (which can be empty). If \"label\" is specified, the wallet sets the label of the address specified by <index> to the provided label text. If \"one-off\" is specified, the address for the specified index is generated and displayed, and remembered by the wallet"));
+                           tr("If no arguments are specified or <index> is specified, the wallet shows the default or specified address. If \"all\" is specified, the wallet shows all the existing addresses in the currently selected account. If \"new \" is specified, the wallet creates a new address with the provided label text (which can be empty). If \"mnew\" is specified, the wallet creates as many new addresses as specified by the argument; the default label is set for the new addresses. If \"label\" is specified, the wallet sets the label of the address specified by <index> to the provided label text. If \"one-off\" is specified, the address for the specified index is generated and displayed, and remembered by the wallet"));
   m_cmd_binder.set_handler("integrated_address",
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::print_integrated_address, _1),
                            tr(USAGE_INTEGRATED_ADDRESS),
@@ -5507,20 +5509,50 @@ bool simple_wallet::set_daemon(const std::vector<std::string>& args)
     } else {
       daemon_url = args[0];
     }
-    LOCK_IDLE_SCOPE();
-    m_wallet->init(daemon_url);
 
+    epee::net_utils::http::url_content parsed{};
+    const bool r = epee::net_utils::parse_url(daemon_url, parsed);
+    if (!r)
+    {
+      fail_msg_writer() << tr("Failed to parse address");
+      return true;
+    }
+
+    std::string trusted;
     if (args.size() == 2)
     {
       if (args[1] == "trusted")
-        m_wallet->set_trusted_daemon(true);
+        trusted = "trusted";
       else if (args[1] == "untrusted")
-        m_wallet->set_trusted_daemon(false);
+        trusted = "untrusted";
+      else if (args[1] == "this-is-probably-a-spy-node")
+        trusted = "this-is-probably-a-spy-node";
       else
       {
-        fail_msg_writer() << tr("Expected trusted or untrusted, got ") << args[1] << ": assuming untrusted";
-        m_wallet->set_trusted_daemon(false);
+        fail_msg_writer() << tr("Expected trusted, untrusted or this-is-probably-a-spy-node got ") << args[1];
+        return true;
       }
+    }
+
+    if (!tools::is_privacy_preserving_network(parsed.host) && !tools::is_local_address(parsed.host))
+    {
+      if (trusted == "untrusted" || trusted == "")
+      {
+        fail_msg_writer() << tr("This is not Tor/I2P address, and is not a trusted daemon.");
+        fail_msg_writer() << tr("Either use your own trusted node, connect via Tor or I2P, or pass this-is-probably-a-spy-node and be spied on.");
+        return true;
+      }
+
+      if (parsed.schema != "https")
+        message_writer(console_color_red) << tr("Warning: connecting to a non-local daemon without SSL, passive adversaries will be able to spy on you.");
+    }
+
+    LOCK_IDLE_SCOPE();
+    m_wallet->init(daemon_url);
+
+    if (!trusted.empty())
+    {
+      m_wallet->set_trusted_daemon(trusted == "trusted");
     }
     else
     {
@@ -9507,6 +9539,31 @@ bool simple_wallet::print_address(const std::vector<std::string> &args/* = std::
     m_wallet->add_subaddress(m_current_subaddress_account, label);
     print_address_sub(m_wallet->get_num_subaddresses(m_current_subaddress_account) - 1);
     m_wallet->device_show_address(m_current_subaddress_account, m_wallet->get_num_subaddresses(m_current_subaddress_account) - 1, boost::none);
+  }
+  else if (local_args[0] == "mnew")
+  {
+    local_args.erase(local_args.begin());
+    if (local_args.size() != 1)
+    {
+      fail_msg_writer() << tr("Expected exactly one argument for the amount of new addresses");
+      return true;
+    }
+    uint32_t n;
+    if (!epee::string_tools::get_xtype_from_string(n, local_args[0]))
+    {
+      fail_msg_writer() << tr("failed to parse the amount of new addresses: ") << local_args[0];
+      return true;
+    }
+    if (n > MAX_MNEW_ADDRESSES)
+    {
+      fail_msg_writer() << tr("the amount of new addresses must be lower or equal to ") << MAX_MNEW_ADDRESSES;
+      return true;
+    }
+    for (uint32_t i = 0; i < n; ++i)
+    {
+      m_wallet->add_subaddress(m_current_subaddress_account, tr("(Untitled address)"));
+      print_address_sub(m_wallet->get_num_subaddresses(m_current_subaddress_account) - 1);
+    }
   }
   else if (local_args[0] == "one-off")
   {

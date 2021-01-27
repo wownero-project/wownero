@@ -200,7 +200,7 @@ namespace cryptonote
       return true;
     }
     // make RPC call to daemon
-    // curl http://127.0.0.1:34568/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":278300}}' -H 'Content-Type: application/json'
+    // curl http://127.0.0.1:34568/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":282700}}' -H 'Content-Type: application/json'
     // "wide_cumulative_difficulty": "0x14eb4d0131fe8",
     ADD_CHECKPOINT2(1,       "97f4ce4d7879b3bea54dcec738cd2ebb7952b4e9bb9743262310cd5fec749340", "0x2");
     ADD_CHECKPOINT2(6969,    "aa7b66e8c461065139b55c29538a39c33ceda93e587f84d490ed573d80511c87", "0x118eef693fd");  //Hard fork to v8
@@ -216,6 +216,7 @@ namespace cryptonote
     ADD_CHECKPOINT2(256700,  "389a8ab95a80e84ec74639c1078bc67b33af208ef00f53bd9609cfc40efa7059", "0x185ace3c1bd68");
     ADD_CHECKPOINT2(271600,  "9597cdbdc52ca57d7dbd8f9c0a23a73194ef2ebbcfdc75c21992672706108d43", "0x1e2d2d6a2a9e8");
     ADD_CHECKPOINT2(278300,  "b10dcdf7a51651f60fbcc0447409773eef1458d2c706d9a61daf467571ac19c9", "0x20a83a16d3968");
+    ADD_CHECKPOINT2(282700,  "79c06cafd7cb5f76bcebbf8f1ae16203bb41fd75b284bcd0eb0b457991ab7d4a", "0x22e3baf142de8");
     return true;
   }
 

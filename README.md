@@ -1,43 +1,34 @@
 [![Build Status](https://ci.wownero.com/api/badges/wownero/wownero/status.svg)](https://ci.wownero.com/wownero/wownero)
 # ~~Mo~~Wownero -  Such privacy! Many coins! Wow! 🐕
 
-Copyright (c) 2014-2020 The Monero Project.   
+Copyright (c) 2014-2021 The Monero Project.   
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Resources
 
-- Web: [wownero.org](http://wownero.org)
+- Web: [wownero.org](https://wownero.org)
 - Twitter: [@w0wn3r0](https://twitter.com/w0wn3r0)
 - Reddit: [/r/wownero](https://www.reddit.com/r/wownero)
 - Mail: [wownero@protonmail.com](mailto:wownero@protonmail.com)
-- GitHub: [git.wownero.com/wownero/wownero](https://git.wownero.com/wownero/wownero)
-- IRC: [#wownero on Freenode](https://kiwiirc.com/client/irc.freenode.net/?nick=suchchatter|?#wownero)
-- Bitmessage Chan: wownero (`BM-2cSzWtrj2pzLva9GF1Jp2TYsnLjrnJpvba`)
+- Git: [git.wownero.com/wownero/wownero](https://git.wownero.com/wownero/wownero)
 - Wownero Funding System: [funding.wownero.com](https://funding.wownero.com)
 - Wownero Forum: [forum.wownero.com](https://forum.wownero.com)
-- Discord: [discord.gg/DSC9TWx](https://discord.gg/DSC9TWx)
+- Discord: [discord.gg/ENbgme4bWq](https://discord.com/invite/ENbgme4bWq)
 - Telegram: [t.me/wownero](https://t.me/wownero)
 - Feather-WOW Desktop Wallet: [featherwallet.org/wownero](https://featherwallet.org/wownero)
 - WOW Stash Web Wallet: [wowstash.app](https://wowstash.app)
 - Public Node Status: [monero.fail](https://monero.fail/?crypto=wownero)
+- Map of Nodes: [wownero.fyi](https://wownero.fyi)
+- Wownero Memes: [suchwow.xyz]https://suchwow.xyz/posts/top)
+- XMR/WOW Swap: [nero Swap](https://neroswap.com)
+- Mining Pools: [miningpoolstats.stream](https://miningpoolstats.stream/wownero)
+- Market Info: [coinmarketcap.com](https://coinmarketcap.com/currencies/wownero), [coingecko.com](https://www.coingecko.com/en/coins/wownero/usd)
 
 ### Blockchain Explorers
 - https://explore.wownero.com
 - http://wow5eqtzqvsg5jctqzg5g7uk3u62sfqiacj5x6lo4by7bvnj6jkvubyd.onion
 - https://wownero.club
-
-### Free Public Nodes
-- global.wownodes.com:34568 (Global)
-- node.suchwow.xyz:34568    (US)
-- wow.pwned.systems:34568   (NL)
-- wowbux.org:34568          (CA)
-- super.fast.node.xmr.pm:34568 (DE)
-- wow.pwned.systems          (NL)
-- wowbuxx535x4exuexja2xfezpwcyznxkofui4ndjiectj4yuh2xheiid.onion:34568
-
-### Tor Peers
-- wowp2p5gelm6vhl2d5tvfqills63jilgy6hkvlrqljooov5ktaxgqdad.onion
-- f3moshycuklu3mb3wnlfjwn26nsgzreqtfzfuyjjk46u7jqxlhf7d5id.onion
+- https://explorer.wownero.fyi
 
 ## Introduction
 
@@ -90,7 +81,7 @@ Dates are provided in the format YYYY-MM-DD.
 | 114,969                          | 2019-06-14 | F For Fappening    | v0.6.1.0               | v0.6.1.2                  | RandomWOW, new block weight algorithm, slightly more efficient RingCT format
 | 160,777                          | 2019-11-20 | Gaping Goatse    | v0.7.0.0               | v0.7.1.0                  | Only allow >= 2 outputs, change to the block median used to calculate penalty, rct sigs in coinbase forbidden, 4 unlock time as protocol rule
 | -                         | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0               | v0.8.0.2                  | Dandelion++ support
-| 253,999                         | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0               | v0.9.2.1                  | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
+| 253,999                         | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0               | v0.9.2.2                  | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
 
 X's indicate that these details have not been determined as of commit date.
 

@@ -217,6 +217,8 @@ namespace cryptonote
     ADD_CHECKPOINT2(271600,  "9597cdbdc52ca57d7dbd8f9c0a23a73194ef2ebbcfdc75c21992672706108d43", "0x1e2d2d6a2a9e8");
     ADD_CHECKPOINT2(278300,  "b10dcdf7a51651f60fbcc0447409773eef1458d2c706d9a61daf467571ac19c9", "0x20a83a16d3968");
     ADD_CHECKPOINT2(282700,  "79c06cafd7cb5f76bcebbf8f1ae16203bb41fd75b284bcd0eb0b457991ab7d4a", "0x22e3baf142de8");
+    ADD_CHECKPOINT2(307692,  "d822cd72037f62824ec87c9dc11768b45dc2632f697fa372e1885789c90f37fc", "0x305e124633878"); // low has block (Difficulty: 1890000), reason why careful people have audits
+    ADD_CHECKPOINT2(307800,  "3594894b4231cfdfe911afed6552f9fb4cfe6048bacd0973a3a98623ec8548ce", "0x308b305ca7618");
     return true;
   }
 

@@ -41,6 +41,9 @@ Wownero is a 100% community-sponsored endeavor. Supporting services are also gra
 [<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/macstadium.png"
       alt="MacStadium"
       height="100">](https://www.macstadium.com)
+[<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/jetbrains.png"
+      alt="JetBrains"
+      height="100">](https://www.jetbrains.com)
 
 Developers are volunteers doing this mostly for shits and giggles. If you would like to support our shenanigans and stimulant addictions, please consider donating to [WFS proposals](https://funding.wownero.com/proposals) or the dev slush fund.
 

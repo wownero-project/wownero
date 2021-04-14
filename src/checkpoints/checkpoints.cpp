@@ -200,7 +200,7 @@ namespace cryptonote
       return true;
     }
     // make RPC call to daemon
-    // curl http://127.0.0.1:34568/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":282700}}' -H 'Content-Type: application/json'
+    // curl http://127.0.0.1:34568/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":307880}}' -H 'Content-Type: application/json'
     // "wide_cumulative_difficulty": "0x14eb4d0131fe8",
     ADD_CHECKPOINT2(1,       "97f4ce4d7879b3bea54dcec738cd2ebb7952b4e9bb9743262310cd5fec749340", "0x2");
     ADD_CHECKPOINT2(6969,    "aa7b66e8c461065139b55c29538a39c33ceda93e587f84d490ed573d80511c87", "0x118eef693fd");  //Hard fork to v8
@@ -217,8 +217,15 @@ namespace cryptonote
     ADD_CHECKPOINT2(271600,  "9597cdbdc52ca57d7dbd8f9c0a23a73194ef2ebbcfdc75c21992672706108d43", "0x1e2d2d6a2a9e8");
     ADD_CHECKPOINT2(278300,  "b10dcdf7a51651f60fbcc0447409773eef1458d2c706d9a61daf467571ac19c9", "0x20a83a16d3968");
     ADD_CHECKPOINT2(282700,  "79c06cafd7cb5f76bcebbf8f1ae16203bb41fd75b284bcd0eb0b457991ab7d4a", "0x22e3baf142de8");
-    ADD_CHECKPOINT2(307692,  "d822cd72037f62824ec87c9dc11768b45dc2632f697fa372e1885789c90f37fc", "0x305e124633878"); // low has block (Difficulty: 1890000), reason why careful people have audits
+    ADD_CHECKPOINT2(307686,  "dfd056b2739c132a07629409a59a028cb7414fac23e3419e79d2f49d66fc3af5", "0x305ba542e3ea8"); // "difficulty": 25800000
+    ADD_CHECKPOINT2(307692,  "d822cd72037f62824ec87c9dc11768b45dc2632f697fa372e1885789c90f37fc", "0x305e124633878"); // "difficulty": 1890000
+    ADD_CHECKPOINT2(307735,  "60970378aecdc0a78ccf5154edcc56f23aad8554b49e4716f820461a7588bfdc", "0x3070771b9ba58"); // "difficulty": 17900000
+    ADD_CHECKPOINT2(307742,  "0ed835bc9fcd949b5a184cf607dcc62ac4268c9e4cf220f8b09bcce58f10916b", "0x30732f1248978"); // "difficulty": 21300000
+    ADD_CHECKPOINT2(307750,  "7bcafbc757237125b70f569b181eb1b66c530b10d817d7b940f7a73dc827211c", "0x30766666b3d98"); // "difficulty": 10900000
+    ADD_CHECKPOINT2(307766,  "02fd6c7d6bae710cfa3efb08f50e4bc9a590f6ab61eabd87e5e951338c0c36f6", "0x307d2d47a7918"); // "difficulty": 2960000
     ADD_CHECKPOINT2(307800,  "3594894b4231cfdfe911afed6552f9fb4cfe6048bacd0973a3a98623ec8548ce", "0x308b305ca7618");
+    ADD_CHECKPOINT2(307880,  "659274b698f680c6cae2716cbd4e15ad5def23b5de98e53734c4af2c2e74bb7a", "0x30af6e91e8018");
+    ADD_CHECKPOINT2(307883,  "9a8c35cd10963a14bba8a9628d1776df92fee5e3153b7249f5d15726efafaaea", "0x30b0965ba5a18");
     return true;
   }
 

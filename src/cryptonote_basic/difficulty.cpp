@@ -389,7 +389,10 @@ namespace cryptonote {
     avg_D = static_cast<uint64_t>(( cumulative_difficulties[N] - cumulative_difficulties[0] )/ N);
 
     // Prevent round off error for small D and overflow for large D.
-    if (avg_D > uint64_t(-1)/(N*(N+1)*T*99)) {
+    if (avg_D > 2000000*N*N*T && HEIGHT < 307800) {
+      next_D = (avg_D/(200*L))*(N*(N+1)*T*99);
+    }
+    else if (avg_D > uint64_t(-1)/(N*(N+1)*T*99) && HEIGHT > 307800) {
       next_D = (avg_D/(200*L))*(N*(N+1)*T*99);
     }
     else {    next_D = (avg_D*N*(N+1)*T*99)/(200*L);    }

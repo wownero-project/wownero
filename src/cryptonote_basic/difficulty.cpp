@@ -375,7 +375,16 @@ namespace cryptonote {
     if (HEIGHT < 200 && m_nettype == TESTNET) { return 500; }
     assert(timestamps.size() == N+1);
 
-    uint64_t  L(0), next_D, i, this_timestamp(0), previous_timestamp(0), avg_D;
+    // hardcoding previously erroneously calculated difficulty entries
+    if(HEIGHT == 307686) return 25800000;
+    if(HEIGHT == 307692) return 1890000;
+    if(HEIGHT == 307735) return 17900000;
+    if(HEIGHT == 307742) return 21300000;
+    if(HEIGHT == 307750) return 10900000;
+    if(HEIGHT == 307766) return 2960000;
+
+    uint64_t  i, this_timestamp(0), previous_timestamp(0);
+    difficulty_type L(0), next_D, avg_D;
 
     previous_timestamp = timestamps[0]-T;
     for ( i = 1; i <= N; i++) {
@@ -386,7 +395,7 @@ namespace cryptonote {
       previous_timestamp = this_timestamp;
     }
     if (L < N*N*T/20 ) { L =  N*N*T/20; }
-    avg_D = static_cast<uint64_t>(( cumulative_difficulties[N] - cumulative_difficulties[0] )/ N);
+    avg_D = ( cumulative_difficulties[N] - cumulative_difficulties[0] )/ N;
 
     // Prevent round off error for small D and overflow for large D.
     if (avg_D > 2000000*N*N*T && HEIGHT < 307800) {

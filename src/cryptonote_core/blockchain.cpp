@@ -1427,12 +1427,11 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
   }
   MDEBUG("Miner tx hash: " << get_transaction_hash(b.miner_tx));
 
-  // Dynamic unlock time from HF 16
-  // To calculate unlock window, get the block hash at height-1337, convert the 
-  // first 3 characters from hexadecimal to decimal, multiply by 2, and then add 288.
-  // Unlock minimum 1 day (288 blocks), maximum is ~29 days ((4095*2)+288 = 8478 blocks)
-  // unlock time = unlock_window + height
-  if (hf_version >= HF_VERSION_DYNAMIC_UNLOCK)
+  if (hf_version >= HF_VERSION_FIXED_UNLOCK)
+  {
+    CHECK_AND_ASSERT_MES(b.miner_tx.unlock_time == height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW_V2, false, "coinbase transaction transaction has the wrong unlock time="
+      << b.miner_tx.unlock_time << ", expected " << height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW_V2);
+  } else if (hf_version < HF_VERSION_FIXED_UNLOCK && hf_version >= HF_VERSION_DYNAMIC_UNLOCK)
   {
     uint64_t N = m_nettype == MAINNET ? 1337 : 5;
     crypto::hash blk_id = get_block_id_by_height(height-N);
@@ -1449,8 +1448,8 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
       "\nblk_height: " << height-N << ", blk_id: " << blk_id << 
       "\nhex_str: " << hex_str << ", blk_num: " << blk_num);
   } else {
-    CHECK_AND_ASSERT_MES(b.miner_tx.unlock_time == height + 60, false, "coinbase transaction transaction has the wrong unlock time=" 
-      << b.miner_tx.unlock_time << ", expected " << height + 60);
+    CHECK_AND_ASSERT_MES(b.miner_tx.unlock_time == height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW, false, "coinbase transaction transaction has the wrong unlock time="
+      << b.miner_tx.unlock_time << ", expected " << height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW);
   }
 
   //check outs overflow

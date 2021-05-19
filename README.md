@@ -1,4 +1,3 @@
-[![Build Status](https://ci.wownero.com/api/badges/wownero/wownero/status.svg)](https://ci.wownero.com/wownero/wownero)
 # ~~Mo~~Wownero -  Such privacy! Many coins! Wow! 🐕
 
 Copyright (c) 2014-2020 The Monero Project.   
@@ -6,6 +5,7 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Resources
 
+- IRC: [OFTC #wownero](https://webchat.oftc.net/?channels=wownero)
 - Web: [wownero.org](https://wownero.org)
 - Twitter: [@w0wn3r0](https://twitter.com/w0wn3r0)
 - Reddit: [/r/wownero](https://www.reddit.com/r/wownero)
@@ -13,13 +13,13 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 - Git: [git.wownero.com/wownero/wownero](https://git.wownero.com/wownero/wownero)
 - Wownero Funding System: [funding.wownero.com](https://funding.wownero.com)
 - Wownero Forum: [forum.wownero.com](https://forum.wownero.com)
-- Discord: [discord.gg/ENbgme4bWq](https://discord.com/invite/ENbgme4bWq)
+- Discord: [discord.gg/ykZyAzJhDK](https://discord.com/invite/ykZyAzJhDK)
 - Telegram: [t.me/wownero](https://t.me/wownero)
-- Feather-WOW Desktop Wallet: [featherwallet.org/wownero](https://featherwallet.org/wownero)
+- Wowlet Desktop Wallet: [git.wownero.com/wowlet/wowlet](https://git.wownero.com/wowlet/wowlet/releases)
 - WOW Stash Web Wallet: [wowstash.app](https://wowstash.app)
 - Public Node Status: [monero.fail](https://monero.fail/?crypto=wownero)
 - Map of Nodes: [wownero.fyi](https://wownero.fyi)
-- Wownero Memes: [suchwow.xyz]https://suchwow.xyz/posts/top)
+- Wownero Memes: [suchwow.xyz](https://suchwow.xyz/posts/top)
 - XMR/WOW Swap: [nero Swap](https://neroswap.com)
 - Mining Pools: [miningpoolstats.stream](https://miningpoolstats.stream/wownero)
 - Market Info: [coinmarketcap.com](https://coinmarketcap.com/currencies/wownero), [coingecko.com](https://www.coingecko.com/en/coins/wownero/usd)
@@ -85,7 +85,7 @@ Dates are provided in the format YYYY-MM-DD.
 | 160,777                          | 2019-11-20 | Gaping Goatse    | v0.7.0.0               | v0.7.1.0                  | Only allow >= 2 outputs, change to the block median used to calculate penalty, rct sigs in coinbase forbidden, 4 unlock time as protocol rule
 | -                         | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0               | v0.8.0.2                  | Dandelion++ support
 | 253,999                         | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0               | v0.9.3.3                  | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
-| XXXXXXX                         | 2021-XX-XX | Junkie Jeff  | v0.10.0.0               | v0.10.0.0                  | XXXXX
+| 331,519                         | 2021-07-04 | Junkie Jeff  | v0.10.0.0               | v0.10.0.0                  | Bulletproofs+, Miner Block Header Signing, Reduce dynamic coinbase unlock time (2 weeks™), Reset difficulty and switch back to Monero's difficulty algorithm
 
 X's indicate that these details have not been determined as of commit date.
 

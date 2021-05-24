@@ -948,7 +948,7 @@ start:
 
   difficulty_type diff = next_difficulty(timestamps, m_nettype, difficulties, target, HEIGHT);
 
-  if (version >= 11) {
+  if (version <= 17 && version >= 11) {
     diff = next_difficulty_v5(timestamps, m_nettype, difficulties, T, N, HEIGHT);
   } else if (version == 10) {
     diff = next_difficulty_v4(timestamps, m_nettype, difficulties, HEIGHT);
@@ -1043,7 +1043,7 @@ size_t Blockchain::recalculate_difficulties(boost::optional<uint64_t> start_heig
     size_t target = get_ideal_hard_fork_version(height) < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
     difficulty_type recalculated_diff = next_difficulty(timestamps, m_nettype, difficulties, target, HEIGHT);
     
-    if (version >= 11) {
+    if (version <= 17 && version >= 11) {
       recalculated_diff = next_difficulty_v5(timestamps, m_nettype, difficulties, T, N, HEIGHT);
     } else if (version == 10) {
       recalculated_diff = next_difficulty_v4(timestamps, m_nettype, difficulties, HEIGHT);
@@ -1356,7 +1356,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   uint64_t HEIGHT = m_db->height();
 
   // calculate the difficulty target for the block and return it
-  if (version >= 11) {
+  if (version <= 17 && version >= 11) {
     return next_difficulty_v5(timestamps, m_nettype, cumulative_difficulties, T, N, HEIGHT);
   } else if (version == 10) {
     return next_difficulty_v4(timestamps, m_nettype, cumulative_difficulties, HEIGHT);

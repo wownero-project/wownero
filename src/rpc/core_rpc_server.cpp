@@ -1934,6 +1934,10 @@ namespace cryptonote
         return false;
       }
       b.nonce = req.starting_nonce;
+      if (b.major_version >= BLOCK_HEADER_MINER_SIG)
+      {
+          b.signature = {};
+      }
       crypto::hash seed_hash = crypto::null_hash;
       if (b.major_version >= RX_BLOCK_VERSION && !epee::string_tools::hex_to_pod(template_res.seed_hash, seed_hash))
       {

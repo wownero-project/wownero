@@ -164,6 +164,7 @@ namespace rpc
     uint64_t timestamp;
     crypto::hash  prev_id;
     uint32_t nonce;
+    crypto::signature signature;
     uint64_t height;
     uint64_t depth;
     crypto::hash hash;

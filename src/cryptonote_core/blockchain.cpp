@@ -1412,6 +1412,35 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
 //   valid output types
 bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, uint8_t hf_version)
 {
+  // Miner Block Header Signing
+  if (hf_version >= HF_VERSION_BLOCK_HEADER_MINER_SIG)
+  {
+      // sanity checks
+      if (b.miner_tx.vout.size() != 1)
+      {
+          MWARNING("Only 1 output in miner transaction allowed");
+          return false;
+      }
+      if (!check_output_types(b.miner_tx, hf_version))
+      {
+          MWARNING("Wrong txout type");
+          return false;
+      }
+      // keccak hash block header data and check miner signature
+      // if signature is invalid, reject block
+      crypto::hash sig_data = get_sig_data(b);
+      crypto::signature signature = b.signature;
+      crypto::public_key output_public_key;
+      get_output_public_key(b.miner_tx.vout[0], output_public_key);
+      if (!crypto::check_signature(sig_data, output_public_key, signature))
+      {
+          MWARNING("Miner signature is invalid");
+          return false;
+      } else {
+          LOG_PRINT_L1("Miner signature is good");
+      }
+  }
+
   LOG_PRINT_L3("Blockchain::" << __func__);
   CHECK_AND_ASSERT_MES(b.miner_tx.vin.size() == 1, false, "coinbase transaction in the block has no inputs");
   CHECK_AND_ASSERT_MES(b.miner_tx.vin[0].type() == typeid(txin_gen), false, "coinbase transaction in the block has the wrong type");

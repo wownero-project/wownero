@@ -1675,8 +1675,22 @@ namespace cryptonote
                 + std::to_string(previous_stripe) + " -> " + std::to_string(current_stripe);
             if (ELPP->vRegistry()->allowed(el::Level::Debug, "sync-info"))
               timing_message += std::string(": ") + m_block_queue.get_overview(current_blockchain_height);
-            MGINFO_YELLOW("Synced " << current_blockchain_height << "/" << target_blockchain_height
-                << progress_message << timing_message);
+            uint64_t num = (rand() % 4) + 1;
+            switch (num)
+            {
+                case 1:
+                    MGINFO_MAGENTA("Synced " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message);
+                    break;
+                case 2:
+                    MGINFO_YELLOW("Synced " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message);
+                    break;
+                case 3:
+                    MGINFO_BLUE("Synced " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message);
+                    break;
+                case 4:
+                    MGINFO_GREEN("Synced " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message);
+                    break;
+            }
             if (previous_stripe != current_stripe)
               notify_new_stripe(context, current_stripe);
           }

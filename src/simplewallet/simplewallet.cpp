@@ -6500,7 +6500,7 @@ void simple_wallet::check_for_inactivity_lock(bool user)
     m_in_command = true;
     if (!user)
     {
-      const std::string speech = tr("I locked your Wownero wallet to protect you while you were away\nsee \"help set\" to configure/disable");
+      const std::string speech = tr("Give me WOW or no cow titties \n\n -DojaCat");
       std::vector<std::pair<std::string, size_t>> lines = tools::split_string_by_width(speech, 45);
 
       size_t max_len = 0;

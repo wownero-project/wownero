@@ -525,7 +525,7 @@ namespace cryptonote
   {
     uint32_t th_local_index = boost::interprocess::ipcdetail::atomic_inc32(&m_thread_index);
     MLOG_SET_THREAD_NAME(std::string("[miner ") + std::to_string(th_local_index) + "]");
-    MGINFO("Miner thread was started ["<< th_local_index << "]");
+    MGINFO_GREEN("*Spins roulette wheel*... Mining started. Good luck!");
     uint32_t nonce = m_starter_nonce + th_local_index;
     uint64_t height = 0;
     difficulty_type local_diff = 0;
@@ -580,7 +580,34 @@ namespace cryptonote
       {
         //we lucky!
         ++m_config.current_extra_message_index;
-        MGINFO_GREEN("Found block " << get_block_hash(b) << " at height " << height << " for difficulty: " << local_diff);
+        MGINFO_YELLOW(ENDL <<
+        "  ╦ ╦┬┌┐┌┐┌┌─┐┬─┐  ┬ ┬┬┌┐┌┐┌┌─┐┬─┐  ┌─┐┬ ┬┬┌─┐┬┌─┌─┐┌┐┌  ┌┬┐┬┌┐┌┐┌┌─┐┬─┐ ||\n"
+        "  ║║║││││││├┤ ├┬┘  │││││││││├┤ ├┬┘  │  ├─┤││  ├┴┐├┤ │││   ││││││││├┤ ├┬┘ ||\n"
+        "  ╚╩╝┴┘└┘└┘└─┘┴└─  └┴┘┴┘└┘└┘└─┘┴└─  └─┘┴ ┴┴└─┘┴ ┴└─┘┘└┘  ─┴┘┴┘└┘└┘└─┘┴└─ ()\n"
+        << ENDL);
+        MGINFO_MAGENTA(ENDL <<
+        "\n\n"
+        "                           //@@@@@@@@@@@@@@@@@//                 \n"
+        "                      //%%%%%%%%%%%%%%%%%%%%%%%%%%%/%            \n"
+        "                   @/%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%/          \n"
+        "                 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%/&       \n"
+        "                /%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%/      \n"
+        "              &/%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%/     \n"
+        "              ////////////%%%%%%%%%%%%%%%%%%%%%%#////////////    \n"
+        "             /@@////////@@/%%%%%%%%%%%%%%%%%%%%%/@@////////@@/   \n"
+        "             /@@////////@@/%%%%%%%%/@@#/%%%%%%%%/@@////////@@/   \n"
+        "            /@@/////////@@/%%%%%%/@@@/@@@/%%%%%%/@@////////#@/   \n"
+        "             /@&////////@@/%%%%/@@@/////@@@/%%%%/@@////////@@/   \n"
+        "             /@@////////@@/%(/@@///////////@@/%%/@@////////@@/   \n"
+        "              /@@////////@/@@@///////////////@@&@@////////@@/    \n"
+        "               /@@///////@@@///////////////////@@@///////@@/     \n"
+        "                /@@//////@///////////////////////@//////@@/      \n"
+        "                 #/@@/////////////////////////////////@@/        \n"
+        "                    /@@@///////////////////////////@@@/          \n"
+        "                      %/@@@@///////////////////@@@@/             \n"
+        "                           //@@@@@@@@@@@@@@@@@//                 \n"
+        << ENDL);
+        MGINFO_GREEN("Awesome, you won a block reward!\n" << get_block_hash(b) << " at height " << height);
         cryptonote::block_verification_context bvc;
         if(!m_phandler->handle_block_found(b, bvc) || !bvc.m_added_to_main_chain)
         {

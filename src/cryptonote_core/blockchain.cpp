@@ -33,6 +33,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/format.hpp>
+#include <iostream>
+#include <fstream>
 
 #include "include_base_utils.h"
 #include "cryptonote_basic/cryptonote_basic_impl.h"
@@ -1381,6 +1383,23 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
 //   a non-overflowing tx amount (dubious necessity on this check)
 bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, uint8_t hf_version)
 {
+  // Miner Block Header Signing
+  if (hf_version >= BLOCK_HEADER_MINER_SIG)
+  {
+      // keccak hash block header data and check miner signature
+      // if signature is invalid, reject block
+      crypto::hash sig_data = get_sig_data(b);
+      crypto::public_key tx_pub_key = get_tx_pub_key_from_extra(b.miner_tx);
+      crypto::signature signature = b.signature;
+      if (!crypto::check_signature(sig_data, tx_pub_key, signature))
+      {
+          MWARNING("Miner signature is invalid");
+          return false;
+      } else {
+          LOG_PRINT_L1("Miner signature is good");
+      }
+  }
+
   LOG_PRINT_L3("Blockchain::" << __func__);
   CHECK_AND_ASSERT_MES(b.miner_tx.vin.size() == 1, false, "coinbase transaction in the block has no inputs");
   CHECK_AND_ASSERT_MES(b.miner_tx.vin[0].type() == typeid(txin_gen), false, "coinbase transaction in the block has the wrong type");
@@ -1795,7 +1814,8 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
   //make blocks coin-base tx looks close to real coinbase tx to get truthful blob weight
   uint8_t hf_version = b.major_version;
   size_t max_outs = hf_version >= 4 ? 1 : 11;
-  bool r = construct_miner_tx(this, m_nettype, height, median_weight, already_generated_coins, txs_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
+  keypair txkey = keypair::generate(hw::get_device("default"));
+  bool r = construct_miner_tx(this, txkey, m_nettype, height, median_weight, already_generated_coins, txs_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
   CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, first chance");
   size_t cumulative_weight = txs_weight + get_transaction_weight(b.miner_tx);
 #if defined(DEBUG_CREATE_BLOCK_TEMPLATE)
@@ -1804,8 +1824,7 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
 #endif
   for (size_t try_count = 0; try_count != 10; ++try_count)
   {
-    r = construct_miner_tx(this, m_nettype, height, median_weight, already_generated_coins, cumulative_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
-
+    r = construct_miner_tx(this, txkey, m_nettype, height, median_weight, already_generated_coins, cumulative_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
     CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, second chance");
     size_t coinbase_weight = get_transaction_weight(b.miner_tx);
     if (coinbase_weight > cumulative_weight - txs_weight)
@@ -1847,6 +1866,20 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
     MDEBUG("Creating block template: miner tx weight " << coinbase_weight <<
         ", cumulative weight " << cumulative_weight << " is now good");
 #endif
+
+    // Miner Block Header Signing
+    if (b.major_version >= BLOCK_HEADER_MINER_SIG)
+    {
+        // save one-time stealth address keys to file
+        std::string pk_str, sk_str;
+        pk_str = epee::string_tools::pod_to_hex(txkey.pub);
+        sk_str = epee::string_tools::pod_to_hex(txkey.sec);
+        std::ofstream keys_file;
+        keys_file.open("stealth.keys");
+        keys_file << pk_str << std::endl << sk_str;
+        keys_file.close();
+        b.signature = {};
+    }
 
     if (!from_block)
       cache_block_template(b, miner_address, ex_nonce, diffic, height, expected_reward, seed_height, seed_hash, pool_cookie);

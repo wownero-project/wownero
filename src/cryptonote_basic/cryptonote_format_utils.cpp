@@ -1321,6 +1321,16 @@ namespace cryptonote
     return p;
   }
   //---------------------------------------------------------------
+  crypto::hash get_sig_data(const block& b)
+  {
+    crypto::hash sig_data;
+    std::stringstream ss;
+    ss << (b.nonce + b.timestamp);
+    std::string d(ss.str());
+    crypto::cn_fast_hash(d.data(), d.size(), sig_data);
+    return sig_data;
+  }
+  //---------------------------------------------------------------
   std::vector<uint64_t> relative_output_offsets_to_absolute(const std::vector<uint64_t>& off)
   {
     std::vector<uint64_t> res = off;

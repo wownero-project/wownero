@@ -679,31 +679,24 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (m_nettype == cryptonote::TESTNET)
     {
-      full_addrs.insert("212.83.175.67:28080");
-      full_addrs.insert("212.83.172.165:28080");
-      full_addrs.insert("192.110.160.146:28080");
-      full_addrs.insert("88.99.173.38:28080");
+      full_addrs.insert("207.254.29.107:11180");
+      full_addrs.insert("51.81.32.130:11180");
     }
     else if (m_nettype == cryptonote::STAGENET)
     {
-      full_addrs.insert("162.210.173.150:38080");
-      full_addrs.insert("192.110.160.146:38080");
-      full_addrs.insert("88.99.173.38:38080");
     }
     else if (m_nettype == cryptonote::FAKECHAIN)
     {
     }
     else
     {
-      full_addrs.insert("212.83.175.67:18080");
-      full_addrs.insert("212.83.172.165:18080");
-      full_addrs.insert("192.110.160.146:18080");
-      full_addrs.insert("88.198.163.90:18080");
-      full_addrs.insert("95.217.25.101:18080");
-      full_addrs.insert("209.250.243.248:18080");
-      full_addrs.insert("104.238.221.81:18080");
-      full_addrs.insert("66.85.74.134:18080");
-      full_addrs.insert("88.99.173.38:18080");
+      full_addrs.insert("158.69.60.225:34567");   //  OVH France
+      full_addrs.insert("159.65.91.59:34567");    //  DigiO london
+      full_addrs.insert("164.90.230.176:34567");  //  de1.wownodes.com
+      full_addrs.insert("64.227.81.144:34567");   //  us1.wownodes.com
+      full_addrs.insert("188.166.237.187:34567"); //  sg1.wownodes.com      
+      full_addrs.insert("54.185.62.197:34567");   //  node.suchwow.xyz
+      full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
     }
     return full_addrs;
   }
@@ -2052,7 +2045,7 @@ namespace nodetool
         else
         {
           const el::Level level = el::Level::Warning;
-          MCLOG_RED(level, "global", "No incoming connections - check firewalls/routers allow port " << get_this_peer_port());
+          MCLOG_RED(level, "Debug", "No incoming connections - check firewalls/routers allow port " << get_this_peer_port());
         }
       }
     }

@@ -88,4 +88,4 @@ private:
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitmonero = Wownero;

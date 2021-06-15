@@ -489,7 +489,7 @@ namespace rpc
 
     if(!m_core.get_miner().start(info.address, static_cast<size_t>(req.threads_count), req.do_background_mining, req.ignore_battery))
     {
-      res.error_details = "Failed, mining not started";
+      res.error_details = "Failed, mining not started. You might need to export miner keys first.";
       LOG_PRINT_L0(res.error_details);
       res.status = Message::STATUS_FAILED;
       return;

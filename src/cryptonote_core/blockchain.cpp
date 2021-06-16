@@ -1386,6 +1386,17 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
   // Miner Block Header Signing
   if (hf_version >= BLOCK_HEADER_MINER_SIG)
   {
+      // sanity checks
+      if (b.miner_tx.vout.size() != 1)
+      {
+          MWARNING("Only 1 output in miner transaction allowed");
+          return false;
+      }
+      if (b.miner_tx.vout[0].target.type() != typeid(txout_to_key))
+      {
+          MWARNING("Wrong txout type");
+          return false;
+      }
       // keccak hash block header data and check miner signature
       // if signature is invalid, reject block
       crypto::hash sig_data = get_sig_data(b);

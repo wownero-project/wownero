@@ -1389,9 +1389,9 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
       // keccak hash block header data and check miner signature
       // if signature is invalid, reject block
       crypto::hash sig_data = get_sig_data(b);
-      crypto::public_key tx_pub_key = get_tx_pub_key_from_extra(b.miner_tx);
       crypto::signature signature = b.signature;
-      if (!crypto::check_signature(sig_data, tx_pub_key, signature))
+      crypto::public_key eph_pub_key = boost::get<txout_to_key>(b.miner_tx.vout[0].target).key;
+      if (!crypto::check_signature(sig_data, eph_pub_key, signature))
       {
           MWARNING("Miner signature is invalid");
           return false;
@@ -1865,20 +1865,6 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
     MDEBUG("Creating block template: miner tx weight " << coinbase_weight <<
         ", cumulative weight " << cumulative_weight << " is now good");
 #endif
-
-    // Miner Block Header Signing
-    if (b.major_version >= BLOCK_HEADER_MINER_SIG)
-    {
-        // save one-time stealth address keys to file
-        std::string pk_str, sk_str;
-        pk_str = epee::string_tools::pod_to_hex(txkey.pub);
-        sk_str = epee::string_tools::pod_to_hex(txkey.sec);
-        std::ofstream keys_file;
-        keys_file.open("stealth.keys");
-        keys_file << pk_str << std::endl << sk_str;
-        keys_file.close();
-        b.signature = {};
-    }
 
     if (!from_block)
       cache_block_template(b, miner_address, ex_nonce, diffic, height, expected_reward, seed_height, seed_hash, pool_cookie);

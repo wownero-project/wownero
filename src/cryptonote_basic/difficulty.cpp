@@ -215,7 +215,7 @@ namespace cryptonote {
     if (length <= 1) {
       return 1;
     }
-    if (HEIGHT < 200 && HEIGHT > 2 && m_nettype == TESTNET) { return 500; }
+    if (HEIGHT < 10 && HEIGHT > 2 && m_nettype == TESTNET) { return 500; }
     if (HEIGHT <= 55 + DIFFICULTY_WINDOW && HEIGHT >= 55 && m_nettype == TESTNET) { return 1337; }
     if (HEIGHT <= DIFFICULTY_RESET_HEIGHT + DIFFICULTY_WINDOW && HEIGHT >= DIFFICULTY_RESET_HEIGHT && m_nettype == MAINNET) { return DIFFICULTY_RESET_LEVEL; }
     static_assert(DIFFICULTY_WINDOW >= 2, "Window is too small");

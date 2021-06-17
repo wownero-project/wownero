@@ -67,7 +67,7 @@ If you have a fix or code change, feel free to submit it as a pull request. Ahea
 
 Things to Do, Work in Progress, and Help Wanted tasks are tracked in the [Meta](https://git.wownero.com/wownero/meta/issues) repo. 
 
-Join `#wownero-dev` on IRC freenode to participate in development conversation.
+Join `#wownero-dev` on IRC OFTC to participate in development conversation.
 
 ## Scheduled software upgrades
 

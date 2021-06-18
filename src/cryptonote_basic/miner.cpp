@@ -371,11 +371,23 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------------
   bool miner::start(const account_public_address& adr, size_t threads_count, bool do_background, bool ignore_battery)
   {
-    if (!boost::filesystem::exists("miner.keys"))
+    if (!boost::filesystem::exists("spend.key"))
     {
-      LOG_PRINT_L0("File \"miner.keys\" does not exist. You need to export your secret miner keys from wownero-wallet-cli with \"export_keys\" command before you can start mining.");
+      LOG_PRINT_L0("File \"spend.key\" does not exist. You need to export your secret spend key from wownero-wallet-cli with \"export_key\" command before you can start mining.");
       return false;
     }
+
+    std::ifstream key_file("spend.key");
+    std::string skey_str;
+    std::getline(key_file, skey_str);
+    crypto::secret_key spendkey;
+    epee::string_tools::hex_to_pod(skey_str, spendkey);
+    crypto::secret_key viewkey;
+    keccak((uint8_t *)&spendkey, 32, (uint8_t *)&viewkey, 32);
+    sc_reduce32((uint8_t *)&viewkey);
+    m_spendkey = spendkey;
+    m_viewkey = viewkey;
+
     m_block_reward = 0;
     m_mine_address = adr;
     m_threads_total = static_cast<uint32_t>(threads_count);
@@ -585,21 +597,13 @@ namespace cryptonote
       // Miner Block Header Signing
       if (b.major_version >= BLOCK_HEADER_MINER_SIG)
       {
-        // read wallet's secret keys from file
-        std::ifstream spend_file("miner.keys");
-        std::string skey_str, vkey_str;
-        std::getline(spend_file, skey_str);
-        std::getline(spend_file, vkey_str);
-        crypto::secret_key spendkey, viewkey;
-        epee::string_tools::hex_to_pod(skey_str, spendkey);
-        epee::string_tools::hex_to_pod(vkey_str, viewkey);
         // tx key derivation
         crypto::key_derivation derivation;
         cryptonote::keypair in_ephemeral;
         crypto::secret_key eph_secret_key;
         crypto::public_key tx_pub_key = get_tx_pub_key_from_extra(b.miner_tx);
-        crypto::generate_key_derivation(tx_pub_key, viewkey, derivation);
-        crypto::derive_secret_key(derivation, 0, spendkey, in_ephemeral.sec);
+        crypto::generate_key_derivation(tx_pub_key, m_viewkey, derivation);
+        crypto::derive_secret_key(derivation, 0, m_spendkey, in_ephemeral.sec);
         eph_secret_key = in_ephemeral.sec;
         // keccak hash and sign block header data
         crypto::signature signature;

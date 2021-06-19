@@ -1319,7 +1319,7 @@ namespace cryptonote
     }
     if(!miner.start(info.address, static_cast<size_t>(req.threads_count), req.do_background_mining, req.ignore_battery))
     {
-      res.status = "Failed, mining not started. You might need to export spend key first.";
+      res.status = "Failed, mining not started.";
       LOG_PRINT_L0(res.status);
       return true;
     }

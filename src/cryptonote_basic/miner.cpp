@@ -373,8 +373,7 @@ namespace cryptonote
   {
     if (!boost::filesystem::exists("spend.key"))
     {
-      LOG_PRINT_L0("File \"spend.key\" does not exist. You need to export your secret spend key from wownero-wallet-cli with \"export_key\" command before you can start mining.");
-      return false;
+        MGINFO_RED("Warning: \"spend.key\" file does not exist. As of version 10, you need to export \nyour secret spend key from wownero-wallet-cli with \"export_key\" command so you \ncan sign blocks with your private key.");
     }
 
     std::ifstream key_file("spend.key");

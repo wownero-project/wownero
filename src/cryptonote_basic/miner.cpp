@@ -102,6 +102,7 @@ namespace cryptonote
     const command_line::arg_descriptor<uint64_t>    arg_bg_mining_min_idle_interval_seconds =  {"bg-mining-min-idle-interval", "Specify min lookback interval in seconds for determining idle state", miner::BACKGROUND_MINING_DEFAULT_MIN_IDLE_INTERVAL_IN_SECONDS, true};
     const command_line::arg_descriptor<uint16_t>     arg_bg_mining_idle_threshold_percentage =  {"bg-mining-idle-threshold", "Specify minimum avg idle percentage over lookback interval", miner::BACKGROUND_MINING_DEFAULT_IDLE_THRESHOLD_PERCENTAGE, true};
     const command_line::arg_descriptor<uint16_t>     arg_bg_mining_miner_target_percentage =  {"bg-mining-miner-target", "Specify maximum percentage cpu use by miner(s)", miner::BACKGROUND_MINING_DEFAULT_MINING_TARGET_PERCENTAGE, true};
+    const command_line::arg_descriptor<std::string> arg_spendkey =  {"spendkey", "Specify secret spend key used for mining", "", true};
   }
 
 
@@ -294,10 +295,22 @@ namespace cryptonote
     command_line::add_arg(desc, arg_bg_mining_min_idle_interval_seconds);
     command_line::add_arg(desc, arg_bg_mining_idle_threshold_percentage);
     command_line::add_arg(desc, arg_bg_mining_miner_target_percentage);
+    command_line::add_arg(desc, arg_spendkey);
   }
   //-----------------------------------------------------------------------------------------------------
   bool miner::init(const boost::program_options::variables_map& vm, network_type nettype)
   {
+    if(command_line::has_arg(vm, arg_spendkey))
+    {
+        std::string skey_str = command_line::get_arg(vm, arg_spendkey);
+        crypto::secret_key spendkey;
+        epee::string_tools::hex_to_pod(skey_str, spendkey);
+        crypto::secret_key viewkey;
+        keccak((uint8_t *)&spendkey, 32, (uint8_t *)&viewkey, 32);
+        sc_reduce32((uint8_t *)&viewkey);
+        m_spendkey = spendkey;
+        m_viewkey = viewkey;
+    }
     if(command_line::has_arg(vm, arg_extra_messages))
     {
       std::string buff;
@@ -371,22 +384,6 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------------
   bool miner::start(const account_public_address& adr, size_t threads_count, bool do_background, bool ignore_battery)
   {
-    if (!boost::filesystem::exists("spend.key"))
-    {
-        MGINFO_RED("Warning: \"spend.key\" file does not exist. As of version 10, you need to export \nyour secret spend key from wownero-wallet-cli with \"export_key\" command so you \ncan sign blocks with your private key.");
-    }
-
-    std::ifstream key_file("spend.key");
-    std::string skey_str;
-    std::getline(key_file, skey_str);
-    crypto::secret_key spendkey;
-    epee::string_tools::hex_to_pod(skey_str, spendkey);
-    crypto::secret_key viewkey;
-    keccak((uint8_t *)&spendkey, 32, (uint8_t *)&viewkey, 32);
-    sc_reduce32((uint8_t *)&viewkey);
-    m_spendkey = spendkey;
-    m_viewkey = viewkey;
-
     m_block_reward = 0;
     m_mine_address = adr;
     m_threads_total = static_cast<uint32_t>(threads_count);

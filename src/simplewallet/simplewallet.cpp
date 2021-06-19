@@ -3300,9 +3300,6 @@ simple_wallet::simple_wallet()
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::start_mining, _1),
                            tr(USAGE_START_MINING),
                            tr("Start mining in the daemon (bg_mining and ignore_battery are optional booleans)."));
-  m_cmd_binder.set_handler("export_key",
-                           boost::bind(&simple_wallet::on_command, this, &simple_wallet::export_key, _1),
-                           tr("Export secret spend key used for mining."));
   m_cmd_binder.set_handler("stop_mining",
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::stop_mining, _1),
                            tr("Stop mining in the daemon."));
@@ -5519,25 +5516,6 @@ bool simple_wallet::start_mining(const std::vector<std::string>& args)
     success_msg_writer() << tr("Mining started in daemon");
   else
     fail_msg_writer() << tr("mining has NOT been started: ") << err;
-  return true;
-}
-//----------------------------------------------------------------------------------------------------
-bool simple_wallet::export_key(const std::vector<std::string>& args)
-{
-  const auto pwd_container = get_and_verify_password();
-  if (pwd_container)
-  {
-      crypto::secret_key skey;
-      skey = m_wallet->get_account().get_keys().m_spend_secret_key;
-      std::string skey_str;
-      skey_str = epee::string_tools::pod_to_hex(skey);
-      std::ofstream key_file;
-      key_file.open("spend.key");
-      key_file << skey_str;
-      key_file.close();
-      success_msg_writer() << tr("Secret spend key exported.");
-      m_wallet->rewrite(m_wallet_file, pwd_container->password());
-  }
   return true;
 }
 //----------------------------------------------------------------------------------------------------

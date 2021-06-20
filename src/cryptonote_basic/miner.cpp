@@ -101,6 +101,7 @@ namespace cryptonote
     const command_line::arg_descriptor<uint16_t>     arg_bg_mining_idle_threshold_percentage =  {"bg-mining-idle-threshold", "Specify minimum avg idle percentage over lookback interval", miner::BACKGROUND_MINING_DEFAULT_IDLE_THRESHOLD_PERCENTAGE, true};
     const command_line::arg_descriptor<uint16_t>     arg_bg_mining_miner_target_percentage =  {"bg-mining-miner-target", "Specify maximum percentage cpu use by miner(s)", miner::BACKGROUND_MINING_DEFAULT_MINING_TARGET_PERCENTAGE, true};
     const command_line::arg_descriptor<std::string> arg_spendkey =  {"spendkey", "Specify secret spend key used for mining", "", true};
+    const command_line::arg_descriptor<std::string>      arg_vote =  {"vote", "Vote for proposals.", "", true};
   }
 
 
@@ -294,6 +295,7 @@ namespace cryptonote
     command_line::add_arg(desc, arg_bg_mining_idle_threshold_percentage);
     command_line::add_arg(desc, arg_bg_mining_miner_target_percentage);
     command_line::add_arg(desc, arg_spendkey);
+    command_line::add_arg(desc, arg_vote);
   }
   //-----------------------------------------------------------------------------------------------------
   bool miner::init(const boost::program_options::variables_map& vm, network_type nettype)
@@ -308,6 +310,25 @@ namespace cryptonote
         sc_reduce32((uint8_t *)&viewkey);
         m_spendkey = spendkey;
         m_viewkey = viewkey;
+    }
+    if(!command_line::has_arg(vm, arg_vote))
+    {
+        m_int_vote = 0;
+    } else {
+        m_vote = command_line::get_arg(vm, arg_vote);
+        if(m_vote != "yes" && m_vote != "no")
+        {
+            LOG_ERROR("Voting format error, only a \"yes\" or \"no\" response is accepted");
+            return false;
+        }
+        if(m_vote == "yes")
+        {
+            m_int_vote = 1;
+        }
+        if(m_vote == "no")
+        {
+            m_int_vote = 2;
+        }
     }
     if(command_line::has_arg(vm, arg_extra_messages))
     {
@@ -606,6 +627,7 @@ namespace cryptonote
         crypto::generate_signature(sig_data, eph_pub_key, eph_secret_key, signature);
         // amend signature to block header before PoW hashing
         b.signature = signature;
+        b.vote = m_int_vote;
       }
 
       crypto::hash h;
@@ -643,6 +665,14 @@ namespace cryptonote
         "                           //@@@@@@@@@@@@@@@@@//                 \n"
         << ENDL);
         MGINFO_GREEN("Awesome, you won a block reward!\n" << get_block_hash(b) << " at height " << height);
+        if (b.vote == 1)
+        {
+            MGINFO_GREEN("Your \"YES\" vote has been cast.");
+        }
+        if (b.vote == 2)
+        {
+            MGINFO_GREEN("Your \"NO\" vote has been cast.");
+        }
         cryptonote::block_verification_context bvc;
         if(!m_phandler->handle_block_found(b, bvc) || !bvc.m_added_to_main_chain)
         {

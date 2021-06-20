@@ -188,6 +188,7 @@ namespace boost
     if (b.major_version >= BLOCK_HEADER_MINER_SIG)
     {
       a & b.signature;
+      a & b.vote;
     }
     //------------------
     a & b.miner_tx;

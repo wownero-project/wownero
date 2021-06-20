@@ -447,6 +447,7 @@ namespace cryptonote
     crypto::hash  prev_id;
     uint32_t nonce;
     crypto::signature signature;
+    uint16_t vote;
 
     BEGIN_SERIALIZE()
       VARINT_FIELD(major_version)
@@ -455,7 +456,10 @@ namespace cryptonote
       FIELD(prev_id)
       FIELD(nonce)
       if (major_version >= BLOCK_HEADER_MINER_SIG)
+      {
           FIELD(signature)
+          FIELD(vote)
+      }
     END_SERIALIZE()
   };
 

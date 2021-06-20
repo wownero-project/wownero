@@ -94,6 +94,7 @@ namespace {
   void print_block_header(cryptonote::block_header_response const & header)
   {
     tools::success_msg_writer()
+      << "vote: " << header.vote << std::endl
       << "timestamp: " << boost::lexical_cast<std::string>(header.timestamp) << " (" << tools::get_human_readable_timestamp(header.timestamp) << ")" << std::endl
       << "previous hash: " << header.prev_hash << std::endl
       << "nonce: " << boost::lexical_cast<std::string>(header.nonce) << std::endl

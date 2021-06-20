@@ -1428,6 +1428,11 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
           MWARNING("Wrong txout type");
           return false;
       }
+      if (b.vote > 2)
+      {
+          MWARNING("Vote integer must be either 0, 1, or 2");
+          return false;
+      }
       // keccak hash block header data and check miner signature
       // if signature is invalid, reject block
       crypto::hash sig_data = get_sig_data(b);
@@ -1440,6 +1445,7 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
           return false;
       } else {
           LOG_PRINT_L1("Miner signature is good");
+          LOG_PRINT_L1("Vote: " << b.vote);
       }
   }
 

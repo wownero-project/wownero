@@ -1937,6 +1937,7 @@ namespace cryptonote
       if (b.major_version >= BLOCK_HEADER_MINER_SIG)
       {
           b.signature = {};
+          b.vote = 0;
       }
       crypto::hash seed_hash = crypto::null_hash;
       if (b.major_version >= RX_BLOCK_VERSION && !epee::string_tools::hex_to_pod(template_res.seed_hash, seed_hash))
@@ -1976,6 +1977,7 @@ namespace cryptonote
   bool core_rpc_server::fill_block_header_response(const block& blk, bool orphan_status, uint64_t height, const crypto::hash& hash, block_header_response& response, bool fill_pow_hash)
   {
     PERF_TIMER(fill_block_header_response);
+    response.vote = blk.vote;
     response.major_version = blk.major_version;
     response.minor_version = blk.minor_version;
     response.timestamp = blk.timestamp;

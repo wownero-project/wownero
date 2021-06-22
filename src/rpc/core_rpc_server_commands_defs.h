@@ -919,6 +919,7 @@ namespace cryptonote
       blobdata blocktemplate_blob;
       blobdata blockhashing_blob;
       uint64_t unlock_height;
+      uint16_t vote;
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE_PARENT(rpc_response_base)
@@ -935,6 +936,7 @@ namespace cryptonote
         KV_SERIALIZE(seed_hash)
         KV_SERIALIZE(next_seed_hash)
         KV_SERIALIZE(unlock_height)
+        KV_SERIALIZE(vote)
       END_KV_SERIALIZE_MAP()
     };
     typedef epee::misc_utils::struct_init<response_t> response;

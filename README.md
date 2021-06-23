@@ -59,6 +59,12 @@ XMR: `44SQVPGLufPasUcuUQSZiF5c9BFzjcP8ucDxzzFDgLf1VkCEFaidJ3u2AhSKMhPLKA3jc2iS8w
 
 BTC: `bc1qcw9zglp3fxyl25zswemw7jczlqryms2lsmu464`
 
+### Open Collective
+
+Open Collective is an online funding platform for open source software and collaborative communities. The platform brings together legal entities that act as a “Fiscal Host”, “Collectives” (unincorporated, community-based projects), and individuals interested in supporting projects with donations. Fiscal hosts hold donations for collectives in trust and handle all the taxes and legal stuff.
+
+Wownero is hosted by Open Collective Europe, a Brussels-based non-profit that hosts many other collectives, such as Manjaro, EndeavourOS, Xfce, and peertube.social. If you would like donate to the Wownero Project using this method, you can check out our [Wownero - Open Collective](https://opencollective.com/wownero) page.
+
 ## Release staging and Contributing
 
 **Anyone is welcome to contribute to Wownero's codebase!** 

@@ -116,8 +116,8 @@ RUN set -ex \
     && make install
 
 # Udev
-ARG UDEV_VERSION=v3.2.8
-ARG UDEV_HASH=d69f3f28348123ab7fa0ebac63ec2fd16800c5e0
+ARG UDEV_VERSION=v3.2.10
+ARG UDEV_HASH=be7068512c7512fa67c64fbff3472ab140c277c8
 RUN set -ex \
     && git clone https://github.com/gentoo/eudev -b ${UDEV_VERSION} \
     && cd eudev \
@@ -202,11 +202,10 @@ VOLUME /home/wownero/.wownero
 # wownero-wallet-cli
 VOLUME /wallet
 
-EXPOSE 38080
-EXPOSE 38081
+EXPOSE 34567
+EXPOSE 34568
 
 # switch to user wownero
 USER wownero
 
-ENTRYPOINT ["wownerod", "--p2p-bind-ip=0.0.0.0", "--p2p-bind-port=38080", "--rpc-bind-ip=0.0.0.0", "--rpc-bind-port=38081", "--non-interactive", "--confirm-external-bind"]
-
+ENTRYPOINT ["wownerod", "--p2p-bind-ip=0.0.0.0", "--p2p-bind-port=34567", "--rpc-bind-ip=0.0.0.0", "--rpc-bind-port=34568", "--non-interactive", "--confirm-external-bind"]

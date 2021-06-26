@@ -90,7 +90,7 @@
 #define DIFFICULTY_BLOCKS_COUNT_V3                      DIFFICULTY_WINDOW_V3 + 1 // added +1 to make N=N
 #define DIFFICULTY_BLOCKS_COUNT_V2                      DIFFICULTY_WINDOW_V2 + 1 // added +1 to make N=N
 #define DIFFICULTY_BLOCKS_COUNT                         DIFFICULTY_WINDOW + DIFFICULTY_LAG
-#define DIFFICULTY_RESET_HEIGHT                         331176// ~July 4, 2021 Pool Independence Day
+#define DIFFICULTY_RESET_HEIGHT                         331170// ~July 4, 2021 Pool Independence Day
 #define DIFFICULTY_RESET_LEVEL                          100000000 // 100 mill
 
 

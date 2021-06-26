@@ -91,7 +91,7 @@ Dates are provided in the format YYYY-MM-DD.
 | 160,777                          | 2019-11-20 | Gaping Goatse    | v0.7.0.0               | v0.7.1.0                  | Only allow >= 2 outputs, change to the block median used to calculate penalty, rct sigs in coinbase forbidden, 4 unlock time as protocol rule
 | -                         | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0               | v0.8.0.2                  | Dandelion++ support
 | 253,999                         | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0               | v0.9.3.3                  | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
-| 331,176                         | 2021-07-04 | Junkie Jeff  | v0.10.0.0               |  v0.10.0.0                  | Miner Block Header Signing, Vote by Block, Change coinbase unlock time to 1 day, Reset difficulty and switch back to Monero's difficulty algorithm
+| 331,170                         | 2021-07-04 | Junkie Jeff  | v0.10.0.0               |  v0.10.0.0                  | Miner Block Header Signing, Vote by Block, Change coinbase unlock time to 1 day, Reset difficulty and switch back to Monero's difficulty algorithm
 
 X's indicate that these details have not been determined as of commit date.
 

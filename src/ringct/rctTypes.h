@@ -437,7 +437,7 @@ namespace rct {
             }
             ar.end_array();
           }
-          if (type == RCTTypeBulletproofPlus)
+          else if (type == RCTTypeBulletproofPlus)
           {
             uint32_t nbp = bulletproofs_plus.size();
             VARINT_FIELD(nbp)

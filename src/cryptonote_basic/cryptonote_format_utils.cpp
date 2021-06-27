@@ -463,7 +463,6 @@ namespace cryptonote
       return blob_size;
     if (rct::is_rct_old_bulletproof(rv.type))
       return blob_size;
-    const uint64_t bp_base = 368;
     const size_t n_padded_outputs = bulletproof_plus ? rct::n_bulletproof_plus_max_amounts(rv.p.bulletproofs_plus) : rct::n_bulletproof_max_amounts(rv.p.bulletproofs);
     uint64_t bp_clawback = get_transaction_weight_clawback(tx, n_padded_outputs);
     CHECK_AND_ASSERT_THROW_MES_L1(bp_clawback <= std::numeric_limits<uint64_t>::max() - blob_size, "Weight overflow");

@@ -1835,7 +1835,7 @@ PendingTransaction *WalletImpl::createTransactionSingle(const string &key_image,
 
     size_t fake_outs_count = m_wallet->adjust_mixin(m_wallet->default_mixin());
 
-    uint32_t adjusted_priority = m_wallet->adjust_priority(static_cast<uint32_t>(priority));
+    //uint32_t adjusted_priority = m_wallet->adjust_priority(static_cast<uint32_t>(priority));
 
     PendingTransactionImpl * transaction = new PendingTransactionImpl(*this);
 

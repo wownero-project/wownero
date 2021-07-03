@@ -274,3 +274,4 @@ void TransactionHistoryImpl::refresh()
 }
 
 } // namespace
+}

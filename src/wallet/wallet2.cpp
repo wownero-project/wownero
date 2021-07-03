@@ -1550,6 +1550,14 @@ void wallet2::add_subaddress_account(const std::string& label)
   m_subaddress_labels[index_major][0] = label;
 }
 //----------------------------------------------------------------------------------------------------
+bool wallet2::get_subaddress_used(const cryptonote::subaddress_index& index)
+{
+  return std::find_if(m_transfers.begin(), m_transfers.end(),
+  [this, index](const transfer_details &td) {
+  return td.m_subaddr_index == index;
+  }) != m_transfers.end();
+}
+//----------------------------------------------------------------------------------------------------
 void wallet2::add_subaddress(uint32_t index_major, const std::string& label)
 {
   THROW_WALLET_EXCEPTION_IF(index_major >= m_subaddress_labels.size(), error::account_index_outofbound);
@@ -2155,13 +2163,14 @@ void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote
           uint64_t amount = tx.vout[o].amount ? tx.vout[o].amount : tx_scan_info[o].amount;
           if (!pool)
           {
-	    m_transfers.push_back(transfer_details{});
-	    transfer_details& td = m_transfers.back();
-	    td.m_block_height = height;
-	    td.m_internal_output_index = o;
-	    td.m_global_output_index = o_indices[o];
-	    td.m_tx = (const cryptonote::transaction_prefix&)tx;
-	    td.m_txid = txid;
+            boost::unique_lock<boost::shared_mutex> lock(m_transfers_mutex);
+            m_transfers.push_back(transfer_details{});
+            transfer_details& td = m_transfers.back();
+            td.m_block_height = height;
+            td.m_internal_output_index = o;
+            td.m_global_output_index = o_indices[o];
+            td.m_tx = (const cryptonote::transaction_prefix&)tx;
+            td.m_txid = txid;
             td.m_key_image = tx_scan_info[o].ki;
             td.m_key_image_known = !m_watch_only && !m_multisig;
             if (!td.m_key_image_known)
@@ -2258,12 +2267,13 @@ void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote
           uint64_t extra_amount = amount - burnt;
           if (!pool)
           {
+            boost::unique_lock<boost::shared_mutex> lock(m_transfers_mutex);
             transfer_details &td = m_transfers[kit->second];
-	    td.m_block_height = height;
-	    td.m_internal_output_index = o;
-	    td.m_global_output_index = o_indices[o];
-	    td.m_tx = (const cryptonote::transaction_prefix&)tx;
-	    td.m_txid = txid;
+            td.m_block_height = height;
+            td.m_internal_output_index = o;
+            td.m_global_output_index = o_indices[o];
+            td.m_tx = (const cryptonote::transaction_prefix&)tx;
+            td.m_txid = txid;
             td.m_amount = amount;
             td.m_pk_index = pk_index - 1;
             td.m_subaddr_index = tx_scan_info[o].received->index;

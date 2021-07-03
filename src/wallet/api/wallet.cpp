@@ -1400,7 +1400,7 @@ bool WalletImpl::scanTransactions(const std::vector<std::string> &txids)
         setStatusError(string(tr("Failed to scan transaction: ")) + e.what());
         return false;
     }
-
+    
     return true;
 }
 
@@ -1471,6 +1471,22 @@ std::string WalletImpl::printAddressBook()
 std::string WalletImpl::printScannedPoolTxs()
 {
     return m_wallet->printScannedPoolTxs();
+}
+
+bool WalletImpl::importTransaction(const std::string &txid, std::vector<uint64_t> &o_indices, uint64_t height, uint8_t block_version, uint64_t ts, bool miner_tx, bool pool, bool double_spend_seen)
+{
+    try
+    {
+        m_wallet->import_tx(txid, o_indices, height, block_version, ts, miner_tx, pool, double_spend_seen);
+    }
+    catch (const std::exception &e)
+    {
+        LOG_ERROR("Failed to import transaction: " << e.what());
+        setStatusError(string(tr("Failed to import transaction: ")) + e.what());
+        return false;
+    }
+
+    return true;
 }
 
 void WalletImpl::addSubaddressAccount(const std::string& label)

@@ -26,7 +26,7 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ### Blockchain Explorers
 - https://explore.wownero.com
-- http://wow5eqtzqvsg5jctqzg5g7uk3u62sfqiacj5x6lo4by7bvnj6jkvubyd.onion
+- http://gffjxd5nn2heslj6jv5ts2ok5j6xi6m3pwlpz7le4i5bu56sirbxfiqd.onion:8081
 - https://wownero.club
 - https://explorer.wownero.fyi
 
@@ -170,10 +170,10 @@ To run in background:
 
 To run as a systemd service, copy
 [wownerod.service](utils/systemd/wownerod.service) to `/etc/systemd/system/` and
-[wownerod.conf](utils/conf/wownerod.conf) to `/etc/`. The [example
+[wownerod.conf](wownerod.conf) to `/etc/`. The [example
 service](utils/systemd/wownerod.service) assumes that the user `wownero` exists
 and its home is the data directory specified in the [example
-config](utils/conf/wownerod.conf).
+config](wownerod.conf).
 
 Once node is synced to network, run the CLI wallet by entering:
 
@@ -183,26 +183,32 @@ Type `help` in CLI wallet to see standard commands (for advanced options, type `
 
 ## Tor Anonymity Network
 
-* Install [Tor Browser](https://www.torproject.org/download/)
-* Open `torrc` file in a text editor ([installation directory]/Browser/TorBrowser/Data/Tor/torrc) and add hidden service information as follows:
+### Ubuntu
 
+* `sudo apt-get update && sudo apt-get install tor -y`
+* `sudo nano /etc/tor/torrc`
+
+add the following:
 ```
-HiddenServiceDir [installation directory]/Browser/TorBrowser/Data/Tor/wow_node
+HiddenServiceDir /var/lib/tor/wownero/
+HiddenServicePort 34568 127.0.0.1:34568
 HiddenServiceVersion 3
-HiddenServicePort 44568 127.0.0.1:44568
 ```
-* Save `torrc` file and restart Tor Browser (keep open)
-* Change directory to the `wow_node` folder, open `hostname` file, and copy your node's ".onion" address
-* Start wownerod with the following parameters:
+save and close nano
+
+* `sudo /etc/init.d/tor restart && sudo systemctl enable tor`
+* copy [wownerod.conf](https://git.wownero.com/wownero/wownero/raw/branch/master/wownerod.conf) file and save it in same directory as `wownerod`.
+* start wownerod like this:
 
 ```
-./wownerod --tx-proxy tor,127.0.0.1:9150,10 --add-peer hdps3qwnusz64r7odvynmae6myc2uyvrsc2emap6636qeuzll72eouid.onion:44568 --anonymous-inbound YOUR_NODE_ADDRESS.onion:44568,127.0.0.1:44568,25
+./wownerod --config-file=wownerod.conf
 ```
 
+* `sudo cat /var/lib/tor/wownero/hostname`
+copy your onion address and share node with others [here](https://monero.fail/?crypto=wownero) and [here](https://forum.wownero.com/t/wownero-tor-onion-sites/623)
+  
 ### Access remote Tor node from CLI wallet
 
 ```
-./wownero-wallet-cli --proxy 127.0.0.1:9150 --daemon-address wow7dhbgiljnkspkzpjyy66auegbrye2ptfv4gucgbhireg5rrjza5ad.onion:34568
+./wownero-wallet-cli --proxy 127.0.0.1:9050 --daemon-address iy6ry6uudpzvbd72zsipepukp6nsazjdu72n52vg3isfnxqn342flzad.onion:34568
 ```
-
-Use port `9050` instead of `9150` if you installed Tor as a standalone daemon. For more information, check out [ANONYMITY_NETWORKS](https://git.wownero.com/wownero/wownero/src/branch/master/ANONYMITY_NETWORKS.md).

@@ -42,7 +42,7 @@ CookieAuthentication 1
 CookieAuthFile $TORDIR/control.authcookie
 CookieAuthFileGroupReadable 1
 HiddenServiceDir $TORDIR
-HiddenServicePort 38083 127.0.0.1:38083
+HiddenServicePort 34568 127.0.0.1:34568
 EOF
 
 echo "Starting Tor..."
@@ -67,9 +67,15 @@ fi
 echo "Starting wownerod..."
 HOSTNAME=$(cat "$HOSTNAMEFILE")
 "$monerod" \
-  --anonymous-inbound "$HOSTNAME":38083,127.0.0.1:38083,25 --tx-proxy tor,127.0.0.1:9050,10 \
-  --add-priority-node zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:38083 \
-  --add-priority-node 2xmrnode5itf65lz.onion:38083 \
+  --anonymous-inbound "$HOSTNAME":34568,127.0.0.1:34568,25 --tx-proxy tor,127.0.0.1:9050,10 \
+  --add-priority-node v2admi6gbeprxnk6i2oscizhgy4v5ixu6iezkhj5udiwbfjjs2w7dnid.onion:34568 \
+  --add-priority-node iy6ry6uudpzvbd72zsipepukp6nsazjdu72n52vg3isfnxqn342flzad.onion:34568 \
+  --add-priority-node 7ftpbpp6rbgqi5kjmhyin46essnh3eqb3m3rhfi7r2fr33iwkeuer3yd.onion:34568 \
+  --add-priority-node j7rf2jcccizcp47y5moehguyuqdpg4lusk642sw4nayuruitqaqbc7ad.onion:34568 \
+  --add-priority-node aje53o5z5twne5q2ljw44zkahhsuhjtwaxuburxddbf7n4pfsj4rj6qd.onion:34568 \
+  --add-priority-node nepc4lxndsooj2akn7ofrj3ooqc25242obchcag6tw3f2mxrms2uuvyd.onion:34568 \
+  --add-priority-node 666l2ajxqjgj5lskvbokvworjysgvqag4oitokjuy7wz6juisul4jqad.onion:34568 \
+  --add-priority-node ty7ppqozzodz75audgvkprekiiqsovbyrkfdjwadrkbe3etyzloatxad.onion:34568 \
   --detach
 ready=0
 for i in `seq 10`

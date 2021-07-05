@@ -821,14 +821,14 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "v2admi6gbeprxnk6i2oscizhgy4v5ixu6iezkhj5udiwbfjjs2w7dnid.onion:34568",
-          "iy6ry6uudpzvbd72zsipepukp6nsazjdu72n52vg3isfnxqn342flzad.onion:34568",
-          "7ftpbpp6rbgqi5kjmhyin46essnh3eqb3m3rhfi7r2fr33iwkeuer3yd.onion:34568",
-          "j7rf2jcccizcp47y5moehguyuqdpg4lusk642sw4nayuruitqaqbc7ad.onion:34568",
-          "aje53o5z5twne5q2ljw44zkahhsuhjtwaxuburxddbf7n4pfsj4rj6qd.onion:34568",
-          "nepc4lxndsooj2akn7ofrj3ooqc25242obchcag6tw3f2mxrms2uuvyd.onion:34568",
-          "666l2ajxqjgj5lskvbokvworjysgvqag4oitokjuy7wz6juisul4jqad.onion:34568",
-          "ty7ppqozzodz75audgvkprekiiqsovbyrkfdjwadrkbe3etyzloatxad.onion:34568",
+          "v2admi6gbeprxnk6i2oscizhgy4v5ixu6iezkhj5udiwbfjjs2w7dnid.onion:34566",
+          "iy6ry6uudpzvbd72zsipepukp6nsazjdu72n52vg3isfnxqn342flzad.onion:34566",
+          "7ftpbpp6rbgqi5kjmhyin46essnh3eqb3m3rhfi7r2fr33iwkeuer3yd.onion:34566",
+          "j7rf2jcccizcp47y5moehguyuqdpg4lusk642sw4nayuruitqaqbc7ad.onion:34566",
+          "aje53o5z5twne5q2ljw44zkahhsuhjtwaxuburxddbf7n4pfsj4rj6qd.onion:34566",
+          "nepc4lxndsooj2akn7ofrj3ooqc25242obchcag6tw3f2mxrms2uuvyd.onion:34566",
+          "666l2ajxqjgj5lskvbokvworjysgvqag4oitokjuy7wz6juisul4jqad.onion:34566",
+          "ty7ppqozzodz75audgvkprekiiqsovbyrkfdjwadrkbe3etyzloatxad.onion:34566",
         };
       }
       return {};

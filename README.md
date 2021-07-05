@@ -192,6 +192,7 @@ add the following:
 ```
 HiddenServiceDir /var/lib/tor/wownero/
 HiddenServicePort 34568 127.0.0.1:34568
+HiddenServicePort 34566 127.0.0.1:34566
 HiddenServiceVersion 3
 ```
 save and close nano
@@ -206,7 +207,11 @@ save and close nano
 
 * `sudo cat /var/lib/tor/wownero/hostname`
 copy your onion address and share node with others [here](https://monero.fail/?crypto=wownero) and [here](https://forum.wownero.com/t/wownero-tor-onion-sites/623)
-  
+
+To share your node over p2p, uncomment first line of wownerod.conf and add your onion address.
+
+More information on running Tor and i2p nodes is available [here](https://forum.wownero.com/t/how-to-setup-a-full-node-with-tor-i2p/588)
+
 ### Access remote Tor node from CLI wallet
 
 ```

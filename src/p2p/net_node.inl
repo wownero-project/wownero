@@ -2089,7 +2089,7 @@ namespace nodetool
         }
         else
         {
-          const el::Level level = el::Level::Warning;
+          const el::Level level = el::Level::Debug;
           MCLOG_RED(level, "Debug", "No incoming connections - check firewalls/routers allow port " << get_this_peer_port());
         }
       }

@@ -662,7 +662,7 @@ namespace levin
 
             auto connections = get_out_connections(*zone_->p2p, height);
             if (connections.empty())
-              MWARNING("Unable to send transaction(s) to " << epee::net_utils::zone_to_string(zone_->nzone) <<
+                MDEBUG("Unable to send transaction(s) to " << epee::net_utils::zone_to_string(zone_->nzone) <<
 			" - no suitable outbound connections at height " << height);
 
             zone_->strand.post(update_channels{zone_, std::move(connections)});

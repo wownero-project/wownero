@@ -307,6 +307,7 @@ if(NOT MANUAL_SUBMODULES)
     
     message(STATUS "Checking submodules")
     check_submodule(external/miniupnp)
+    check_submodule(external/unbound)
     check_submodule(external/rapidjson)
     check_submodule(external/RandomWOW)
     check_submodule(external/supercop)
@@ -611,7 +612,8 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/translations")
 add_subdirectory(external)
 
 # Final setup for libunbound
-include_directories(${UNBOUND_INCLUDE_DIR})
+include_directories(${UNBOUND_INCLUDE})
+link_directories(${UNBOUND_LIBRARY_DIRS})
 
 # Final setup for easylogging++
 include_directories(${EASYLOGGING_INCLUDE})

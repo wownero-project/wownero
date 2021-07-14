@@ -692,7 +692,7 @@ namespace nodetool
     if (m_nettype == cryptonote::TESTNET)
     {
       full_addrs.insert("207.254.29.107:11180");
-      full_addrs.insert("51.81.32.130:11180");
+      full_addrs.insert("135.148.138.255:11180");
     }
     else if (m_nettype == cryptonote::STAGENET)
     {
@@ -709,6 +709,8 @@ namespace nodetool
       full_addrs.insert("188.166.237.187:34567"); //  sg1.wownodes.com      
       full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
       full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
+      full_addrs.insert("135.148.138.255:34567");
+      full_addrs.insert("207.254.29.107:34567");
     }
     return full_addrs;
   }

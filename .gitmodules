@@ -12,3 +12,7 @@
 	path = external/RandomWOW
 	url = https://git.wownero.com/wownero/RandomWOW
 	branch = 1.1.9-wow
+[submodule "external/unbound"]
+	path = external/unbound
+	url = https://github.com/monero-project/unbound
+	branch = monero

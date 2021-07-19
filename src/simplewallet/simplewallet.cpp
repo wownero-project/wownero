@@ -3186,6 +3186,7 @@ bool simple_wallet::help(const std::vector<std::string> &args/* = std::vector<st
     message_writer() << tr("\"transfer <address> <amount>\" - Send WOW to an address.");
     message_writer() << tr("\"show_transfers [in|out|pending|failed|pool]\" - Show transactions.");
     message_writer() << tr("\"sweep_all <address>\" - Send whole balance to another wallet.");
+    message_writer() << tr("\"spendkey\" - Show secret spend key used for mining.");
     message_writer() << tr("\"seed\" - Show secret 25 words that can be used to recover this wallet.");
     message_writer() << tr("\"refresh\" - Synchronize wallet with the Wownero network.");
     message_writer() << tr("\"status\" - Check current status of wallet.");
@@ -4766,9 +4767,6 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm)
 
   m_wallet->callback(this);
 
-  bool skip_check_backround_mining = !command_line::get_arg(vm, arg_command).empty();
-  if (!skip_check_backround_mining)
-    check_background_mining(password);
 
   if (welcome)
     message_writer(console_color_yellow, true) << tr("If you are new to Wownero, type \"welcome\" for a brief overview.");
@@ -5342,34 +5340,7 @@ bool simple_wallet::save_watch_only(const std::vector<std::string> &args/* = std
 //----------------------------------------------------------------------------------------------------
 void simple_wallet::start_background_mining()
 {
-  COMMAND_RPC_MINING_STATUS::request reqq;
-  COMMAND_RPC_MINING_STATUS::response resq;
-  bool r = m_wallet->invoke_http_json("/mining_status", reqq, resq);
-  std::string err = interpret_rpc_response(r, resq.status);
-  if (!r)
-    return;
-  if (!err.empty())
-  {
-    fail_msg_writer() << tr("Failed to query mining status: ") << err;
-    return;
-  }
-  if (!resq.is_background_mining_enabled)
-  {
-    COMMAND_RPC_START_MINING::request req;
-    COMMAND_RPC_START_MINING::response res;
-    req.miner_address = m_wallet->get_account().get_public_address_str(m_wallet->nettype());
-    req.threads_count = 1;
-    req.do_background_mining = true;
-    req.ignore_battery = false;
-    bool r = m_wallet->invoke_http_json("/start_mining", req, res);
-    std::string err = interpret_rpc_response(r, res.status);
-    if (!err.empty())
-    {
-      fail_msg_writer() << tr("Failed to setup background mining: ") << err;
-      return;
-    }
-  }
-  success_msg_writer() << tr("Background mining enabled. Thank you for supporting the Wownero network.");
+  message_writer(console_color_red, false) << tr("Background mining not available.");
 }
 //----------------------------------------------------------------------------------------------------
 void simple_wallet::stop_background_mining()
@@ -5462,60 +5433,7 @@ void simple_wallet::check_background_mining(const epee::wipeable_string &passwor
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::start_mining(const std::vector<std::string>& args)
 {
-  if (!m_wallet->is_trusted_daemon())
-  {
-    fail_msg_writer() << tr("this command requires a trusted daemon. Enable with --trusted-daemon");
-    return true;
-  }
-
-  if (!try_connect_to_daemon())
-    return true;
-
-  if (!m_wallet)
-  {
-    fail_msg_writer() << tr("wallet is null");
-    return true;
-  }
-  COMMAND_RPC_START_MINING::request req = AUTO_VAL_INIT(req); 
-  req.miner_address = m_wallet->get_account().get_public_address_str(m_wallet->nettype());
-
-  bool ok = true;
-  size_t arg_size = args.size();
-  if(arg_size >= 3)
-  {
-    if (!parse_bool_and_use(args[2], [&](bool r) { req.ignore_battery = r; }))
-      return true;
-  }
-  if(arg_size >= 2)
-  {
-    if (!parse_bool_and_use(args[1], [&](bool r) { req.do_background_mining = r; }))
-      return true;
-  }
-  if(arg_size >= 1)
-  {
-    uint16_t num = 1;
-    ok = string_tools::get_xtype_from_string(num, args[0]);
-    ok = ok && 1 <= num;
-    req.threads_count = num;
-  }
-  else
-  {
-    req.threads_count = 1;
-  }
-
-  if (!ok)
-  {
-    PRINT_USAGE(USAGE_START_MINING);
-    return true;
-  }
-
-  COMMAND_RPC_START_MINING::response res;
-  bool r = m_wallet->invoke_http_json("/start_mining", req, res);
-  std::string err = interpret_rpc_response(r, res.status);
-  if (err.empty())
-    success_msg_writer() << tr("Mining started in daemon");
-  else
-    fail_msg_writer() << tr("mining has NOT been started: ") << err;
+  fail_msg_writer() << tr("You can't mine within the wallet. To mine, restart node like this: ./wownerod --start-mining YOUR-ADDRESS --spendkey SECRET-SPENDKEY");
   return true;
 }
 //----------------------------------------------------------------------------------------------------

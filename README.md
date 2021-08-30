@@ -1,6 +1,6 @@
 # ~~Mo~~Wownero -  Such privacy! Many coins! Wow! 🐕
 
-Copyright (c) 2014-2020 The Monero Project.   
+Copyright (c) 2014-2021 The Monero Project.   
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Resources
@@ -20,15 +20,12 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 - Public Node Status: [monero.fail](https://monero.fail/?crypto=wownero)
 - Map of Nodes: [wownero.fyi](https://wownero.fyi)
 - Wownero Memes: [suchwow.xyz](https://suchwow.xyz/posts/top)
-- XMR/WOW Swap: [nero Swap](https://neroswap.com)
-- Mining Pools: [miningpoolstats.stream](https://miningpoolstats.stream/wownero)
 - Market Info: [coinmarketcap.com](https://coinmarketcap.com/currencies/wownero), [coingecko.com](https://www.coingecko.com/en/coins/wownero/usd)
 
 ### Blockchain Explorers
 - https://explore.wownero.com
 - http://gffjxd5nn2heslj6jv5ts2ok5j6xi6m3pwlpz7le4i5bu56sirbxfiqd.onion:8081
 - https://wownero.club
-- https://explorer.wownero.fyi
 
 ## Introduction
 
@@ -73,7 +70,7 @@ If you have a fix or code change, feel free to submit it as a pull request. Ahea
 
 Things to Do, Work in Progress, and Help Wanted tasks are tracked in the [Meta](https://git.wownero.com/wownero/meta/issues) repo. 
 
-Join `#wownero-dev` on IRC OFTC to participate in development conversation.
+Join `#wownero` on IRC OFTC to participate in development conversation.
 
 ## Scheduled software upgrades
 
@@ -116,13 +113,6 @@ Packages are available for
 * NixOS
 
         nix-shell -p wownero
-
-* Ubuntu 18.04/Ubuntu 16.04/Debian 9/Debian 8 (amd64)
-
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8BC34ABB48E565F0
-        sudo add-apt-repository "deb http://ppa.wownero.com/ bionic main"
-        sudo apt-get update
-        sudo apt-get install wownero
 
 Packaging for your favorite distribution would be a welcome contribution!
 

@@ -41,7 +41,7 @@ const size_t ${BLOB_NAME}_len = sizeof(${BLOB_NAME});
 "
 )
 ]=])
-foreach(BLOB_NAME checkpoints testnet_blocks stagenet_blocks)
+foreach(BLOB_NAME checkpoints)
     set(OUTPUT_C_SOURCE "generated_${BLOB_NAME}.c")
     list(APPEND GENERATED_SOURCES ${OUTPUT_C_SOURCE})
     set(INPUT_DAT_FILE "${BLOB_NAME}.dat")

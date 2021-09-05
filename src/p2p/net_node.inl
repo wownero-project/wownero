@@ -850,6 +850,9 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
+          "lrq65qrhpbt5voom2ncvowpes6kvobodkldhpuwhxlsrpugmgmlq.b32.i2p:34565",
+          "72tbpgeczdtx2q2enbyaqcot7mghbnjenjkmdpyylrssqehr746a.b32.i2p:34565",
+          "rkel2qy7xv3cc5bnxfrzwgh3jvd4woagd4vlhr3qsdxy6cfkimnq.b32.i2p:34565",
         };
       }
       return {};

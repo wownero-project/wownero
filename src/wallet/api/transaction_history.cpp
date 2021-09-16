@@ -233,7 +233,7 @@ void TransactionHistoryImpl::refresh()
         ti->m_timestamp = pd.m_timestamp;
         ti->m_confirmations = 0;
 
-        for (const auto &d : pd.m_dests) {
+        for (const auto &d : pd.m_dests)
         {
             ti->m_transfers.push_back({d.amount, d.address(m_wallet->m_wallet->nettype(), pd.m_payment_id)});
         }
@@ -274,4 +274,3 @@ void TransactionHistoryImpl::refresh()
 }
 
 } // namespace
-}

@@ -181,7 +181,7 @@ Type `help` in CLI wallet to see standard commands (for advanced options, type `
 add the following:
 ```
 HiddenServiceDir /var/lib/tor/wownero/
-HiddenServicePort 34568 127.0.0.1:34568
+HiddenServicePort 34569 127.0.0.1:34569
 HiddenServicePort 34566 127.0.0.1:34566
 HiddenServiceVersion 3
 ```

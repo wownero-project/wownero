@@ -11,7 +11,13 @@ enum V4_Settings
 	
 	// Always generate at least 60 instructions
 	NUM_INSTRUCTIONS = 60,
-	
+
+    // Always generate at least 60 instructions
+    NUM_INSTRUCTIONS_MIN = 60,
+
+    // Never generate more than 70 instructions (final RET instruction doesn't count here)
+    NUM_INSTRUCTIONS_MAX = 70,
+
 	// Available ALUs for MUL
 	// Modern CPUs typically have only 1 ALU which can do multiplications
 	ALU_COUNT_MUL = 1,

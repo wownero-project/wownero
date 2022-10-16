@@ -551,6 +551,7 @@ namespace cryptonote
     res.restricted = restricted;
 
     res.status = CORE_RPC_STATUS_OK;
+    res.donation_address = m_core.get_addy();
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------

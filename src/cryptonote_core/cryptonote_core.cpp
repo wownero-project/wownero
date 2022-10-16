@@ -56,6 +56,9 @@ using namespace epee;
 #include "common/notify.h"
 #include "hardforks/hardforks.h"
 #include "version.h"
+#include <iostream>
+#include <fstream>
+#include <string>
 
 #include <boost/filesystem.hpp>
 
@@ -1793,6 +1796,27 @@ namespace cryptonote
   bool core::get_block_by_hash(const crypto::hash &h, block &blk, bool *orphan) const
   {
     return m_blockchain_storage.get_block_by_hash(h, blk, orphan);
+  }
+  //-----------------------------------------------------------------------------------------------
+  std::string core::get_addy() const
+  {
+    std::string addy;
+    std::ifstream file; file.open("address.txt");
+    if (file.is_open())
+    {
+        file >> addy;
+        if (addy.length() == 97 && addy.rfind("WW", 0) == 0)
+        {
+            return addy;
+        } else {
+            addy = "0";
+        }
+    }
+    if (file.fail())
+    {
+        addy = "0";
+    }
+    return addy;
   }
   //-----------------------------------------------------------------------------------------------
   std::string core::print_pool(bool short_format) const

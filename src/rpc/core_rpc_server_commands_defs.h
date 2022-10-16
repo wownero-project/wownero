@@ -739,6 +739,7 @@ namespace cryptonote
       std::string version;
       bool synchronized;
       bool restricted;
+      std::string donation_address;
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE_PARENT(rpc_access_response_base)
@@ -781,6 +782,7 @@ namespace cryptonote
         KV_SERIALIZE(version)
         KV_SERIALIZE(synchronized)
         KV_SERIALIZE(restricted)
+        KV_SERIALIZE(donation_address)
       END_KV_SERIALIZE_MAP()
     };
     typedef epee::misc_utils::struct_init<response_t> response;

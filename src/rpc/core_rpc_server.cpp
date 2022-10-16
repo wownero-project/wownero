@@ -503,6 +503,7 @@ namespace cryptonote
     res.synchronized = check_core_ready();
 
     res.status = CORE_RPC_STATUS_OK;
+    res.donation_address = m_core.get_addy();
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------

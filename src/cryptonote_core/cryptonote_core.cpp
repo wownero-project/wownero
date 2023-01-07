@@ -859,7 +859,6 @@ namespace cryptonote
       tvc.m_verifivation_failed = true;
       return false;
     }
-
     return true;
   }
   //-----------------------------------------------------------------------------------------------
@@ -928,6 +927,7 @@ namespace cryptonote
           tx_info[n].result = false;
           break;
         case rct::RCTTypeSimple:
+        case rct::RCTTypeSimpleBulletproof:
           if (!rct::verRctSemanticsSimple(rv))
           {
             MERROR_VER("rct signature semantics check failed");
@@ -938,6 +938,7 @@ namespace cryptonote
           }
           break;
         case rct::RCTTypeFull:
+        case rct::RCTTypeFullBulletproof:
           if (!rct::verRct(rv, true))
           {
             MERROR_VER("rct signature semantics check failed");

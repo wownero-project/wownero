@@ -335,7 +335,7 @@ namespace boost
     a & x.type;
     if (x.type == rct::RCTTypeNull)
       return;
-    if (x.type != rct::RCTTypeFull && x.type != rct::RCTTypeSimple && x.type != rct::RCTTypeBulletproof && x.type != rct::RCTTypeBulletproof2 && x.type != rct::RCTTypeCLSAG && x.type != rct::RCTTypeBulletproofPlus)
+    if (x.type != rct::RCTTypeFull && x.type != rct::RCTTypeSimple && x.type != rct::RCTTypeBulletproof && x.type != rct::RCTTypeBulletproof2 && x.type != rct::RCTTypeFullBulletproof && x.type != rct::RCTTypeSimpleBulletproof && x.type != rct::RCTTypeCLSAG && x.type != rct::RCTTypeBulletproofPlus)
       throw boost::archive::archive_exception(boost::archive::archive_exception::other_exception, "Unsupported rct type");
     // a & x.message; message is not serialized, as it can be reconstructed from the tx data
     // a & x.mixRing; mixRing is not serialized, as it can be reconstructed from the offsets
@@ -369,7 +369,7 @@ namespace boost
     a & x.type;
     if (x.type == rct::RCTTypeNull)
       return;
-    if (x.type != rct::RCTTypeFull && x.type != rct::RCTTypeSimple && x.type != rct::RCTTypeBulletproof && x.type != rct::RCTTypeBulletproof2 && x.type != rct::RCTTypeCLSAG && x.type != rct::RCTTypeBulletproofPlus)
+    if (x.type != rct::RCTTypeFull && x.type != rct::RCTTypeSimple && x.type != rct::RCTTypeBulletproof && x.type != rct::RCTTypeBulletproof2 && x.type != rct::RCTTypeFullBulletproof && x.type != rct::RCTTypeSimpleBulletproof && x.type != rct::RCTTypeCLSAG && x.type != rct::RCTTypeBulletproofPlus)
       throw boost::archive::archive_exception(boost::archive::archive_exception::other_exception, "Unsupported rct type");
     // a & x.message; message is not serialized, as it can be reconstructed from the tx data
     // a & x.mixRing; mixRing is not serialized, as it can be reconstructed from the offsets
@@ -389,7 +389,7 @@ namespace boost
     a & x.p.MGs;
     if (ver >= 1u)
       a & x.p.CLSAGs;
-    if (x.type == rct::RCTTypeBulletproof || x.type == rct::RCTTypeBulletproof2 || x.type == rct::RCTTypeCLSAG || x.type == rct::RCTTypeBulletproofPlus)
+    if (x.type == rct::RCTTypeBulletproof || x.type == rct::RCTTypeBulletproof2 || x.type == rct::RCTTypeSimpleBulletproof || x.type == rct::RCTTypeCLSAG || x.type == rct::RCTTypeBulletproofPlus)
       a & x.p.pseudoOuts;
   }
 

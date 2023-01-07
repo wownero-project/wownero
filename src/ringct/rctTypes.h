@@ -279,8 +279,10 @@ namespace rct {
     };
 
     size_t n_bulletproof_amounts(const Bulletproof &proof);
+    size_t n_bulletproof_v1_amounts(const Bulletproof &proof);
     size_t n_bulletproof_max_amounts(const Bulletproof &proof);
     size_t n_bulletproof_amounts(const std::vector<Bulletproof> &proofs);
+    size_t n_bulletproof_v1_amounts(const std::vector<Bulletproof> &proofs);
     size_t n_bulletproof_max_amounts(const std::vector<Bulletproof> &proofs);
 
     size_t n_bulletproof_plus_amounts(const BulletproofPlus &proof);
@@ -299,10 +301,12 @@ namespace rct {
       RCTTypeNull = 0,
       RCTTypeFull = 1,
       RCTTypeSimple = 2,
-      RCTTypeBulletproof = 3,
-      RCTTypeBulletproof2 = 4,
-      RCTTypeCLSAG = 5,
-      RCTTypeBulletproofPlus = 6,
+      RCTTypeFullBulletproof = 3,
+      RCTTypeSimpleBulletproof = 4,
+      RCTTypeBulletproof = 5,
+      RCTTypeBulletproof2 = 6,
+      RCTTypeCLSAG = 7,
+      RCTTypeBulletproofPlus = 8,
     };
     enum RangeProofType { RangeProofBorromean, RangeProofBulletproof, RangeProofMultiOutputBulletproof, RangeProofPaddedBulletproof };
     struct RCTConfig {
@@ -331,7 +335,7 @@ namespace rct {
           FIELD(type)
           if (type == RCTTypeNull)
             return ar.good();
-          if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeBulletproofPlus)
+          if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeFullBulletproof && type != RCTTypeSimpleBulletproof && type != RCTTypeCLSAG && type != RCTTypeBulletproofPlus)
             return false;
           VARINT_FIELD(txnFee)
           // inputs/outputs not saved, only here for serialization help
@@ -423,9 +427,24 @@ namespace rct {
             return false;
           if (type == RCTTypeNull)
             return ar.good();
-          if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeBulletproofPlus)
+          if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeFullBulletproof && type != RCTTypeSimpleBulletproof && type != RCTTypeCLSAG && type != RCTTypeBulletproofPlus)
             return false;
-          if (type == RCTTypeBulletproofPlus)
+          if (type == RCTTypeSimpleBulletproof || type == RCTTypeFullBulletproof)
+          {
+            ar.tag("bp");
+            ar.begin_array();
+            PREPARE_CUSTOM_VECTOR_SERIALIZATION(outputs, bulletproofs);
+            if (bulletproofs.size() != outputs)
+              return false;
+            for (size_t i = 0; i < outputs; ++i)
+            {
+              FIELDS(bulletproofs[i])
+              if (outputs - i > 1)
+                ar.delimit_array();
+            }
+            ar.end_array();
+          }
+          else if (type == RCTTypeBulletproofPlus)
           {
             uint32_t nbp = bulletproofs_plus.size();
             VARINT_FIELD(nbp)
@@ -528,7 +547,7 @@ namespace rct {
             ar.begin_array();
             // we keep a byte for size of MGs, because we don't know whether this is
             // a simple or full rct signature, and it's starting to annoy the hell out of me
-            size_t mg_elements = (type == RCTTypeSimple || type == RCTTypeBulletproof || type == RCTTypeBulletproof2) ? inputs : 1;
+            size_t mg_elements = (type == RCTTypeSimple || type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeSimpleBulletproof) ? inputs : 1;
             PREPARE_CUSTOM_VECTOR_SERIALIZATION(mg_elements, MGs);
             if (MGs.size() != mg_elements)
               return false;
@@ -546,7 +565,7 @@ namespace rct {
               for (size_t j = 0; j < mixin + 1; ++j)
               {
                 ar.begin_array();
-                size_t mg_ss2_elements = ((type == RCTTypeSimple || type == RCTTypeBulletproof || type == RCTTypeBulletproof2) ? 1 : inputs) + 1;
+                size_t mg_ss2_elements = ((type == RCTTypeSimple || type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeSimpleBulletproof) ? 1 : inputs) + 1;
                 PREPARE_CUSTOM_VECTOR_SERIALIZATION(mg_ss2_elements, MGs[i].ss[j]);
                 if (MGs[i].ss[j].size() != mg_ss2_elements)
                   return false;
@@ -573,7 +592,7 @@ namespace rct {
             }
             ar.end_array();
           }
-          if (type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeBulletproofPlus)
+          if (type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeSimpleBulletproof || type == RCTTypeCLSAG || type == RCTTypeBulletproofPlus)
           {
             ar.tag("pseudoOuts");
             ar.begin_array();
@@ -605,12 +624,12 @@ namespace rct {
 
         keyV& get_pseudo_outs()
         {
-          return type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeBulletproofPlus ? p.pseudoOuts : pseudoOuts;
+          return type == RCTTypeBulletproof || type == RCTTypeSimpleBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeBulletproofPlus ? p.pseudoOuts : pseudoOuts;
         }
 
         keyV const& get_pseudo_outs() const
         {
-          return type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeBulletproofPlus ? p.pseudoOuts : pseudoOuts;
+          return type == RCTTypeBulletproof || type == RCTTypeSimpleBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeBulletproofPlus ? p.pseudoOuts : pseudoOuts;
         }
 
         BEGIN_SERIALIZE_OBJECT()
@@ -722,6 +741,8 @@ namespace rct {
 
     bool is_rct_simple(int type);
     bool is_rct_bulletproof(int type);
+    bool is_rct_old_bulletproof(int type);
+    bool is_rct_new_bulletproof(int type);
     bool is_rct_bulletproof_plus(int type);
     bool is_rct_borromean(int type);
     bool is_rct_clsag(int type);

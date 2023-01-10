@@ -691,8 +691,6 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (m_nettype == cryptonote::TESTNET)
     {
-      full_addrs.insert("207.254.29.107:11180");
-      full_addrs.insert("135.148.138.255:11180");
     }
     else if (m_nettype == cryptonote::STAGENET)
     {
@@ -702,8 +700,8 @@ namespace nodetool
     }
     else
     {
-      full_addrs.insert("158.69.60.225:34567");   //  OVH France
-      full_addrs.insert("159.65.91.59:34567");    //  DigiO london
+      full_addrs.insert("158.69.60.225:34567");   //  explore.wownero.com
+      full_addrs.insert("159.65.91.59:34567");    //  jw
       full_addrs.insert("164.90.230.176:34567");  //  de1.wownodes.com
       full_addrs.insert("64.227.81.144:34567");   //  us1.wownodes.com
       full_addrs.insert("188.166.237.187:34567"); //  sg1.wownodes.com      
@@ -711,6 +709,11 @@ namespace nodetool
       full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
       full_addrs.insert("135.148.138.255:34567");
       full_addrs.insert("207.254.29.107:34567");
+      full_addrs.insert("142.93.144.79:34567"); // idontwanttogototoronto.wow.fail
+      full_addrs.insert("51.75.76.161:34567"); // eu-west-1.wow.xmr.pm
+      full_addrs.insert("145.239.93.75:34567"); // eu-west-2.wow.xmr.pm
+      full_addrs.insert("88.198.199.23:34567");
+      full_addrs.insert("167.114.119.46:34567"); // wownero.stackwallet.com
     }
     return full_addrs;
   }
@@ -843,6 +846,7 @@ namespace nodetool
           "nepc4lxndsooj2akn7ofrj3ooqc25242obchcag6tw3f2mxrms2uuvyd.onion:34566",
           "666l2ajxqjgj5lskvbokvworjysgvqag4oitokjuy7wz6juisul4jqad.onion:34566",
           "ty7ppqozzodz75audgvkprekiiqsovbyrkfdjwadrkbe3etyzloatxad.onion:34566",
+          "77uase4p6y6jsjdf6z2kdgpxgh7nkvywagvhurzphbm7vrkyj2d2gdid.onion:34566",
         };
       }
       return {};

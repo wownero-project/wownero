@@ -16,16 +16,21 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 - Discord: [discord.gg/ykZyAzJhDK](https://discord.com/invite/ykZyAzJhDK)
 - Telegram: [t.me/wownero](https://t.me/wownero)
 - Wowlet Desktop Wallet: [git.wownero.com/wowlet/wowlet](https://git.wownero.com/wowlet/wowlet/releases)
-- WOW Stash Web Wallet: [wowstash.app](https://wowstash.app)
+- Stack Wallet iOS & Android Mobile Wallet: [stackwallet.com](https://stackwallet.com)
+- Wonerujo Android Mobile Wallet: [google store](https://play.google.com/store/apps/details?id=com.m2049r.wowwallet)
 - Public Node Status: [monero.fail](https://monero.fail/?crypto=wownero)
-- Map of Nodes: [wownero.fyi](https://wownero.fyi)
 - Wownero Memes: [suchwow.xyz](https://suchwow.xyz/posts/top)
 - Market Info: [coinmarketcap.com](https://coinmarketcap.com/currencies/wownero), [coingecko.com](https://www.coingecko.com/en/coins/wownero/usd)
 
+## Exchanges
+
+- [AltQuick](https://altquick.com/market/Wownero)
+- [Majestic Bank](https://majesticbank.sc)
+- [TradeOgre](https://tradeogre.com/exchange/BTC-WOW)
+
 ### Blockchain Explorers
+
 - https://explore.wownero.com
-- http://gffjxd5nn2heslj6jv5ts2ok5j6xi6m3pwlpz7le4i5bu56sirbxfiqd.onion:8081
-- https://wownero.club
 
 ## Introduction
 
@@ -36,11 +41,11 @@ Wownero is a privacy-centric memecoin that was fairly launched on April 1, 2018 
 Wownero is a 100% community-sponsored endeavor. Supporting services are also graciously provided by sponsors:
 
 [<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/macstadium.png"
-      alt="MacStadium"
-      height="100">](https://www.macstadium.com)
+alt="MacStadium"
+height="100">](https://www.macstadium.com)
 [<img src="https://git.wownero.com/wownero/meta/raw/branch/master/images/jetbrains.png"
-      alt="JetBrains"
-      height="100">](https://www.jetbrains.com)
+alt="JetBrains"
+height="100">](https://www.jetbrains.com)
 
 Developers are volunteers doing this mostly for shits and giggles. If you would like to support our shenanigans and stimulant addictions, please consider donating to [WFS proposals](https://funding.wownero.com/proposals) or the dev slush fund.
 
@@ -64,31 +69,32 @@ Wownero is hosted by Open Collective Europe, a Brussels-based non-profit that ho
 
 ## Release staging and Contributing
 
-**Anyone is welcome to contribute to Wownero's codebase!** 
+**Anyone is welcome to contribute to Wownero's codebase!**
 
 If you have a fix or code change, feel free to submit it as a pull request. Ahead of a scheduled software upgrade, a development branch will be created with the new release version tag. Pull requests that address bugs should be made to Master. Pull requests that require review and testing (generally, optimizations and new features) should be made to the development branch. All pull requests will be considered safe until the US dollar valuation of 1 Wownero equals $1000. After this valuation has been reached, more research will be needed to introduce experimental cryptography and/or code into the codebase.
 
-Things to Do, Work in Progress, and Help Wanted tasks are tracked in the [Meta](https://git.wownero.com/wownero/meta/issues) repo. 
+Things to Do, Work in Progress, and Help Wanted tasks are tracked in the [Meta](https://git.wownero.com/wownero/meta/issues) repo.
 
 Join `#wownero` on IRC OFTC to participate in development conversation.
 
-## Scheduled software upgrades
+## Scheduled software/network upgrades
 
 Wownero uses a fixed-schedule software upgrade (hard fork) mechanism to implement new features. This means that users of Wownero (end users and service providers) should run current versions and upgrade their software on a regular schedule. The required software for these upgrades will be available prior to the scheduled date. Please check the repository prior to this date for the proper Wownero software version. Below is the historical schedule and the projected schedule for the next upgrade.
-Dates are provided in the format YYYY-MM-DD. 
+Dates are provided in the format YYYY-MM-DD.
 
 | Software upgrade block height | Date       | Release Name | Minimum Wownero version | Recommended Wownero version | Details                                                                            |  
-| ------------------------------ | -----------| ----------------- | ---------------------- | -------------------------- | ---------------------------------------------------------------------------------- |
-| 1                              | 2018-04-01 | Awesome Akita                | v0.1.0.0               | v0.1.0.0                  | Cryptonight variant 1, ringsize >= 8, sorted inputs
-| 69,69                           | 2018-04-24 | Busty Brazzers                | v0.2.0.0               | v0.2.0.0                  | Bulletproofs, LWMA difficulty algorithm, ringsize >= 10, reduce unlock to 4
-| 53,666                          | 2018-10-06 | Cool Cage                | v0.3.0.0               | v0.3.1.3                  | Cryptonight variant 2, LWMA v2, ringsize = 22, MMS
-| 63,469                          | 2018-11-11 | Dank Doge               | v0.4.0.0               | v0.4.0.0                  | LWMA v4
-| 81,769                          | 2019-02-19 | Erotic EggplantEmoji    | v0.5.0.0               | v0.5.0.2                  | Cryptonight/wow, LWMA v1 with N=144, Updated Bulletproofs, Fee Per Byte, Auto-churn
-| 114,969                          | 2019-06-14 | F For Fappening    | v0.6.1.0               | v0.6.1.2                  | RandomWOW, new block weight algorithm, slightly more efficient RingCT format
-| 160,777                          | 2019-11-20 | Gaping Goatse    | v0.7.0.0               | v0.7.1.0                  | Only allow >= 2 outputs, change to the block median used to calculate penalty, rct sigs in coinbase forbidden, 4 unlock time as protocol rule
-| -                         | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0               | v0.8.0.2                  | Dandelion++ support
-| 253,999                         | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0               | v0.9.3.3                  | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
-| 331,170                         | 2021-07-04 | Junkie Jeff  | v0.10.0.0               |  v0.10.1.0                  | Bulletproofs+, Miner Block Header Signing, Vote by Block, Change coinbase unlock time to 1 day, Reset difficulty and switch back to Monero's difficulty algorithm
+|-------------------------------|------------| ----------------- |-------------------------|-----------------------------| ---------------------------------------------------------------------------------- |
+| 1                             | 2018-04-01 | Awesome Akita                | v0.1.0.0                | v0.1.0.0                    | Cryptonight variant 1, ringsize >= 8, sorted inputs
+| 69,69                         | 2018-04-24 | Busty Brazzers                | v0.2.0.0                | v0.2.0.0                    | Bulletproofs, LWMA difficulty algorithm, ringsize >= 10, reduce unlock to 4
+| 53,666                        | 2018-10-06 | Cool Cage                | v0.3.0.0                | v0.3.1.3                    | Cryptonight variant 2, LWMA v2, ringsize = 22, MMS
+| 63,469                        | 2018-11-11 | Dank Doge               | v0.4.0.0                | v0.4.0.0                    | LWMA v4
+| 81,769                        | 2019-02-19 | Erotic EggplantEmoji    | v0.5.0.0                | v0.5.0.2                    | Cryptonight/wow, LWMA v1 with N=144, Updated Bulletproofs, Fee Per Byte, Auto-churn
+| 114,969                       | 2019-06-14 | F For Fappening    | v0.6.1.0                | v0.6.1.2                    | RandomWOW, new block weight algorithm, slightly more efficient RingCT format
+| 160,777                       | 2019-11-20 | Gaping Goatse    | v0.7.0.0                | v0.7.1.0                    | Only allow >= 2 outputs, change to the block median used to calculate penalty, rct sigs in coinbase forbidden, 4 unlock time as protocol rule
+| -                             | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0                | v0.8.0.2                    | Dandelion++ support
+| 253,999                       | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0                | v0.9.3.3                    | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
+| 331,170                       | 2021-07-04 | Junkie Jeff  | v0.10.0.0               | v0.10.2.0                   | Bulletproofs+, Miner Block Header Signing, Vote by Block, Change coinbase unlock time to 1 day, Reset difficulty and switch back to Monero's difficulty algorithm
+| XXX,XXX                       | 2023-XX-XX | Kunty Karen  | v0.11.0.0               | v0.11.0.0                   | View tags, fee changes, adjusted dynamic block weight algorithm, multisig security fixes, RPC broadcast node donation sub-address 
 
 X's indicate that these details have not been determined as of commit date.
 
@@ -196,7 +202,7 @@ save and close nano
 ```
 
 * `sudo cat /var/lib/tor/wownero/hostname`
-copy your onion address and share node with others [here](https://monero.fail/?crypto=wownero) and [here](https://forum.wownero.com/t/wownero-tor-onion-sites/623)
+  copy your onion address and share node with others [here](https://monero.fail/?crypto=wownero) and [here](https://forum.wownero.com/t/wownero-tor-onion-sites/623)
 
 To share your node over p2p, uncomment first line of wownerod.conf and add your onion address.
 

@@ -1571,6 +1571,56 @@ namespace cryptonote
         main_message = "The daemon is running offline and will not attempt to sync to the Wownero network.";
       else
         main_message = "The daemon will start synchronizing with the network. This may take a long time to complete.";
+    MGINFO_MAGENTA(ENDL <<
+    "\n\n"
+    " ██   ██ ██    ██ ███    ██ ████████ ██    ██   \n"
+    " ██  ██  ██    ██ ████   ██    ██     ██  ██    \n"
+    " █████   ██    ██ ██ ██  ██    ██      ████     \n"
+    " ██  ██  ██    ██ ██  ██ ██    ██       ██      \n"
+    " ██   ██  ██████  ██   ████    ██       ██      \n"
+    << ENDL);
+    MGINFO_GREEN(ENDL <<
+    "                m                                   !5!                               \n"
+    "               !Y?~:            .:^~~~~^^::::...   ~7J5G:                             \n"
+    "              ~?JY5P5~     .:!JYJ?!~^::::^^^^^^^^^^::^^~^.                            \n"
+    "             :77?Y555P5~^7Y5P5J7!~~~!7?77!~^^^:::::...:^^^^^:.                        \n"
+    "            .77?JJJYYY5PPP5YJYJJYY55YJ?7!!~~~^^^:::.....^~!!!7!^.                     \n"
+    "            !?J?77??JYY?J55Y5Y55PPP5J??7!~!??7!!~^:.... .:~7???p?!.                   \n"
+    "            !?J?!!!!77JJ77?YY5PGP55YYYJ??Y5PP5J7!~~~~!~..:~~7J55YJJ7:                 \n"
+    "            ~?JJ7^::~!?J?!?5555555PGGP55PGB#BPYJJJY55P5Y?7?J?Y5PP555Y?^               \n"
+    "            .JJY?~:::~!7?YYYJY5PPGGGGGGGB#BGPY?JY5PPGGGGP5YY5PGGGGGPPPY7.             \n"
+    "            :7JJYY?!:.:~JYJ?JYY5PPPPPGGGGGPYJJJJ?JYPGGBBBBG5J7!7777JPPPP5J~            \n"
+    "         :^77!777!7J!?YY77??JJ55Y55555P5YJ?JJJYYYY5PGB#BPJJY555J?~:JPP5P5JJ.          \n"
+    "        ^.~J!7????775JY?777!7JJJJYYYJ??7!7?????J5YY5P55Y5B##B###G5:7PGP5PYJY.         \n"
+    "       :.~J7?J???77~YJ!?JYYY7^^^:~JPPPGBBBBBBGPY77~!?~^#&#Y?YG#&&B?7YGGP5PYJ5.        \n"
+    "       ~^?!!??7?77!~Y!^~~~~!!^^.:5GGPP5PGB##&&&&B7:!Y?:5&Y!?YB#&&&!^7YGP55PJYY        \n"
+    "       ~?!!!?7!7!~~?7^~!!~~!!!!::P5!^~~?5P5PB###B!!P5PY~YGP5PB#&&B^?77YP5Y55J5~       \n"
+    "       !Y?~!7!!~~!7!^^~!^~!7?YYY775Y?~~!JG5!?PGBY:7PPGBGJ?PBBGG5JJGB?!7Y5YY5YY7       \n"
+    "      ^7!77?7!!!!~^^~~~^~!?5PGGGGJ~PBGPPGGGGBBBG:^PGBBBBBGP555PGB###B777Y5YY5JY.      \n"
+    "      ?77^:!!~~^:^^^^~^^~7YPGBBBBBPYGGPPGGGPG5J?JGBBBBBGPYJJJJJYPB&##P77?JJJYYY?      \n"
+    "     :?!!^^7!^~^^^:^^^^^!5PBBBBBBBGGGP5YY555PPPGBB#BBBG7^::......:G&#B???J??JYYY.     \n"
+    "     ^7!!^~7!^^:::^^^:::!PGBBBBBBBBBBB####BBBBBBBBBBBB5^...  ....^5##BY?J??7?JJY!     \n"
+    "     ~!!!~^!7~^::^^:^:^^~YGBBBBBBBBBBBBBBBBBBBGGGGGGGGP7^.......:^YGBB5?J?7!7??JY.    \n"
+    "     ~!!!~^!!~^:^^:^^^^^~75GBBBBBBBBBBBBBBBBBGGGGGGGGPPY?!^:...:^!J5GGY?JJ7!!7??Y!    \n"
+    "     ~!!!~^~7~^^~~~~^^^^~~75PGGGGGGGGBGGGGBBBGGGPPPP555Y?!^^^^^^~!?5GGY??J?!!7??J7    \n"
+    "       !!!!~^^7!^~!77!~~~~~~~YPPGGGGGPGGGGGGGGGGGPPPPPP55?~:::...::!5BBGJ7?J?!!??7?!    \n"
+    "    :7!!!~^^!7^~7?p?!!~!~~!JPGGGGGGGPPPGGGGGGPPPPPP5Y?~:...:::^~7YBBBG?7p?!!!7?7??    \n"
+    "    ??~!~!~^^7~^??4?!77!!!~JPGGGGGGGGGGPGGGGP5Y?7!~~~^^~!!!!!!7YGBBBBP77?!~~!7?7?7    \n"
+    "   .5J!!~!!~:^^!?7J?7?J77~~75PGGGGGGGGGPPPGGPP5J777?YYY55YYYYYPGBBGGGJ7?7!~~!777:     \n"
+    "   ~PY?!!~!!^^!?7?J?????7!775GGBGGGGPPPPPPPGGGGGPPPPPPPGGGGGGBBBBGGGY777!!!!77!.      \n"
+    "   JPYY7!~!77777???7!!!7!~!!JPPGGGGGGGGGPPPPPPPPPPPPPPGGGGGGBGBBGGPY!!?!!7777.        \n"
+    "   PP55YJJ3?!!7??7~^^^^~!~~!75PGGGGGBBBGGPPPPPPPPPPPPPGGGGGGGGGBG57!77!!2?!^          \n"
+    "   GGGPPP5J!!7?7~^:::^~~!!!77YPPPGGGGGGGGPPPPPPPPPPPPPPGGGGGGGGGGYJY7~!?BP.           \n"
+    "   GBGGGGP55YYJ7~^^!~^~77!77775PPPPPP55PPPPPPPPPPPPPPGGGGGGGGGGGGGBPJY5PG~            \n"
+    "                    Fve, V'q yvxr gb fcrnx gb gur jbjareb znantre                   "
+    << ENDL);
+    MGINFO_MAGENTA(ENDL <<
+    "                                  ██   ██  █████  ██████  ███████ ███    ██   \n"
+    "                                  ██  ██  ██   ██ ██   ██ ██      ████   ██   \n"
+    "                                  █████   ███████ ██████  █████   ██ ██  ██   \n"
+    "                                  ██  ██  ██   ██ ██   ██ ██      ██  ██ ██   \n"
+    "                                  ██   ██ ██   ██ ██   ██ ███████ ██   ████   \n"
+    << ENDL);
       MGINFO_YELLOW(ENDL << "**********************************************************************" << ENDL
         << main_message << ENDL
         << ENDL

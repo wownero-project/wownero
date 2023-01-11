@@ -1614,8 +1614,22 @@ namespace cryptonote
                 + std::to_string(previous_stripe) + " -> " + std::to_string(current_stripe);
             if (ELPP->vRegistry()->allowed(el::Level::Debug, "sync-info"))
               timing_message += std::string(": ") + m_block_queue.get_overview(current_blockchain_height);
-            MGINFO_YELLOW("Synced " << current_blockchain_height << "/" << target_blockchain_height
-                << progress_message << timing_message);
+            uint64_t num = (rand() % 4) + 1;
+            switch (num)
+            {
+                case 1:
+                    MGINFO_MAGENTA("*•.¸♡ ♡¸.•* synced *•.¸♡ ♡¸.•* " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message << " ˚ ༘♡ ⋆｡˚");
+                    break;
+                case 2:
+                    MGINFO_YELLOW("ˏˋ°•*⁀➷ pǝɔuʎs ˏˋ°•*⁀➷ " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message << " ︶︶༉‧₊ ☄. *.⋆");
+                    break;
+                case 3:
+                    MGINFO_BLUE("s ★ y ★ n ★ c ★ e ★ d " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message << " *ೃ༄ *·˚˚ ༘♡ ⋆｡˚");
+                    break;
+                case 4:
+                    MGINFO_GREEN("s ♥ y ♥ n ♥ c ♥ e ♥ d " << current_blockchain_height << "/" << target_blockchain_height << progress_message << timing_message << " ⎯୧◦•◦❥•◦'*•.¸♡ ");
+                    break;
+            }
             if (previous_stripe != current_stripe)
               notify_new_stripe(context, current_stripe);
           }

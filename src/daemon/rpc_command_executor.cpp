@@ -591,13 +591,13 @@ bool t_rpc_command_executor::mining_status() {
   }
   else
   {
-    tools::msg_writer() << "Mining at " << get_mining_speed(mres.speed) << " with " << mres.threads_count << " threads";
+    tools::msg_writer() << "\nMining at " << get_mining_speed(mres.speed) << " with " << mres.threads_count << " threads";
   }
 
   tools::msg_writer() << "PoW algorithm: " << mres.pow_algorithm;
   if (mres.active || mres.is_background_mining_enabled)
   {
-    tools::msg_writer() << "Mining address: " << mres.address;
+    tools::msg_writer() << "Mining address:\n" << mres.address;
   }
 
   if (mres.is_background_mining_enabled)
@@ -615,8 +615,8 @@ bool t_rpc_command_executor::mining_status() {
     uint64_t daily = 86400ull / mres.block_target * mres.block_reward * ratio;
     uint64_t monthly = 86400ull / mres.block_target * 30.5 * mres.block_reward * ratio;
     uint64_t yearly = 86400ull / mres.block_target * 356 * mres.block_reward * ratio;
-    tools::msg_writer() << "Expected: " << cryptonote::print_money(daily) << " monero daily, "
-        << cryptonote::print_money(monthly) << " monero monthly, " << cryptonote::print_money(yearly) << " yearly";
+    tools::msg_writer() << "Expected: " << cryptonote::print_money(daily) << " WOW daily, "
+        << cryptonote::print_money(monthly) << " WOW monthly, " << cryptonote::print_money(yearly) << " yearly";
   }
 
   return true;
@@ -1460,10 +1460,10 @@ bool t_rpc_command_executor::print_status()
   bool daemon_is_alive = m_rpc_client->check_connection();
 
   if(daemon_is_alive) {
-    tools::success_msg_writer() << "monerod is running";
+    tools::success_msg_writer() << "wownerod is running";
   }
   else {
-    tools::fail_msg_writer() << "monerod is NOT running";
+    tools::fail_msg_writer() << "wownerod is NOT running";
   }
 
   return true;

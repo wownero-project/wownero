@@ -3270,7 +3270,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
     size_t n_unmixable = 0, n_mixable = 0;
     size_t min_actual_mixin = std::numeric_limits<size_t>::max();
     size_t max_actual_mixin = 0;
-    const size_t min_mixin = hf_version >= HF_VERSION_MIN_MIXIN_15 ? 15 : hf_version >= HF_VERSION_MIN_MIXIN_10 ? 10 : hf_version >= HF_VERSION_MIN_MIXIN_6 ? 6 : hf_version >= HF_VERSION_MIN_MIXIN_4 ? 4 : 2;
+    const size_t min_mixin = hf_version >= HF_VERSION_MIN_MIXIN_21 ? 21 : 7;
     for (const auto& txin : tx.vin)
     {
       // non txin_to_key inputs will be rejected below
@@ -3317,7 +3317,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
     // allowed is when spending unmixable non-RCT outputs in the chain.
     // Caveat: at HF_VERSION_MIN_MIXIN_15, temporarily allow ring sizes
     // of 11 to allow a grace period in the transition to larger ring size.
-    if (min_actual_mixin < min_mixin && !(hf_version == HF_VERSION_MIN_MIXIN_15 && min_actual_mixin == 10))
+    if (min_actual_mixin < min_mixin && !(hf_version == HF_VERSION_MIN_MIXIN_21 && min_actual_mixin == 7))
     {
       if (n_unmixable == 0)
       {
@@ -3331,10 +3331,10 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
         tvc.m_low_mixin = true;
         return false;
       }
-    } else if ((hf_version > HF_VERSION_MIN_MIXIN_15 && min_actual_mixin > 15)
-      || (hf_version == HF_VERSION_MIN_MIXIN_15 && min_actual_mixin != 15 && min_actual_mixin != 10) // grace period to allow either 15 or 10
-      || (hf_version < HF_VERSION_MIN_MIXIN_15 && hf_version >= HF_VERSION_MIN_MIXIN_10+2 && min_actual_mixin > 10)
-      || ((hf_version == HF_VERSION_MIN_MIXIN_10 || hf_version == HF_VERSION_MIN_MIXIN_10+1) && min_actual_mixin != 10)
+    } else if ((hf_version > HF_VERSION_MIN_MIXIN_21 && min_actual_mixin > 21)
+      || (hf_version == HF_VERSION_MIN_MIXIN_21 && min_actual_mixin != 21 && min_actual_mixin != 7) // grace period to allow either 15 or 10
+      || (hf_version < HF_VERSION_MIN_MIXIN_21 && hf_version >= HF_VERSION_MIN_MIXIN_7+2 && min_actual_mixin > 7)
+      || ((hf_version == HF_VERSION_MIN_MIXIN_7 || hf_version == HF_VERSION_MIN_MIXIN_7+1) && min_actual_mixin != 7)
     )
     {
       MERROR_VER("Tx " << get_transaction_hash(tx) << " has invalid ring size (" << (min_actual_mixin + 1) << "), it should be " << (min_mixin + 1));

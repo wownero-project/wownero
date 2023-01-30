@@ -405,7 +405,7 @@ option(BOOST_IGNORE_SYSTEM_PATHS "Ignore boost system paths for local boost inst
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 enable_testing()
 
-option(BUILD_DOCUMENTATION "Build the Doxygen documentation." ON)
+option(BUILD_DOCUMENTATION "Build the Doxygen documentation." OFF)
 option(BUILD_TESTS "Build tests." OFF)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(DEFAULT_BUILD_DEBUG_UTILITIES ON)

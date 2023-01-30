@@ -5,6 +5,7 @@
 	path = external/rapidjson
 	url = https://github.com/Tencent/rapidjson
 [submodule "external/trezor-common"]
+	active = false
 	path = external/trezor-common
 	url = https://github.com/trezor/trezor-common.git
 [submodule "external/supercop"]

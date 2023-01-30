@@ -43,17 +43,17 @@
 #define CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER          0
 #define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            60
 #define CURRENT_TRANSACTION_VERSION                     2
-#define CURRENT_BLOCK_MAJOR_VERSION                     1
-#define CURRENT_BLOCK_MINOR_VERSION                     0
+#define CURRENT_BLOCK_MAJOR_VERSION                     7
+#define CURRENT_BLOCK_MINOR_VERSION                     7
 #define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT              60*60*2
-#define CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE             10
+#define CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE             4
 
 #define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW               60
 
 // MONEY_SUPPLY - total number coins to be generated
 #define MONEY_SUPPLY                                    ((uint64_t)(-1))
-#define EMISSION_SPEED_FACTOR_PER_MINUTE                (20)
-#define FINAL_SUBSIDY_PER_MINUTE                        ((uint64_t)300000000000) // 3 * pow(10, 11)
+#define EMISSION_SPEED_FACTOR_PER_MINUTE                (24)
+#define FINAL_SUBSIDY_PER_MINUTE                        ((uint64_t)(0)) // 0
 
 #define CRYPTONOTE_REWARD_BLOCKS_WINDOW                 100
 #define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2    60000 //size of block (bytes) after which reward for block calculated using block size
@@ -62,9 +62,9 @@
 #define CRYPTONOTE_LONG_TERM_BLOCK_WEIGHT_WINDOW_SIZE   100000 // size in blocks of the long term block weight median window
 #define CRYPTONOTE_SHORT_TERM_BLOCK_WEIGHT_SURGE_FACTOR 50
 #define CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE          600
-#define CRYPTONOTE_DISPLAY_DECIMAL_POINT                12
+#define CRYPTONOTE_DISPLAY_DECIMAL_POINT                11
 // COIN - number of smallest units in one coin
-#define COIN                                            ((uint64_t)1000000000000) // pow(10, 12)
+#define COIN                                            ((uint64_t)100000000000) // pow(10, 11)
 
 #define FEE_PER_KB_OLD                                  ((uint64_t)10000000000) // pow(10, 10)
 #define FEE_PER_KB                                      ((uint64_t)2000000000) // 2 * pow(10, 9)
@@ -77,8 +77,10 @@
 #define ORPHANED_BLOCKS_MAX_COUNT                       100
 
 
-#define DIFFICULTY_TARGET_V2                            120  // seconds
-#define DIFFICULTY_TARGET_V1                            60  // seconds - before first fork
+#define DIFFICULTY_TARGET_V2                            300  // seconds
+#define DIFFICULTY_TARGET_V1                            300  // seconds - before first fork
+#define DIFFICULTY_WINDOW_V3                            144
+#define DIFFICULTY_WINDOW_V2                            60
 #define DIFFICULTY_WINDOW                               720 // blocks
 #define DIFFICULTY_LAG                                  15  // !!!
 #define DIFFICULTY_CUT                                  60  // timestamps to cut after sorting
@@ -173,21 +175,22 @@
 #define HF_VERSION_MIN_MIXIN_10                 8
 #define HF_VERSION_MIN_MIXIN_15                 15
 #define HF_VERSION_ENFORCE_RCT                  6
-#define HF_VERSION_PER_BYTE_FEE                 8
-#define HF_VERSION_SMALLER_BP                   10
-#define HF_VERSION_LONG_TERM_BLOCK_WEIGHT       10
-#define HF_VERSION_MIN_2_OUTPUTS                12
-#define HF_VERSION_MIN_V2_COINBASE_TX           12
-#define HF_VERSION_SAME_MIXIN                   12
-#define HF_VERSION_REJECT_SIGS_IN_COINBASE      12
-#define HF_VERSION_ENFORCE_MIN_AGE              12
-#define HF_VERSION_EFFECTIVE_SHORT_TERM_MEDIAN_IN_PENALTY 12
-#define HF_VERSION_EXACT_COINBASE               13
-#define HF_VERSION_CLSAG                        13
-#define HF_VERSION_DETERMINISTIC_UNLOCK_TIME    13
-#define HF_VERSION_BULLETPROOF_PLUS             15
-#define HF_VERSION_VIEW_TAGS                    15
-#define HF_VERSION_2021_SCALING                 15
+#define HF_VERSION_PER_BYTE_FEE                 12
+#define HF_VERSION_SMALLER_BP                   13
+#define HF_VERSION_LONG_TERM_BLOCK_WEIGHT       13
+#define HF_VERSION_MIN_2_OUTPUTS                15
+#define HF_VERSION_MIN_V2_COINBASE_TX           15
+#define HF_VERSION_SAME_MIXIN                   15
+#define HF_VERSION_REJECT_SIGS_IN_COINBASE      15
+#define HF_VERSION_ENFORCE_MIN_AGE              15
+#define HF_VERSION_EFFECTIVE_SHORT_TERM_MEDIAN_IN_PENALTY 15
+#define HF_VERSION_EXACT_COINBASE               16
+#define HF_VERSION_CLSAG                        16
+#define HF_VERSION_DETERMINISTIC_UNLOCK_TIME    16
+#define HF_VERSION_BULLETPROOF_PLUS             18
+#define HF_VERSION_BLOCK_HEADER_MINER_SIG       18
+#define HF_VERSION_VIEW_TAGS                    20
+#define HF_VERSION_2021_SCALING                 20
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 #define CRYPTONOTE_SCALING_2021_FEE_ROUNDING_PLACES 2
@@ -220,17 +223,17 @@ namespace config
   uint64_t const DEFAULT_DUST_THRESHOLD = ((uint64_t)2000000000); // 2 * pow(10, 9)
   uint64_t const BASE_REWARD_CLAMP_THRESHOLD = ((uint64_t)100000000); // pow(10, 8)
 
-  uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 18;
-  uint64_t const CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = 19;
-  uint64_t const CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX = 42;
-  uint16_t const P2P_DEFAULT_PORT = 18080;
-  uint16_t const RPC_DEFAULT_PORT = 18081;
-  uint16_t const ZMQ_RPC_DEFAULT_PORT = 18082;
+  uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 4146;
+  uint64_t const CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = 6810;
+  uint64_t const CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX = 12208;
+  uint16_t const P2P_DEFAULT_PORT = 34567;
+  uint16_t const RPC_DEFAULT_PORT = 34568;
+  uint16_t const ZMQ_RPC_DEFAULT_PORT = 34569;
   boost::uuids::uuid const NETWORK_ID = { {
-      0x12 ,0x30, 0xF1, 0x71 , 0x61, 0x04 , 0x41, 0x61, 0x17, 0x31, 0x00, 0x82, 0x16, 0xA1, 0xA1, 0x10
+      0x11, 0x33, 0xFF, 0x77 , 0x61, 0x04 , 0x41, 0x61, 0x17, 0x31, 0x00, 0x82, 0x16, 0xA1, 0xA1, 0x10
     } }; // Bender's nightmare
-  std::string const GENESIS_TX = "013c01ff0001ffffffffffff03029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121017767aafcde9be00dcfd098715ebcf7f410daebc582fda69d24a28e9d0bc890d1";
-  uint32_t const GENESIS_NONCE = 10000;
+  std::string const GENESIS_TX = "013c01ff0001ffffffffff1f029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121012a1a936be5d91c01ee876e38c13fab0ee11cbe86011a2bf7740fb5ebd39d267d";
+  uint32_t const GENESIS_NONCE = 70;
 
   // Hash domain separators
   const char HASH_KEY_BULLETPROOF_EXPONENT[] = "bulletproof";

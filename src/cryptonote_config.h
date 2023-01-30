@@ -169,10 +169,8 @@
 #define THREAD_STACK_SIZE                       5 * 1024 * 1024
 
 #define HF_VERSION_DYNAMIC_FEE                  4
-#define HF_VERSION_MIN_MIXIN_4                  6
-#define HF_VERSION_MIN_MIXIN_6                  7
-#define HF_VERSION_MIN_MIXIN_10                 8
-#define HF_VERSION_MIN_MIXIN_15                 15
+#define HF_VERSION_MIN_MIXIN_7                  7
+#define HF_VERSION_MIN_MIXIN_21                 9
 #define HF_VERSION_ENFORCE_RCT                  6
 #define HF_VERSION_PER_BYTE_FEE                 12
 #define HF_VERSION_SMALLER_BP                   13

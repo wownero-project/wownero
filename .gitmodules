@@ -7,10 +7,12 @@
 [submodule "external/trezor-common"]
 	path = external/trezor-common
 	url = https://github.com/trezor/trezor-common.git
-[submodule "external/randomx"]
-	path = external/randomx
-	url = https://github.com/tevador/RandomX
 [submodule "external/supercop"]
 	path = external/supercop
 	url = https://github.com/monero-project/supercop
 	branch = monero
+[submodule "external/randomwow"]
+	path = external/randomwow
+	url = https://git.wownero.com/wownero/RandomWOW
+        branch = 1.1.10-wow
+

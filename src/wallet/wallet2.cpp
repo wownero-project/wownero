@@ -3339,10 +3339,11 @@ void check_block_hard_fork_version(cryptonote::network_type nettype, uint8_t hf_
     return;
 
   // check block's height falls within wallet's expected range for block's given version
-  uint64_t start_height = hf_version == 1 ? 0 : wallet_hard_forks[hf_version - 1].height;
+  // Wownero version 7 starts from block 0
+  uint64_t start_height = hf_version == 7 ? 0 : wallet_hard_forks[hf_version - 7].height;
   uint64_t end_height = static_cast<size_t>(hf_version) + 1 > wallet_num_hard_forks
     ? std::numeric_limits<uint64_t>::max()
-    : wallet_hard_forks[hf_version].height;
+    : wallet_hard_forks[hf_version - 6].height;
 
   daemon_is_outdated = height < start_height || height >= end_height;
 }
@@ -6009,8 +6010,9 @@ bool wallet2::check_hard_fork_version(cryptonote::network_type nettype, const st
   // a hard fork). Then check if fork has passed rendering versions incompatible
   if (daemon_hard_forks.size() > 0)
   {
-    bool daemon_outdated = daemon_hard_forks.size() < wallet_num_hard_forks;
-    bool wallet_outdated = daemon_hard_forks.size() > wallet_num_hard_forks;
+    // Block 0 in Wownero starts from version 7
+    bool daemon_outdated = daemon_hard_forks.size() + 6 < wallet_num_hard_forks;
+    bool wallet_outdated = daemon_hard_forks.size() + 6 > wallet_num_hard_forks;
 
     if (daemon_is_outdated)
       *daemon_is_outdated = daemon_outdated;
@@ -6019,7 +6021,7 @@ bool wallet2::check_hard_fork_version(cryptonote::network_type nettype, const st
 
     if (daemon_outdated)
     {
-      uint64_t daemon_missed_fork_height = wallet_hard_forks[daemon_hard_forks.size()].height;
+      uint64_t daemon_missed_fork_height = wallet_hard_forks[daemon_hard_forks.size() + 6].height;
 
       // If the daemon missed the fork, then technically it is no longer part of
       // the Monero network. Don't connect.

@@ -40,6 +40,7 @@
 #define CRYPTONOTE_MAX_TX_SIZE                          1000000
 #define CRYPTONOTE_MAX_TX_PER_BLOCK                     0x10000000
 #define CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER          0
+#define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW_V2         288
 #define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            60
 #define CURRENT_TRANSACTION_VERSION                     2
 #define CURRENT_BLOCK_MAJOR_VERSION                     7
@@ -184,6 +185,8 @@
 #define HF_VERSION_EXACT_COINBASE               16
 #define HF_VERSION_CLSAG                        16
 #define HF_VERSION_DETERMINISTIC_UNLOCK_TIME    16
+#define HF_VERSION_DYNAMIC_UNLOCK               16
+#define HF_VERSION_FIXED_UNLOCK                 18
 #define HF_VERSION_BULLETPROOF_PLUS             18
 #define HF_VERSION_BLOCK_HEADER_MINER_SIG       18
 #define HF_VERSION_VIEW_TAGS                    20

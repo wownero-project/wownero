@@ -146,7 +146,7 @@ using namespace cryptonote;
 #define DEFAULT_MIN_OUTPUT_COUNT 5
 #define DEFAULT_MIN_OUTPUT_VALUE (2*COIN)
 
-#define DEFAULT_INACTIVITY_LOCK_TIMEOUT 90 // a minute and a half
+#define DEFAULT_INACTIVITY_LOCK_TIMEOUT 300 // 5 minutes
 
 #define IGNORE_LONG_PAYMENT_ID_FROM_BLOCK_VERSION 12
 
@@ -1205,7 +1205,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_explicit_refresh_from_block_height(true),
   m_skip_to_height(0),
   m_confirm_non_default_ring_size(true),
-  m_ask_password(AskPasswordToDecrypt),
+  m_ask_password(AskPasswordOnAction),
   m_max_reorg_depth(ORPHANED_BLOCKS_MAX_COUNT),
   m_min_output_count(0),
   m_min_output_value(0),
@@ -1214,8 +1214,8 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_confirm_backlog_threshold(0),
   m_confirm_export_overwrite(true),
   m_auto_low_priority(true),
-  m_segregate_pre_fork_outputs(true),
-  m_key_reuse_mitigation2(true),
+  m_segregate_pre_fork_outputs(false),
+  m_key_reuse_mitigation2(false),
   m_segregation_height(0),
   m_ignore_fractional_outputs(true),
   m_ignore_outputs_above(MONEY_SUPPLY),
@@ -1223,7 +1223,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_track_uses(false),
   m_show_wallet_name_when_locked(false),
   m_inactivity_lock_timeout(DEFAULT_INACTIVITY_LOCK_TIMEOUT),
-  m_setup_background_mining(BackgroundMiningMaybe),
+  m_setup_background_mining(BackgroundMiningNo),
   m_persistent_rpc_client_id(false),
   m_auto_mine_for_rpc_payment_threshold(-1.0f),
   m_is_initialized(false),
@@ -1251,7 +1251,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_unattended(unattended),
   m_devices_registered(false),
   m_device_last_key_image_sync(0),
-  m_use_dns(true),
+  m_use_dns(false),
   m_offline(false),
   m_rpc_version(0),
   m_export_format(ExportFormat::Binary),
@@ -4744,7 +4744,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
     m_refresh_from_block_height = 0;
     m_skip_to_height = 0;
     m_confirm_non_default_ring_size = true;
-    m_ask_password = AskPasswordToDecrypt;
+    m_ask_password = AskPasswordOnAction;
     cryptonote::set_default_decimal_point(CRYPTONOTE_DISPLAY_DECIMAL_POINT);
     m_max_reorg_depth = ORPHANED_BLOCKS_MAX_COUNT;
     m_min_output_count = 0;
@@ -4754,8 +4754,8 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
     m_confirm_backlog_threshold = 0;
     m_confirm_export_overwrite = true;
     m_auto_low_priority = true;
-    m_segregate_pre_fork_outputs = true;
-    m_key_reuse_mitigation2 = true;
+    m_segregate_pre_fork_outputs = false;
+    m_key_reuse_mitigation2 = false;
     m_segregation_height = 0;
     m_ignore_fractional_outputs = true;
     m_ignore_outputs_above = MONEY_SUPPLY;
@@ -4763,7 +4763,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
     m_track_uses = false;
     m_show_wallet_name_when_locked = false;
     m_inactivity_lock_timeout = DEFAULT_INACTIVITY_LOCK_TIMEOUT;
-    m_setup_background_mining = BackgroundMiningMaybe;
+    m_setup_background_mining = BackgroundMiningNo;
     m_subaddress_lookahead_major = SUBADDRESS_LOOKAHEAD_MAJOR;
     m_subaddress_lookahead_minor = SUBADDRESS_LOOKAHEAD_MINOR;
     m_original_keys_available = false;

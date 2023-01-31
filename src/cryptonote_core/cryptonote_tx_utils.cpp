@@ -699,7 +699,7 @@ namespace cryptonote
       }
       rx_slow_hash(hash.data, bd.data(), bd.size(), res.data);
     } else {
-      const int pow_variant = major_version >= 7 ? major_version - 6 : 0;
+      const int pow_variant = major_version >= 11 ? 4 : major_version >= 9 ? 2 : 1;
       crypto::cn_slow_hash(bd.data(), bd.size(), res, pow_variant, height);
     }
     return true;

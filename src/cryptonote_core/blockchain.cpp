@@ -991,7 +991,7 @@ start:
     MGINFO("START DUMP");
     MGINFO(ss.str());
     MGINFO("END DUMP");
-    MGINFO("Please send moneromooo on Libera.Chat the contents of this log, from a couple dozen lines before START DUMP to END DUMP");
+    MGINFO("Please send wowario on IRC OTFC #wownero-dev the contents of this log, from a couple dozen lines before START DUMP to END DUMP");
   }
   return diff;
 }

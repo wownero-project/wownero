@@ -2032,13 +2032,6 @@ namespace nodetool
       return true;
 
     static const std::vector<std::string> dns_urls = {
-      "blocklist.moneropulse.se"
-    , "blocklist.moneropulse.org"
-    , "blocklist.moneropulse.net"
-    , "blocklist.moneropulse.no"
-    , "blocklist.moneropulse.fr"
-    , "blocklist.moneropulse.de"
-    , "blocklist.moneropulse.ch"
     };
 
     std::vector<std::string> records;

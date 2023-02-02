@@ -1196,7 +1196,10 @@ namespace rct {
                 }
                 for (i = 0; i < outamounts.size(); ++i)
                 {
-                    rv.outPk[i].mask = rct::scalarmult8(C[i]);
+                    if (plus)
+                        rv.outPk[i].mask = C[i];
+                    else
+                        rv.outPk[i].mask = rct::scalarmult8(C[i]);
                     outSk[i].mask = masks[i];
                 }
             }
@@ -1234,7 +1237,10 @@ namespace rct {
                 }
                 for (i = 0; i < batch_size; ++i)
                 {
-                  rv.outPk[i + amounts_proved].mask = rct::scalarmult8(C[i]);
+                  if (plus)
+                    rv.outPk[i + amounts_proved].mask = C[i];
+                  else
+                    rv.outPk[i + amounts_proved].mask = rct::scalarmult8(C[i]);
                   outSk[i + amounts_proved].mask = masks[i];
                 }
                 amounts_proved += batch_size;
@@ -1440,7 +1446,10 @@ namespace rct {
 
           rct::keyV masks(rv.outPk.size());
           for (size_t i = 0; i < rv.outPk.size(); i++) {
-            masks[i] = rv.outPk[i].mask;
+            if (bulletproof_plus)
+              masks[i] = rct::scalarmult8(rv.outPk[i].mask);
+            else
+              masks[i] = rv.outPk[i].mask;
           }
           key sumOutpks = addKeys(masks);
           DP(sumOutpks);
@@ -1636,6 +1645,8 @@ namespace rct {
         mask = ecdh_info.mask;
         key amount = ecdh_info.amount;
         key C = rv.outPk[i].mask;
+        if (is_rct_bulletproof_plus(rv.type))
+          C = scalarmult8(C);
         DP("C");
         DP(C);
         key Ctmp;
@@ -1667,6 +1678,8 @@ namespace rct {
         mask = ecdh_info.mask;
         key amount = ecdh_info.amount;
         key C = rv.outPk[i].mask;
+        if (is_rct_bulletproof_plus(rv.type))
+          C = scalarmult8(C);
         DP("C");
         DP(C);
         key Ctmp;

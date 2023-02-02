@@ -226,7 +226,7 @@ bool ver_rct_non_semantics_simple_cached
     // mixring. Future versions of the protocol may differ in this regard, but if this assumptions
     // holds true in the future, enable the verification hash by modifying the `untested_tx`
     // condition below.
-    const bool untested_tx = tx.version > 2 || tx.rct_signatures.type > rct::RCTTypeBulletproofPlus;
+    const bool untested_tx = (tx.version > 2) || (static_cast<std::uint8_t>(tx.rct_signatures.type) > rct_type_to_cache);
     VER_ASSERT(!untested_tx, "Unknown TX type. Make sure RCT cache works correctly with this type and then enable it in the code here.");
 
     // Don't cache older (or newer) rctSig types
@@ -302,6 +302,7 @@ bool ver_mixed_rct_semantics(std::vector<const rct::rctSig*> rvv)
             is_batchable_rv = true;
             break;
         case rct::RCTTypeBulletproofPlus:
+        case rct::RCTTypeBulletproofPlus_FullCommit:
             if (!is_canonical_bulletproof_plus_layout(rv.p.bulletproofs_plus))
             {
                 MERROR("Bulletproof_plus does not have canonical form");

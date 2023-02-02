@@ -312,12 +312,12 @@ namespace tx {
 
     bool is_bulletproof() const {
       auto tp = get_rv_type();
-      return rct::is_rct_bulletproof(tp) || rct::is_rct_bulletproof_plus(tp);
+      return rct::is_rct_bulletproof(tp) || rct::is_rct_bulletproof_plus_any(tp);
     }
 
     bool is_bulletproof_plus() const {
       auto tp = get_rv_type();
-      return rct::is_rct_bulletproof_plus(tp);
+      return rct::is_rct_bulletproof_plus_any(tp);
     }
 
     bool is_clsag() const {

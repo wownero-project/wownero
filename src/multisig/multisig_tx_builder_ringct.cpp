@@ -546,6 +546,7 @@ static void make_new_range_proofs(const int bp_version,
 //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 static bool try_reconstruct_range_proofs(const int bp_version,
+  const uint8_t sig_type,
   const rct::rctSigPrunable& original_sigs,
   const std::size_t num_destinations,
   const rct::ctkeyV& output_public_keys,
@@ -559,8 +560,13 @@ static bool try_reconstruct_range_proofs(const int bp_version,
 
       new_range_proofs = original_range_proofs;
       new_range_proofs[0].V.resize(num_destinations);
-      for (std::size_t i = 0; i < num_destinations; ++i)
-        new_range_proofs[0].V[i] = rct::scalarmultKey(output_public_keys[i].mask, rct::INV_EIGHT);
+      const bool is_full = (bp_version == 4) && (sig_type == rct::RCTTypeBulletproofPlus_FullCommit);
+      for (std::size_t i = 0; i < num_destinations; ++i) {
+        if (bp_version == 4)
+          new_range_proofs[0].V[i] = is_full ? rct::scalarmultKey(output_public_keys[i].mask, rct::INV_EIGHT) : output_public_keys[i].mask;
+        else
+          new_range_proofs[0].V[i] = rct::scalarmultKey(output_public_keys[i].mask, rct::INV_EIGHT);
+      }
 
       return true;
     };
@@ -612,7 +618,7 @@ static bool set_tx_rct_signatures(
   if (rct_config.bp_version == 3)
     rv.type = rct::RCTTypeCLSAG;
   else if (rct_config.bp_version == 4)
-    rv.type = rct::RCTTypeBulletproofPlus;
+    rv.type = (unsigned_tx.rct_signatures.type == rct::RCTTypeBulletproofPlus_FullCommit) ? rct::RCTTypeBulletproofPlus_FullCommit : rct::RCTTypeBulletproofPlus;
   else
     return false;
   rv.txnFee = fee;
@@ -643,6 +649,7 @@ static bool set_tx_rct_signatures(
   }
   else {
     if (not try_reconstruct_range_proofs(rct_config.bp_version,
+        rv.type,
         unsigned_tx.rct_signatures.p,
         num_destinations,
         rv.outPk,

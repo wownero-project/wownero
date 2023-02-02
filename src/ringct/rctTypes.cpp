@@ -193,10 +193,12 @@ namespace rct {
         switch (type)
         {
             case RCTTypeSimple:
+            case RCTTypeSimpleBulletproof:
             case RCTTypeBulletproof:
             case RCTTypeBulletproof2:
             case RCTTypeCLSAG:
             case RCTTypeBulletproofPlus:
+            case RCTTypeBulletproofPlus_FullCommit:
                 return true;
             default:
                 return false;
@@ -207,6 +209,8 @@ namespace rct {
     {
         switch (type)
         {
+            case RCTTypeSimpleBulletproof:
+            case RCTTypeFullBulletproof:
             case RCTTypeBulletproof:
             case RCTTypeBulletproof2:
             case RCTTypeCLSAG:
@@ -216,15 +220,21 @@ namespace rct {
         }
     }
 
-    bool is_rct_bulletproof_plus(int type)
+    bool is_rct_old_bulletproof(int type)
     {
         switch (type)
         {
-            case RCTTypeBulletproofPlus:
+            case RCTTypeSimpleBulletproof:
+            case RCTTypeFullBulletproof:
                 return true;
             default:
                 return false;
         }
+    }
+
+    bool is_rct_new_bulletproof(int type)
+    {
+      return is_rct_bulletproof(type) && !is_rct_old_bulletproof(type);
     }
 
     bool is_rct_borromean(int type)
@@ -239,12 +249,67 @@ namespace rct {
         }
     }
 
+    bool is_rct_bp_plus_legacy(int type)
+    {
+        switch (type)
+        {
+            case RCTTypeBulletproofPlus:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool is_rct_bp_plus_full(int type)
+    {
+        switch (type)
+        {
+            case RCTTypeBulletproofPlus_FullCommit:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool is_rct_bulletproof_plus_any(int type)
+    {
+        switch (type)
+        {
+            case RCTTypeBulletproofPlus:
+            case RCTTypeBulletproofPlus_FullCommit:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    size_t n_bulletproof_v1_amounts(const Bulletproof &proof)
+    {
+        CHECK_AND_ASSERT_MES(proof.L.size() >= 6, 0, "Invalid bulletproof L size");
+        CHECK_AND_ASSERT_MES(proof.L.size() <= 31, 0, "Insane bulletproof L size");
+        return 1 << (proof.L.size() - 6);
+    }
+    size_t n_bulletproof_v1_amounts(const std::vector<Bulletproof> &proofs)
+    {
+        size_t n = 0;
+        for (const Bulletproof &proof: proofs)
+        {
+            size_t n2 = n_bulletproof_v1_amounts(proof);
+            CHECK_AND_ASSERT_MES(n2 < std::numeric_limits<uint32_t>::max() - n, 0, "Invalid number of bulletproofs");
+            if (n2 == 0)
+                return 0;
+            n += n2;
+        }
+        return n;
+    }
+
     bool is_rct_clsag(int type)
     {
         switch (type)
         {
             case RCTTypeCLSAG:
             case RCTTypeBulletproofPlus:
+            case RCTTypeBulletproofPlus_FullCommit:
                 return true;
             default:
                 return false;

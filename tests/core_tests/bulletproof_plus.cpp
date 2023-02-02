@@ -193,7 +193,7 @@ bool gen_bpp_tx_validation_base::check_bpp(const cryptonote::transaction &tx, si
 {
   DEFINE_TESTS_ERROR_CONTEXT(context);
   CHECK_TEST_CONDITION(tx.version >= 2);
-  CHECK_TEST_CONDITION(rct::is_rct_bulletproof_plus(tx.rct_signatures.type));
+  CHECK_TEST_CONDITION(rct::is_rct_bulletproof_plus_any(tx.rct_signatures.type));
   size_t n_sizes = 0, n_amounts = 0;
   for (size_t n = 0; n < tx_idx; ++n)
   {
@@ -312,7 +312,7 @@ bool gen_bpp_tx_invalid_not_enough_proofs::generate(std::vector<test_event_entry
   const uint64_t amounts_paid[] = {5000, 5000, (uint64_t)-1};
   const rct::RCTConfig rct_config[] = { { rct::RangeProofBulletproof, 4 } };
   return generate_with(events, mixin, 1, amounts_paid, false, rct_config, HF_VERSION_BULLETPROOF_PLUS, NULL, [&](cryptonote::transaction &tx, size_t idx){
-    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus);
+    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus || tx.rct_signatures.type == rct::RCTTypeBulletproofPlus_FullCommit);
     CHECK_TEST_CONDITION(!tx.rct_signatures.p.bulletproofs_plus.empty());
     tx.rct_signatures.p.bulletproofs_plus.pop_back();
     CHECK_TEST_CONDITION(!tx.rct_signatures.p.bulletproofs_plus.empty());
@@ -327,7 +327,7 @@ bool gen_bpp_tx_invalid_empty_proofs::generate(std::vector<test_event_entry>& ev
   const uint64_t amounts_paid[] = {50000, 50000, (uint64_t)-1};
   const rct::RCTConfig rct_config[] = { { rct::RangeProofBulletproof, 4 } };
   return generate_with(events, mixin, 1, amounts_paid, false, rct_config, HF_VERSION_BULLETPROOF_PLUS, NULL, [&](cryptonote::transaction &tx, size_t idx){
-    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus);
+    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus || tx.rct_signatures.type == rct::RCTTypeBulletproofPlus_FullCommit);
     tx.rct_signatures.p.bulletproofs_plus.clear();
     return true;
   });
@@ -340,7 +340,7 @@ bool gen_bpp_tx_invalid_too_many_proofs::generate(std::vector<test_event_entry>&
   const uint64_t amounts_paid[] = {10000, (uint64_t)-1};
   const rct::RCTConfig rct_config[] = { { rct::RangeProofBulletproof, 4 } };
   return generate_with(events, mixin, 1, amounts_paid, false, rct_config, HF_VERSION_BULLETPROOF_PLUS, NULL, [&](cryptonote::transaction &tx, size_t idx){
-    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus);
+    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus || tx.rct_signatures.type == rct::RCTTypeBulletproofPlus_FullCommit);
     CHECK_TEST_CONDITION(!tx.rct_signatures.p.bulletproofs_plus.empty());
     tx.rct_signatures.p.bulletproofs_plus.push_back(tx.rct_signatures.p.bulletproofs_plus.back());
     return true;
@@ -354,7 +354,7 @@ bool gen_bpp_tx_invalid_wrong_amount::generate(std::vector<test_event_entry>& ev
   const uint64_t amounts_paid[] = {10000, (uint64_t)-1};
   const rct::RCTConfig rct_config[] = { { rct::RangeProofBulletproof, 4 } };
   return generate_with(events, mixin, 1, amounts_paid, false, rct_config, HF_VERSION_BULLETPROOF_PLUS, NULL, [&](cryptonote::transaction &tx, size_t idx){
-    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus);
+    CHECK_TEST_CONDITION(tx.rct_signatures.type == rct::RCTTypeBulletproofPlus || tx.rct_signatures.type == rct::RCTTypeBulletproofPlus_FullCommit);
     CHECK_TEST_CONDITION(!tx.rct_signatures.p.bulletproofs_plus.empty());
     tx.rct_signatures.p.bulletproofs_plus.back() = rct::bulletproof_plus_PROVE(1000, rct::skGen());
     return true;

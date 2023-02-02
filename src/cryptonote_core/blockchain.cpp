@@ -3148,7 +3148,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     }
   }
 
-  // from v10, allow bulletproofs v2
+  // from v13, allow bulletproofs v2
   if (hf_version < HF_VERSION_SMALLER_BP) {
     if (tx.version >= 2) {
       if (tx.rct_signatures.type == rct::RCTTypeBulletproof2)
@@ -3160,7 +3160,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     }
   }
 
-  // from v11, allow only bulletproofs v2
+  // from v14, allow only bulletproofs v2
   if (hf_version > HF_VERSION_SMALLER_BP) {
     if (tx.version >= 2) {
       if (tx.rct_signatures.type == rct::RCTTypeBulletproof)
@@ -3172,7 +3172,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     }
   }
 
-  // from v13, allow CLSAGs
+  // from v16, allow CLSAGs
   if (hf_version < HF_VERSION_CLSAG) {
     if (tx.version >= 2) {
       if (tx.rct_signatures.type == rct::RCTTypeCLSAG)
@@ -3184,7 +3184,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     }
   }
 
-  // from v14, allow only CLSAGs
+  // from v17, allow only CLSAGs
   if (hf_version > HF_VERSION_CLSAG) {
     if (tx.version >= 2) {
       if (tx.rct_signatures.type <= rct::RCTTypeBulletproof2)
@@ -3196,11 +3196,25 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     }
   }
 
-  // from v15, allow bulletproofs plus
+
+  // from v12, forbid old bulletproofs
+  if (hf_version > 11) {
+    if (tx.version >= 2) {
+      const bool old_bulletproof = rct::is_rct_old_bulletproof(tx.rct_signatures.type);
+      if (old_bulletproof)
+      {
+        MERROR_VER("Old Bulletproofs are not allowed after v11");
+        tvc.m_invalid_output = true;
+        return false;
+      }
+    }
+  }
+
+  // from v18, allow bulletproofs plus
   if (hf_version < HF_VERSION_BULLETPROOF_PLUS) {
     if (tx.version >= 2) {
-      const bool bulletproof_plus = rct::is_rct_bulletproof_plus(tx.rct_signatures.type);
-      if (bulletproof_plus || !tx.rct_signatures.p.bulletproofs_plus.empty())
+      const bool bulletproof_plus_legacy = rct::is_rct_bp_plus_legacy(tx.rct_signatures.type);
+      if (bulletproof_plus_legacy || !tx.rct_signatures.p.bulletproofs_plus.empty())
       {
         MERROR_VER("Bulletproofs plus are not allowed before v" << std::to_string(HF_VERSION_BULLETPROOF_PLUS));
         tvc.m_invalid_output = true;
@@ -3209,7 +3223,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     }
   }
 
-  // from v16, forbid bulletproofs
+  // from v19, forbid bulletproofs
   if (hf_version > HF_VERSION_BULLETPROOF_PLUS) {
     if (tx.version >= 2) {
       const bool bulletproof = rct::is_rct_bulletproof(tx.rct_signatures.type);
@@ -3222,9 +3236,29 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     }
   }
 
-  // from v15, require view tags on outputs
+  // from v20, require view tags on outputs
   if (!check_output_types(tx, hf_version))
   {
+    tvc.m_invalid_output = true;
+    return false;
+  }
+
+  // from v21, allow bulletproofs plus full commit
+  if (hf_version < HF_VERSION_BP_PLUS_FULL_COMMIT) {
+    if (tx.version >= 2) {
+      const bool bulletproof_plus_full_commit = rct::is_rct_bp_plus_full(tx.rct_signatures.type);
+      if (bulletproof_plus_full_commit)
+      {
+        MERROR_VER("Bulletproofs plus full commit are not allowed before v" << std::to_string(HF_VERSION_BP_PLUS_FULL_COMMIT));
+        tvc.m_invalid_output = true;
+        return false;
+      }
+    }
+  }
+
+  // from v22, forbid bulletproof plus legacy
+  if (hf_version > HF_VERSION_BP_PLUS_FULL_COMMIT && rct::is_rct_bp_plus_legacy(tx.rct_signatures.type)) {
+    MERROR_VER("Bulletproof Plus legacy range proofs are not allowed after v" << (HF_VERSION_BP_PLUS_FULL_COMMIT + 1));
     tvc.m_invalid_output = true;
     return false;
   }
@@ -3254,7 +3288,7 @@ bool Blockchain::expand_transaction_2(transaction &tx, const crypto::hash &tx_pr
   rv.message = rct::hash2rct(tx_prefix_hash);
 
   // mixRing - full and simple store it in opposite ways
-  if (rv.type == rct::RCTTypeFull)
+  if (rv.type == rct::RCTTypeFull || rv.type == rct::RCTTypeFullBulletproof)
   {
     CHECK_AND_ASSERT_MES(!pubkeys.empty() && !pubkeys[0].empty(), false, "empty pubkeys");
     rv.mixRing.resize(pubkeys[0].size());
@@ -3269,7 +3303,7 @@ bool Blockchain::expand_transaction_2(transaction &tx, const crypto::hash &tx_pr
       }
     }
   }
-  else if (rv.type == rct::RCTTypeSimple || rv.type == rct::RCTTypeBulletproof || rv.type == rct::RCTTypeBulletproof2 || rv.type == rct::RCTTypeCLSAG || rv.type == rct::RCTTypeBulletproofPlus)
+  else if (rv.type == rct::RCTTypeSimple || rv.type == rct::RCTTypeBulletproof || rv.type == rct::RCTTypeBulletproof2 || rv.type == rct::RCTTypeSimpleBulletproof || rv.type == rct::RCTTypeCLSAG || rv.type == rct::RCTTypeBulletproofPlus || rv.type == rct::RCTTypeBulletproofPlus_FullCommit)
   {
     CHECK_AND_ASSERT_MES(!pubkeys.empty() && !pubkeys[0].empty(), false, "empty pubkeys");
     rv.mixRing.resize(pubkeys.size());
@@ -3288,7 +3322,7 @@ bool Blockchain::expand_transaction_2(transaction &tx, const crypto::hash &tx_pr
   }
 
   // II
-  if (rv.type == rct::RCTTypeFull)
+  if (rv.type == rct::RCTTypeFull || rv.type == rct::RCTTypeFullBulletproof)
   {
     if (!tx.pruned)
     {
@@ -3298,7 +3332,7 @@ bool Blockchain::expand_transaction_2(transaction &tx, const crypto::hash &tx_pr
         rv.p.MGs[0].II[n] = rct::ki2rct(boost::get<txin_to_key>(tx.vin[n]).k_image);
     }
   }
-  else if (rv.type == rct::RCTTypeSimple || rv.type == rct::RCTTypeBulletproof || rv.type == rct::RCTTypeBulletproof2)
+  else if (rv.type == rct::RCTTypeSimple || rv.type == rct::RCTTypeBulletproof || rv.type == rct::RCTTypeBulletproof2 || rv.type == rct::RCTTypeSimpleBulletproof)
   {
     if (!tx.pruned)
     {
@@ -3310,7 +3344,7 @@ bool Blockchain::expand_transaction_2(transaction &tx, const crypto::hash &tx_pr
       }
     }
   }
-  else if (rv.type == rct::RCTTypeCLSAG || rv.type == rct::RCTTypeBulletproofPlus)
+  else if (rv.type == rct::RCTTypeCLSAG || rv.type == rct::RCTTypeBulletproofPlus || rv.type == rct::RCTTypeBulletproofPlus_FullCommit)
   {
     if (!tx.pruned)
     {
@@ -3563,11 +3597,9 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
   }
 
   // Warn that new RCT types are present, and thus the cache is not being used effectively
-  static constexpr const std::uint8_t RCT_CACHE_TYPE = rct::RCTTypeBulletproofPlus;
-  if (tx.rct_signatures.type > RCT_CACHE_TYPE)
-  {
-    MWARNING("RCT cache is not caching new verification results. Please update RCT_CACHE_TYPE!");
-  }
+  const std::uint8_t rct_cache_type = (hf_version >= HF_VERSION_BP_PLUS_FULL_COMMIT) ? static_cast<std::uint8_t>(rct::RCTTypeBulletproofPlus_FullCommit) : static_cast<std::uint8_t>(rct::RCTTypeBulletproofPlus);
+  if (static_cast<std::uint8_t>(tx.rct_signatures.type) > rct_cache_type)
+    MWARNING("RCT cache is not caching new verification results. Please update rct_cache_type.");
 
   if (tx.version == 1)
   {
@@ -3602,12 +3634,14 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
       return false;
     }
     case rct::RCTTypeSimple:
+    case rct::RCTTypeSimpleBulletproof:
     case rct::RCTTypeBulletproof:
     case rct::RCTTypeBulletproof2:
     case rct::RCTTypeCLSAG:
     case rct::RCTTypeBulletproofPlus:
+    case rct::RCTTypeBulletproofPlus_FullCommit:
     {
-      if (!ver_rct_non_semantics_simple_cached(tx, pubkeys, m_rct_ver_cache, RCT_CACHE_TYPE))
+      if (!ver_rct_non_semantics_simple_cached(tx, pubkeys, m_rct_ver_cache, rct_cache_type))
       {
         MERROR_VER("Failed to check ringct signatures!");
         return false;
@@ -3615,6 +3649,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
       break;
     }
     case rct::RCTTypeFull:
+    case rct::RCTTypeFullBulletproof:
     {
       if (!expand_transaction_2(tx, tx_prefix_hash, pubkeys))
       {

@@ -50,6 +50,7 @@ extern "C" {
 
 #include "rctTypes.h"
 #include "rctOps.h"
+#include "legacy_bp/rctSigs_old.h"
 
 //Define this flag when debugging to get additional info on the console
 #ifdef DBG

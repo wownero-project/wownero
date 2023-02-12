@@ -1421,7 +1421,7 @@ namespace cryptonote
           txpool_tx_meta_t meta;
           if (!m_blockchain.get_txpool_tx_meta(txid, meta))
           {
-            MERROR("Failed to find tx meta in txpool");
+            MDEBUG("Failed to find tx meta in txpool");
             // continue, not fatal
             continue;
           }

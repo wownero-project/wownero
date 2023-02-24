@@ -9,7 +9,7 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 - Web: [wownero.org](https://wownero.org)
 - Twitter: [@w0wn3r0](https://twitter.com/w0wn3r0)
 - Reddit: [/r/wownero](https://www.reddit.com/r/wownero)
-- Mail: [wownero@protonmail.com](mailto:wownero@protonmail.com)
+- Mail: [wownero@wownero.org](mailto:wownero@wownero.org)
 - Git: [git.wownero.com/wownero/wownero](https://git.wownero.com/wownero/wownero)
 - Wownero Funding System: [funding.wownero.com](https://funding.wownero.com)
 - Wownero Forum: [forum.wownero.com](https://forum.wownero.com)
@@ -18,6 +18,7 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 - Wowlet Desktop Wallet: [git.wownero.com/wowlet/wowlet](https://git.wownero.com/wowlet/wowlet/releases)
 - Stack Wallet iOS & Android Mobile Wallet: [stackwallet.com](https://stackwallet.com)
 - Wonerujo Android Mobile Wallet: [google store](https://play.google.com/store/apps/details?id=com.m2049r.wowwallet)
+- Elite Wallet Android Mobile Wallet: [github](https://github.com/Elite-Labs/EliteWallet)
 - Public Node Status: [monero.fail](https://monero.fail/?crypto=wownero)
 - Wownero Memes: [suchwow.xyz](https://suchwow.xyz/posts/top)
 - Market Info: [coinmarketcap.com](https://coinmarketcap.com/currencies/wownero), [coingecko.com](https://www.coingecko.com/en/coins/wownero/usd)
@@ -31,6 +32,7 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 ### Blockchain Explorers
 
 - https://explore.wownero.com
+- https://muchwow.lol
 
 ## Introduction
 
@@ -94,7 +96,7 @@ Dates are provided in the format YYYY-MM-DD.
 | -                             | 2020-06-28 | Hallucinogenic Hypnotoad  | v0.8.0.0                | v0.8.0.2                    | Dandelion++ support
 | 253,999                       | 2020-10-09 | Illiterate Illuminati  | v0.9.0.0                | v0.9.3.3                    | Dynamic coinbase unlock (up to 1 mo.), Deterministic unlock times, Enforce maximum coinbase amount, show_qr_code wallet command, CLSAG
 | 331,170                       | 2021-07-04 | Junkie Jeff  | v0.10.0.0               | v0.10.2.0                   | Bulletproofs+, Miner Block Header Signing, Vote by Block, Change coinbase unlock time to 1 day, Reset difficulty and switch back to Monero's difficulty algorithm
-| XXX,XXX                       | 2023-XX-XX | Kunty Karen  | v0.11.0.0               | v0.11.0.0                   | View tags, fee changes, adjusted dynamic block weight algorithm, multisig security fixes, RPC broadcast node donation sub-address
+| 514,000                       | 2023-04-01 | Kunty Karen  | v0.11.0.0               | v0.11.0.0                   | View tags, fee changes, adjusted dynamic block weight algorithm, multisig security fixes, RPC broadcast node donation sub-address, Limit tx_extra max size to ~1kb, 12-hour difficulty adjustment window
 
 X's indicate that these details have not been determined as of commit date.
 

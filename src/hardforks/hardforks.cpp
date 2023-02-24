@@ -45,6 +45,7 @@ const hardfork_t mainnet_hard_forks[] = {
   { 17, 254287, 0, 1600576524 },
   { 18, 331170, 0, 1623245591 },
   { 19, 331458, 0, 1624793373 },
+  { 20, 514000, 0, 1677222289 },
 };
 // since Wownero starts from v7, added + 6 so that the total number of hard forks = version number
 const size_t num_mainnet_hard_forks = sizeof(mainnet_hard_forks) / sizeof(mainnet_hard_forks[0]) + 6;

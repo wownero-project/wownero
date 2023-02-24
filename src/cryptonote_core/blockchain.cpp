@@ -1447,6 +1447,11 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height, 
       }
   }
 
+  if (hf_version >= HF_VERSION_CAP_TX_EXTRA_SIZE && b.miner_tx.extra.size() > MAX_TX_EXTRA_SIZE)
+  {
+    MWARNING("coinbase transaction tx-extra is too big: " << b.miner_tx.extra.size() << " bytes, the limit is: " << MAX_TX_EXTRA_SIZE);
+    return false;
+  }
   LOG_PRINT_L3("Blockchain::" << __func__);
   CHECK_AND_ASSERT_MES(b.miner_tx.vin.size() == 1, false, "coinbase transaction in the block has no inputs");
   CHECK_AND_ASSERT_MES(b.miner_tx.vin[0].type() == typeid(txin_gen), false, "coinbase transaction in the block has the wrong type");
@@ -3296,6 +3301,13 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
     return false;
   }
 
+  // from v20, limit tx extra size
+  if (hf_version >= HF_VERSION_CAP_TX_EXTRA_SIZE && tx.extra.size() > MAX_TX_EXTRA_SIZE)
+  {
+    MERROR_VER("transaction tx-extra is too big: " << tx.extra.size() << " bytes, the limit is: " << MAX_TX_EXTRA_SIZE);
+    tvc.m_tx_extra_too_big = true;
+    return false;
+  }
   return true;
 }
 //------------------------------------------------------------------

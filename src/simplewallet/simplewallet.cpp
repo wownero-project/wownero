@@ -6484,7 +6484,7 @@ void simple_wallet::check_for_inactivity_lock(bool user)
     m_in_command = true;
     if (!user)
     {
-      const std::string speech = tr("I locked your Wownero wallet to protect you while you were away\nsee \"help set\" to configure/disable");
+      const std::string speech = tr("tis, tis.. you left the wallet unattended. you will be punished.");
       std::vector<std::pair<std::string, size_t>> lines = tools::split_string_by_width(speech, 45);
 
       size_t max_len = 0;
@@ -6495,11 +6495,51 @@ void simple_wallet::check_for_inactivity_lock(bool user)
       for (size_t i = 0; i < lines.size(); ++i)
         tools::msg_writer() << (i == 0 ? "/" : i == lines.size() - 1 ? "\\" : "|") << " " << lines[i].first << std::string(max_len - lines[i].second, ' ') << " " << (i == 0 ? "\\" : i == lines.size() - 1 ? "/" : "|");
       tools::msg_writer() << " " << std::string(n_u, '-') << std::endl <<
-          "        \\   (__)" << std::endl <<
-          "         \\  (oo)\\_______" << std::endl <<
-          "            (__)\\       )\\/\\" << std::endl <<
-          "                ||----w |" << std::endl <<
-          "                ||     ||" << std::endl <<
+          "                                          \\                  ~~~^~^.                " << std::endl <<
+          "                                           \\               :5P~~~~~5~.              " << std::endl <<
+          "                                            \\             :~~~~~:~.~~^              " << std::endl <<
+          "                                             \\            :.& !!@@~~~..             " << std::endl <<
+          "                                                          .:.@#@@@##^:@.             " << std::endl <<
+          "                                                        ^^..#@@@@@@?:.^              " << std::endl <<
+          "                                                     ~.^ ^^J #G@@GG?G.:              " << std::endl <<
+          "                                            ~~~~     .B^#5#BBBJ^JPBBB#BP         P   " << std::endl <<
+          "                                         ^^^~?     ^^^^^.BBBBBBBBBBBBBBB^        @@@~" << std::endl <<
+          "                                        ^^^:    .GG??GG:BBBBBBBB@BBBBBGBP^    ?  ^^  " << std::endl <<
+          "                                         ^^   ^PPPP5P5##BBBBPGJYJBBBBJJ#B ^  ? ^^^   " << std::endl <<
+          "                                         .. ^?P!Y    5&#BBBPP.!77!BB@!!~ ? ~!?~~  ?  " << std::endl <<
+          "                                          ..^PP      5~..5PPP!:^:.P5:^:.?~!!^~   ?   " << std::endl <<
+          "                                             .!     ~!!~Y??5P@@@@PP@@7 ! ~~^^   ~    " << std::endl <<
+          "                                         .^^. .^   !!!~YJY &@@@@@&&@@  !:  ~    ~    " << std::endl <<
+          "                                                  !!~ YJP#&&@@@@&&@@&P.. . ^         " << std::endl <<
+          "                                                ~!!. P5#BBB&@@@&&@@&@#P   ~          " << std::endl <<
+          "                                               ~~.    GBBBBBB&&&&&&&GBB   ~          " << std::endl <<
+          "                                             ^^:     PPGBBBBBBPBBGBBBGGJ ?           " << std::endl <<
+          "             #5                              @BB     555#BPBBBBBBBPBBBB??            " << std::endl <<
+          "            5##&                            .@G      JGPPPBBBJBPBBBBBB#              " << std::endl <<
+          "         &&&&&& &       &&&&&B&#&           7    ?    G5PPPPPY5PBBB###~              " << std::endl <<
+          "  ?#&&:&&&&&&&@@&&G    &&&&B&&B5P&G        ?       ?   GG5PPP5PP @@?B?               " << std::endl <<
+          "    #&@@&&&&@&&&&&&G  GG&&&& &&&&&&&                ?? JGGGGGB :?J7^                 " << std::endl <<
+          "    &&P&&G&&&&G&&&&GG GGG&&   5&&&&&P     ?            7.~GGB: !J~!^.                " << std::endl <<
+          "     &&GJ@G#GY:J&&&PGG GGGGP    5PPP     ?               .:~!^:77!^.                 " << std::endl <<
+          "     Y&5G&@@@@@&#&G7#JG         GG55     ?                .^~~:~~^.:::               " << std::endl <<
+          "      #&P&@@^:@@#GG!J@         PP55     ?                  :::: ..:::^^^             " << std::endl <<
+          "      B&&5!#@@!# GY@@&&&#&&@ &@@@:      ?                  ..::    :^^^^:            " << std::endl <<
+          "       #&&##B@@#?@@@&@&&@@&@@@@@@@@@&  ?                   ..::.      ::^^           " << std::endl <<
+          "       ###&@@@J?@&@&@@@@@&@@@@@@@@@@@@.                    .::::        :::          " << std::endl <<
+          "        ##&@@@??&@@@@&@@&&@@@@&@@@@@@@@                     ::::          ::         " << std::endl <<
+          "        B@@@@@?G@@@@@&@@@@@@@@&@@@@&&@@#                     ::::          ::.       " << std::endl <<
+          "        @@@@@?@&@@@@@@@@##&&&&&&#B5B&&@&                      :::          :::Y      " << std::endl <<
+          "       B&@@@@?P#&@@&&@@@^BBGB BBBBB#@@@&                      :::           ::       " << std::endl <<
+          "         #&&# . P#&^&@@@@B##B B###B&@@@                        :::          YJ       " << std::endl <<
+          "         ###P ~    B#B@@@##B ~ ####&@@@                         :::                  " << std::endl <<
+          "        ?###   ~~  ##B@@@~~    B##B#@@@                         .::.                 " << std::endl <<
+          "         ###      ^^:#@@@B      ####@@&                         J.::                 " << std::endl <<
+          "         ##B       ####@@       5B##&@                           ^:::                " << std::endl <<
+          "         ##5       ####&@.#####  B##@&@@@@@@  J@@                 YBBB               " << std::endl <<
+          "         ##        ###B#&########B###@@@@@@@@@@@@@@@@@                               " << std::endl <<
+          "     #P####            @@@                                                           " << std::endl <<
+          "    #G#. ##         GB@@@:@                                                          " << std::endl <<
+          "                    B    B                                                           " << std::endl <<
           "" << std::endl;
     }
     while (1)

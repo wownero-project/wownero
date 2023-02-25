@@ -3187,7 +3187,7 @@ bool simple_wallet::help(const std::vector<std::string> &args/* = std::vector<st
     message_writer() << tr("\"status\" - Check current status of wallet.");
     message_writer() << tr("\"version\" - Check software version.");
     message_writer() << tr("\"exit\" - Exit wallet.");
-    message_writer() << "";
+    message_writer() << tr("\"clear\" - Clear screen.");
     message_writer() << tr("\"donate <amount>\" - Donate WOW to the development team.");
     message_writer() << "";
   }
@@ -3309,6 +3309,9 @@ simple_wallet::simple_wallet()
   m_cmd_binder.set_handler("refresh",
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::refresh, _1),
                            tr("Synchronize the transactions and balance."));
+  m_cmd_binder.set_handler("clear",
+                           boost::bind(&simple_wallet::on_command, this, &simple_wallet::clear, _1),
+                           tr("Clear screen."));
   m_cmd_binder.set_handler("balance",
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::show_balance, _1),
                            tr(USAGE_SHOW_BALANCE),
@@ -6014,6 +6017,16 @@ bool simple_wallet::refresh(const std::vector<std::string>& args)
     }
   }
   return refresh_main(start_height, ResetNone);
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::clear(const std::vector<std::string>& args)
+{
+#ifdef HAVE_READLINE
+  PAUSE_READLINE();
+    rdln::clear_screen();
+#endif
+  tools::clear_screen();
+  return true;
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::show_balance_unlocked(bool detailed)

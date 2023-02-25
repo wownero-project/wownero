@@ -1221,8 +1221,8 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_ignore_outputs_above(MONEY_SUPPLY),
   m_ignore_outputs_below(0),
   m_track_uses(false),
-  m_show_wallet_name_when_locked(false),
-  m_show_detailed_prompt(false),
+  m_show_wallet_name_when_locked(true),
+  m_show_detailed_prompt(true),
   m_inactivity_lock_timeout(DEFAULT_INACTIVITY_LOCK_TIMEOUT),
   m_setup_background_mining(BackgroundMiningNo),
   m_persistent_rpc_client_id(false),
@@ -4781,8 +4781,8 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
     m_ignore_outputs_above = MONEY_SUPPLY;
     m_ignore_outputs_below = 0;
     m_track_uses = false;
-    m_show_wallet_name_when_locked = false;
-    m_show_detailed_prompt = false;
+    m_show_wallet_name_when_locked = true;
+    m_show_detailed_prompt = true;
     m_inactivity_lock_timeout = DEFAULT_INACTIVITY_LOCK_TIMEOUT;
     m_setup_background_mining = BackgroundMiningNo;
     m_subaddress_lookahead_major = SUBADDRESS_LOOKAHEAD_MAJOR;

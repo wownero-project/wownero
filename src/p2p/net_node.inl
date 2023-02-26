@@ -685,32 +685,27 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (m_nettype == cryptonote::TESTNET)
     {
-      full_addrs.insert("176.9.0.187:28080");
-      full_addrs.insert("88.99.173.38:28080");
-      full_addrs.insert("51.79.173.165:28080");
-      full_addrs.insert("192.99.8.110:28080");
-      full_addrs.insert("37.187.74.171:28080");
     }
     else if (m_nettype == cryptonote::STAGENET)
     {
-      full_addrs.insert("176.9.0.187:38080");
-      full_addrs.insert("88.99.173.38:38080");
-      full_addrs.insert("51.79.173.165:38080");
-      full_addrs.insert("192.99.8.110:38080");
-      full_addrs.insert("37.187.74.171:38080");
     }
     else if (m_nettype == cryptonote::FAKECHAIN)
     {
     }
     else
     {
-      full_addrs.insert("176.9.0.187:18080");
-      full_addrs.insert("88.198.163.90:18080");
-      full_addrs.insert("66.85.74.134:18080");
-      full_addrs.insert("88.99.173.38:18080");
-      full_addrs.insert("51.79.173.165:18080");
-      full_addrs.insert("192.99.8.110:18080");
-      full_addrs.insert("37.187.74.171:18080");
+      full_addrs.insert("158.69.60.225:34567");   //  explore.wownero.com
+      full_addrs.insert("159.65.91.59:34567");    //  jw
+      full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
+      full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
+      full_addrs.insert("142.93.144.79:34567"); // idontwanttogototoronto.wow.fail
+      full_addrs.insert("51.75.76.161:34567"); // eu-west-1.wow.xmr.pm
+      full_addrs.insert("145.239.93.75:34567"); // eu-west-2.wow.xmr.pm
+      full_addrs.insert("88.198.199.23:34567");
+      full_addrs.insert("167.114.119.46:34567"); // wownero.stackwallet.com
+      full_addrs.insert("143.198.195.132:34567"); // singapore.muchwow.lol
+      full_addrs.insert("134.122.53.193:34567"); // amsterdam.muchwow.lol
+      full_addrs.insert("204.48.28.218:34567"); // nyc.muchwow.lol
     }
     return full_addrs;
   }
@@ -841,12 +836,9 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "xwvz3ekocr3dkyxfkmgm2hvbpzx2ysqmaxgter7znnqrhoicygkfswid.onion:18083",
-          "4pixvbejrvihnkxmduo2agsnmc3rrulrqc7s3cbwwrep6h6hrzsibeqd.onion:18083",
-          "zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:18083",
-          "qz43zul2x56jexzoqgkx2trzwcfnr6l3hbtfcfx54g4r3eahy3bssjyd.onion:18083",
-          "plowsof3t5hogddwabaeiyrno25efmzfxyro2vligremt7sxpsclfaid.onion:18083",
-          "plowsoffjexmxalw73tkjmf422gq6575fc7vicuu4javzn2ynnte6tyd.onion:18083",
+          "77uase4p6y6jsjdf6z2kdgpxgh7nkvywagvhurzphbm7vrkyj2d2gdid.onion:34566",
+          "v2admi6gbeprxnk6i2oscizhgy4v5ixu6iezkhj5udiwbfjjs2w7dnid.onion:34566",
+          "ttc6kxud3fikyaypn5voknyyvqje7j3wnoevsb7rfjerolynnisurkqd.onion:34566",
         };
       }
       return {};
@@ -854,10 +846,9 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "s3l6ke4ed3df466khuebb4poienoingwof7oxtbo6j4n56sghe3a.b32.i2p:18080",
-          "sel36x6fibfzujwvt4hf5gxolz6kd3jpvbjqg6o3ud2xtionyl2q.b32.i2p:18080",
-          "uqj3aphckqtjsitz7kxx5flqpwjlq5ppr3chazfued7xucv3nheq.b32.i2p:18080",
-          "vdmnehdjkpkg57nthgnjfuaqgku673r5bpbqg56ix6fyqoywgqrq.b32.i2p:18080",
+          "lrq65qrhpbt5voom2ncvowpes6kvobodkldhpuwhxlsrpugmgmlq.b32.i2p:34565",
+          "72tbpgeczdtx2q2enbyaqcot7mghbnjenjkmdpyylrssqehr746a.b32.i2p:34565",
+          "rkel2qy7xv3cc5bnxfrzwgh3jvd4woagd4vlhr3qsdxy6cfkimnq.b32.i2p:34565",
         };
       }
       return {};
@@ -2013,13 +2004,6 @@ namespace nodetool
       return true;
 
     static const std::vector<std::string> dns_urls = {
-      "blocklist.moneropulse.se"
-    , "blocklist.moneropulse.org"
-    , "blocklist.moneropulse.net"
-    , "blocklist.moneropulse.no"
-    , "blocklist.moneropulse.fr"
-    , "blocklist.moneropulse.de"
-    , "blocklist.moneropulse.ch"
     };
 
     std::vector<std::string> records;
@@ -2081,7 +2065,7 @@ namespace nodetool
         }
         else
         {
-          const el::Level level = el::Level::Warning;
+          const el::Level level = el::Level::Debug;
           MCLOG_RED(level, "global", "No incoming connections - check firewalls/routers allow port " << get_this_peer_port());
         }
       }

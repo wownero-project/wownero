@@ -75,7 +75,7 @@ namespace cryptonote
     LOG_PRINT_L2("destinations include " << num_stdaddresses << " standard addresses and " << num_subaddresses << " subaddresses");
   }
   //---------------------------------------------------------------
-  bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
+  bool construct_miner_tx(const Blockchain *pb, network_type m_nettype, size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce, size_t max_outs, uint8_t hard_fork_version) {
     tx.vin.clear();
     tx.vout.clear();
     tx.extra.clear();
@@ -171,7 +171,20 @@ namespace cryptonote
       tx.version = 1;
 
     //lock
-    tx.unlock_time = height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
+    if (hard_fork_version >= HF_VERSION_FIXED_UNLOCK)
+    {
+      tx.unlock_time = height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW_V2;
+    } else if (hard_fork_version < HF_VERSION_FIXED_UNLOCK && hard_fork_version >= HF_VERSION_DYNAMIC_UNLOCK)
+    {
+      uint64_t N = m_nettype == MAINNET ? 1337 : 5;
+      crypto::hash blk_id = pb->get_block_id_by_height(height-N);
+      std::string hex_str = epee::string_tools::pod_to_hex(blk_id).substr(0, 3);
+      uint64_t blk_num = std::stol(hex_str,nullptr,16)*2;
+      uint64_t unlock_window = blk_num + 288;
+      tx.unlock_time = height + unlock_window;
+    } else {
+      tx.unlock_time = height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
+    }
     tx.vin.push_back(in);
 
     tx.invalidate_hashes();
@@ -588,7 +601,9 @@ namespace cryptonote
       crypto::hash tx_prefix_hash;
       get_transaction_prefix_hash(tx, tx_prefix_hash, hwdev);
       rct::ctkeyV outSk;
-      if (use_simple_rct)
+      if (rct_config.range_proof_type != rct::RangeProofPaddedBulletproof && use_simple_rct)
+        tx.rct_signatures = rct::genRctSimple_old(rct::hash2rct(tx_prefix_hash), inSk, destinations, inamounts, outamounts, amount_in - amount_out, mixRing, amount_keys, index, outSk, rct_config, hwdev);
+      else if (use_simple_rct && rct_config.range_proof_type == rct::RangeProofPaddedBulletproof)
         tx.rct_signatures = rct::genRctSimple(rct::hash2rct(tx_prefix_hash), inSk, destinations, inamounts, outamounts, amount_in - amount_out, mixRing, amount_keys, index, outSk, rct_config, hwdev);
       else
         tx.rct_signatures = rct::genRct(rct::hash2rct(tx_prefix_hash), inSk, destinations, outamounts, mixRing, amount_keys, sources[0].real_output, outSk, rct_config, hwdev); // same index assumption
@@ -697,7 +712,7 @@ namespace cryptonote
       }
       rx_slow_hash(hash.data, bd.data(), bd.size(), res.data);
     } else {
-      const int pow_variant = major_version >= 7 ? major_version - 6 : 0;
+      const int pow_variant = major_version >= 11 ? 4 : major_version >= 9 ? 2 : 1;
       crypto::cn_slow_hash(bd.data(), bd.size(), res, pow_variant, height);
     }
     return true;

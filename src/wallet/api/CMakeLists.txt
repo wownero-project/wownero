@@ -35,12 +35,16 @@ set(wallet_api_sources
   wallet_manager.cpp
   transaction_info.cpp
   transaction_history.cpp
+  transaction_construction_info.cpp
+  pending_transaction_info.cpp
   pending_transaction.cpp
   utils.cpp
   address_book.cpp
   subaddress.cpp
   subaddress_account.cpp
-  unsigned_transaction.cpp)
+  unsigned_transaction.cpp
+  coins.cpp
+  coins_info.cpp)
 
 set(wallet_api_headers
     wallet2_api.h)
@@ -50,12 +54,16 @@ set(wallet_api_private_headers
   wallet_manager.h
   transaction_info.h
   transaction_history.h
+  transaction_construction_info.h
+  pending_transaction_info.h
   pending_transaction.h
   common_defines.h
   address_book.h
   subaddress.h
   subaddress_account.h
-  unsigned_transaction.h)
+  unsigned_transaction.h
+  coins.h
+  coins_info.h)
 
 monero_private_headers(wallet_api
   ${wallet_api_private_headers})

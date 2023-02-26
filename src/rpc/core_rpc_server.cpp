@@ -545,12 +545,13 @@ namespace cryptonote
     if (restricted)
       res.database_size = round_up(res.database_size, 5ull* 1024 * 1024 * 1024);
     res.update_available = restricted ? false : m_core.is_update_available();
-    res.version = restricted ? "" : MONERO_VERSION_FULL;
+    res.version = MONERO_VERSION_FULL;
     res.synchronized = check_core_ready();
     res.busy_syncing = m_p2p.get_payload_object().is_busy_syncing();
     res.restricted = restricted;
 
     res.status = CORE_RPC_STATUS_OK;
+    res.donation_address = m_core.get_addy();
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -1009,7 +1010,17 @@ namespace cryptonote
       CHECK_AND_ASSERT_MES(tx_hash == std::get<0>(tx), false, "mismatched tx hash");
       e.tx_hash = *txhi++;
       e.prunable_hash = epee::string_tools::pod_to_hex(std::get<2>(tx));
-      if (req.split || req.prune || std::get<3>(tx).empty())
+
+      // coinbase txes do not have signatures to prune, so they appear to be pruned if looking just at prunable data being empty
+      bool pruned = std::get<3>(tx).empty();
+      if (pruned)
+      {
+        cryptonote::transaction t;
+        if (cryptonote::parse_and_validate_tx_base_from_blob(std::get<1>(tx), t) && is_coinbase(t))
+          pruned = false;
+      }
+
+      if (req.split || req.prune || pruned)
       {
         // use splitted form with pruned and prunable (filled only when prune=false and the daemon has it), leaving as_hex as empty
         e.pruned_as_hex = string_tools::buff_to_hex_nodelimer(std::get<1>(tx));
@@ -1275,6 +1286,8 @@ namespace cryptonote
           add_reason(reason, "fee too low");
         if ((res.too_few_outputs = tvc.m_too_few_outputs))
           add_reason(reason, "too few outputs");
+        if ((res.tx_extra_too_big = tvc.m_tx_extra_too_big))
+          add_reason(reason, "tx-extra too big");
         const std::string punctuation = reason.empty() ? "" : ": ";
         if (tvc.m_verifivation_failed)
         {
@@ -1395,15 +1408,15 @@ namespace cryptonote
     if (lMiner.is_mining() || lMiner.get_is_background_mining_enabled())
       res.address = get_account_address_as_str(nettype(), false, lMiningAdr);
     const uint8_t major_version = m_core.get_blockchain_storage().get_current_hard_fork_version();
-    const unsigned variant = major_version >= 7 ? major_version - 6 : 0;
+    const unsigned variant = major_version >= 13 ? 6 : major_version >= 11 && major_version <= 12 ? 4 : 2;
     switch (variant)
     {
       case 0: res.pow_algorithm = "Cryptonight"; break;
       case 1: res.pow_algorithm = "CNv1 (Cryptonight variant 1)"; break;
       case 2: case 3: res.pow_algorithm = "CNv2 (Cryptonight variant 2)"; break;
-      case 4: case 5: res.pow_algorithm = "CNv4 (Cryptonight variant 4)"; break;
-      case 6: case 7: case 8: case 9: res.pow_algorithm = "RandomX"; break;
-      default: res.pow_algorithm = "RandomX"; break; // assumed
+      case 4: case 5: res.pow_algorithm = "CN/WOW"; break;
+      case 6: case 7: case 8: case 9: res.pow_algorithm = "RandomWOW"; break;
+      default: res.pow_algorithm = "RandomWOW"; break; // assumed
     }
     if (res.is_background_mining_enabled)
     {
@@ -1887,6 +1900,7 @@ namespace cryptonote
     res.blocktemplate_blob = string_tools::buff_to_hex_nodelimer(block_blob);
     res.blockhashing_blob =  string_tools::buff_to_hex_nodelimer(hashing_blob);
     res.status = CORE_RPC_STATUS_OK;
+    res.vote = 0;
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -2189,6 +2203,11 @@ namespace cryptonote
         return false;
       }
       b.nonce = req.starting_nonce;
+      if (b.major_version >= HF_VERSION_BLOCK_HEADER_MINER_SIG)
+      {
+          b.signature = {};
+          b.vote = 0;
+      }
       crypto::hash seed_hash = crypto::null_hash;
       if (b.major_version >= RX_BLOCK_VERSION && !epee::string_tools::hex_to_pod(template_res.seed_hash, seed_hash))
       {
@@ -2227,6 +2246,7 @@ namespace cryptonote
   bool core_rpc_server::fill_block_header_response(const block& blk, bool orphan_status, uint64_t height, const crypto::hash& hash, block_header_response& response, bool fill_pow_hash)
   {
     PERF_TIMER(fill_block_header_response);
+    response.vote = blk.vote;
     response.major_version = blk.major_version;
     response.minor_version = blk.minor_version;
     response.timestamp = blk.timestamp;
@@ -3027,7 +3047,7 @@ namespace cryptonote
       return true;
     }
 
-    static const char software[] = "monero";
+    static const char software[] = "wownero";
 #ifdef BUILD_TAG
     static const char buildtag[] = BOOST_PP_STRINGIZE(BUILD_TAG);
     static const char subdir[] = "cli";

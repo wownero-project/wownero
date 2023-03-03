@@ -1578,7 +1578,7 @@ namespace rct {
         {
           CHECK_AND_ASSERT_MES(rvp, false, "rctSig pointer is NULL");
           const rctSig &rv = *rvp;
-          CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2 || rv.type == RCTTypeCLSAG || rv.type == RCTTypeBulletproofPlus,
+          CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2 || rv.type == RCTTypeSimpleBulletproof || rv.type == RCTTypeCLSAG || rv.type == RCTTypeBulletproofPlus,
               false, "verRctSemanticsSimple called on non simple rctSig");
           const bool bulletproof = is_rct_bulletproof(rv.type);
           const bool bulletproof_plus = is_rct_bulletproof_plus(rv.type);
@@ -1710,7 +1710,7 @@ namespace rct {
       {
         PERF_TIMER(verRctNonSemanticsSimple);
 
-        CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2 || rv.type == RCTTypeCLSAG || rv.type == RCTTypeBulletproofPlus,
+        CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2 || rv.type == RCTTypeSimpleBulletproof || rv.type == RCTTypeCLSAG || rv.type == RCTTypeBulletproofPlus,
             false, "verRctNonSemanticsSimple called on non simple rctSig");
         const bool bulletproof = is_rct_bulletproof(rv.type);
         const bool bulletproof_plus = is_rct_bulletproof_plus(rv.type);
@@ -1844,7 +1844,7 @@ namespace rct {
     }
 
     xmr_amount decodeRctSimple(const rctSig & rv, const key & sk, unsigned int i, key &mask, hw::device &hwdev) {
-        CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2 || rv.type == RCTTypeCLSAG || rv.type == RCTTypeBulletproofPlus,
+        CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2 || rv.type == RCTTypeSimpleBulletproof || rv.type == RCTTypeCLSAG || rv.type == RCTTypeBulletproofPlus,
             false, "decodeRct called on non simple rctSig");
         CHECK_AND_ASSERT_THROW_MES(i < rv.ecdhInfo.size(), "Bad index");
         CHECK_AND_ASSERT_THROW_MES(rv.outPk.size() == rv.ecdhInfo.size(), "Mismatched sizes of rv.outPk and rv.ecdhInfo");

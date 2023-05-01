@@ -714,9 +714,15 @@ namespace nodetool
     }
     else
     {
-      full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
-      full_addrs.insert("51.75.76.161:34567"); // eu-west-1.wow.xmr.pm
-      full_addrs.insert("145.239.93.75:34567"); // eu-west-2.wow.xmr.pm
+      //full_addrs.insert("158.69.60.225:34567");   //  explore.wownero.com
+      //full_addrs.insert("159.65.91.59:34567");    //  jw
+      //full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
+      //full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
+      //full_addrs.insert("142.93.144.79:34567"); // idontwanttogototoronto.wow.fail
+      //full_addrs.insert("51.75.76.161:34567"); // eu-west-1.wow.xmr.pm
+      //full_addrs.insert("145.239.93.75:34567"); // eu-west-2.wow.xmr.pm
+      //full_addrs.insert("88.198.199.23:34567");
+      //full_addrs.insert("167.114.119.46:34567"); // wownero.stackwallet.com
       full_addrs.insert("143.198.195.132:34567"); // singapore.muchwow.lol
       full_addrs.insert("134.122.53.193:34567"); // amsterdam.muchwow.lol
       full_addrs.insert("204.48.28.218:34567"); // nyc.muchwow.lol

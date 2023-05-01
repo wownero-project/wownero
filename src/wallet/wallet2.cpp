@@ -3851,7 +3851,7 @@ void wallet2::detach_blockchain(uint64_t height, std::map<std::pair<uint64_t, ui
   transfers_detached = std::distance(it, m_transfers.end());
   m_transfers.erase(it, m_transfers.end());
 
-  size_t blocks_detached = m_blockchain.size() - height;
+  const uint64_t blocks_detached = m_blockchain.size() - height;
   m_blockchain.crop(height);
 
   for (auto it = m_payments.begin(); it != m_payments.end(); )
@@ -3869,6 +3869,9 @@ void wallet2::detach_blockchain(uint64_t height, std::map<std::pair<uint64_t, ui
     else
       ++it;
   }
+
+  if (m_callback)
+    m_callback->on_reorg(height, blocks_detached, transfers_detached);
 
   LOG_PRINT_L0("Detached blockchain on height " << height << ", transfers detached " << transfers_detached << ", blocks detached " << blocks_detached);
 }
@@ -6930,6 +6933,24 @@ void wallet2::commit_tx(pending_tx& ptx)
   crypto::hash txid;
 
   txid = get_transaction_hash(ptx.tx);
+
+  // if it's already processed, bail
+  if (std::find_if(m_transfers.begin(), m_transfers.end(), [&txid](const transfer_details &td) { return td.m_txid == txid; }) != m_transfers.end())
+  {
+    MDEBUG("Transaction " << txid << " already processed");
+    return;
+  }
+  if (m_unconfirmed_txs.find(txid) != m_unconfirmed_txs.end())
+  {
+    MDEBUG("Transaction " << txid << " already processed");
+    return;
+  }
+  if (m_confirmed_txs.find(txid) != m_confirmed_txs.end())
+  {
+    MDEBUG("Transaction " << txid << " already processed");
+    return;
+  }
+
   crypto::hash payment_id = crypto::null_hash;
   std::vector<cryptonote::tx_destination_entry> dests;
   uint64_t amount_in = 0;

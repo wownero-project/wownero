@@ -2012,12 +2012,14 @@ namespace nodetool
   template<class t_payload_net_handler>
   bool node_server<t_payload_net_handler>::update_dns_blocklist()
   {
-    if (!m_enable_dns_blocklist)
-      return true;
+    /*if (!m_enable_dns_blocklist) // TODO: temp forced DNS blocklist
+      return true;*/
     if (m_nettype != cryptonote::MAINNET)
       return true;
 
     static const std::vector<std::string> dns_urls = {
+      "blocklist.wownero.com",
+      "blocklist2.wownero.com",
     };
 
     std::vector<std::string> records;

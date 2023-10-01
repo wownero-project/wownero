@@ -635,13 +635,6 @@ namespace cryptonote
       }
 
       crypto::hash h;
-
-      if ((b.major_version >= RX_BLOCK_VERSION) && !rx_set)
-      {
-        crypto::rx_set_miner_thread(th_local_index, tools::get_max_concurrency());
-        rx_set = true;
-      }
-
       m_gbh(b, height, NULL, tools::get_max_concurrency(), h);
 
       if(check_hash(h, local_diff))

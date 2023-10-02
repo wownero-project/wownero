@@ -1261,7 +1261,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_enable_multisig(false),
   m_pool_info_query_time(0),
   m_has_ever_refreshed_from_node(false),
-  m_allow_mismatched_daemon_version(false)
+  m_allow_mismatched_daemon_version(true)
 {
   set_rpc_client_secret_key(rct::rct2sk(rct::skGen()));
 }
@@ -4845,7 +4845,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
     m_auto_mine_for_rpc_payment_threshold = -1.0f;
     m_credits_target = 0;
     m_enable_multisig = false;
-    m_allow_mismatched_daemon_version = false;
+    m_allow_mismatched_daemon_version = true;
   }
   else if(json.IsObject())
   {

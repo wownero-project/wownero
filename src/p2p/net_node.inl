@@ -716,16 +716,18 @@ namespace nodetool
     {
       //full_addrs.insert("158.69.60.225:34567");   //  explore.wownero.com
       //full_addrs.insert("159.65.91.59:34567");    //  jw
-      //full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
+      full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
       //full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
       //full_addrs.insert("142.93.144.79:34567"); // idontwanttogototoronto.wow.fail
       //full_addrs.insert("51.75.76.161:34567"); // eu-west-1.wow.xmr.pm
       //full_addrs.insert("145.239.93.75:34567"); // eu-west-2.wow.xmr.pm
-      //full_addrs.insert("88.198.199.23:34567");
+      full_addrs.insert("88.198.199.23:34567");
       //full_addrs.insert("167.114.119.46:34567"); // wownero.stackwallet.com
       full_addrs.insert("143.198.195.132:34567"); // singapore.muchwow.lol
       full_addrs.insert("134.122.53.193:34567"); // amsterdam.muchwow.lol
       full_addrs.insert("204.48.28.218:34567"); // nyc.muchwow.lol
+      full_addrs.insert("192.99.8.110:34567"); // node.monerodevs.org
+      full_addrs.insert("37.187.74.171:34567"); // node2.monerodevs.org
     }
     return full_addrs;
   }
@@ -859,6 +861,9 @@ namespace nodetool
           "77uase4p6y6jsjdf6z2kdgpxgh7nkvywagvhurzphbm7vrkyj2d2gdid.onion:34566",
           "v2admi6gbeprxnk6i2oscizhgy4v5ixu6iezkhj5udiwbfjjs2w7dnid.onion:34566",
           "ttc6kxud3fikyaypn5voknyyvqje7j3wnoevsb7rfjerolynnisurkqd.onion:34566",
+          "5enbij6tz3n2hw5ixzezfayd5gvckyg4xlktz74gj4l6u7olq7ovr3id.onion:34566",
+          "ukpgpdd5gqvholcctejvaaig5hb266td6zaszt55eivuf7docoox5lid.onion:34566",
+          "iorkdy6t4gdtwzn3iblnhy76nu7lhyz2qcvpj4wrspfxyvdrul7u22qd.onion:34566",
         };
       }
       return {};

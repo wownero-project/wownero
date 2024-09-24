@@ -717,15 +717,12 @@ namespace nodetool
       full_addrs.insert("158.69.60.225:34567");   //  explore.wownero.com
       full_addrs.insert("159.65.91.59:34567");    //  jw
       full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
-      full_addrs.insert("167.114.196.241:34567"); //  wowbux.org
-      full_addrs.insert("142.93.144.79:34567"); // idontwanttogototoronto.wow.fail
-      full_addrs.insert("51.75.76.161:34567"); // eu-west-1.wow.xmr.pm
-      full_addrs.insert("145.239.93.75:34567"); // eu-west-2.wow.xmr.pm
       full_addrs.insert("88.198.199.23:34567");
-      full_addrs.insert("167.114.119.46:34567"); // wownero.stackwallet.com
-      full_addrs.insert("143.198.195.132:34567"); // singapore.muchwow.lol
-      full_addrs.insert("134.122.53.193:34567"); // amsterdam.muchwow.lol
-      full_addrs.insert("204.48.28.218:34567"); // nyc.muchwow.lol
+      full_addrs.insert("192.99.8.110:34567"); // node.monerodevs.org
+      full_addrs.insert("37.187.74.171"); // node2.monerodevs.org
+      full_addrs.insert("88.99.195.15"); // node3.monerodevs.org
+      full_addrs.insert("172.67.197.39:34567"); // wowmom.0z.network
+      full_addrs.insert("195.94.188.201:34567"); // spippolatori.it
     }
     return full_addrs;
   }
@@ -857,8 +854,8 @@ namespace nodetool
       {
         return {
           "77uase4p6y6jsjdf6z2kdgpxgh7nkvywagvhurzphbm7vrkyj2d2gdid.onion:34566",
-          "v2admi6gbeprxnk6i2oscizhgy4v5ixu6iezkhj5udiwbfjjs2w7dnid.onion:34566",
-          "ttc6kxud3fikyaypn5voknyyvqje7j3wnoevsb7rfjerolynnisurkqd.onion:34566",
+          "jhy4hqymdkfj2u7bdi7m2vr5qheom7gjyg7fraktnlyksalhmpbemiqd.onion:34566",
+          "ukpgpdd5gqvholcctejvaaig5hb266td6zaszt55eivuf7docoox5lid.onion:34566",
         };
       }
       return {};
@@ -866,9 +863,6 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "lrq65qrhpbt5voom2ncvowpes6kvobodkldhpuwhxlsrpugmgmlq.b32.i2p:34565",
-          "72tbpgeczdtx2q2enbyaqcot7mghbnjenjkmdpyylrssqehr746a.b32.i2p:34565",
-          "rkel2qy7xv3cc5bnxfrzwgh3jvd4woagd4vlhr3qsdxy6cfkimnq.b32.i2p:34565",
         };
       }
       return {};

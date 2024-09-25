@@ -60,9 +60,9 @@
 #include "cryptonote_core/cryptonote_core.h"
 #include "net/parse.h"
 
-#include <miniupnp/miniupnpc/miniupnpc.h>
-#include <miniupnp/miniupnpc/upnpcommands.h>
-#include <miniupnp/miniupnpc/upnperrors.h>
+#include <miniupnpc.h>
+#include <upnpcommands.h>
+#include <upnperrors.h>
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "net.p2p"
@@ -705,32 +705,24 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (m_nettype == cryptonote::TESTNET)
     {
-      full_addrs.insert("176.9.0.187:28080");
-      full_addrs.insert("51.79.173.165:28080");
-      full_addrs.insert("192.99.8.110:28080");
-      full_addrs.insert("37.187.74.171:28080");
-      full_addrs.insert("77.172.183.193:28080");
     }
     else if (m_nettype == cryptonote::STAGENET)
     {
-      full_addrs.insert("176.9.0.187:38080");
-      full_addrs.insert("51.79.173.165:38080");
-      full_addrs.insert("192.99.8.110:38080");
-      full_addrs.insert("37.187.74.171:38080");
-      full_addrs.insert("77.172.183.193:38080");
     }
     else if (m_nettype == cryptonote::FAKECHAIN)
     {
     }
     else
     {
-      full_addrs.insert("176.9.0.187:18080");
-      full_addrs.insert("88.198.163.90:18080");
-      full_addrs.insert("66.85.74.134:18080");
-      full_addrs.insert("51.79.173.165:18080");
-      full_addrs.insert("192.99.8.110:18080");
-      full_addrs.insert("37.187.74.171:18080");
-      full_addrs.insert("77.172.183.193:18080");
+      full_addrs.insert("158.69.60.225:34567");   //  explore.wownero.com
+      full_addrs.insert("159.65.91.59:34567");    //  jw
+      full_addrs.insert("51.161.131.176:34567");  //  node.suchwow.xyz
+      full_addrs.insert("88.198.199.23:34567");
+      full_addrs.insert("192.99.8.110:34567"); // node.monerodevs.org
+      full_addrs.insert("37.187.74.171"); // node2.monerodevs.org
+      full_addrs.insert("88.99.195.15"); // node3.monerodevs.org
+      full_addrs.insert("172.67.197.39:34567"); // wowmom.0z.network
+      full_addrs.insert("195.94.188.201:34567"); // spippolatori.it
     }
     return full_addrs;
   }
@@ -861,12 +853,9 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:18083",
-          "qz43zul2x56jexzoqgkx2trzwcfnr6l3hbtfcfx54g4r3eahy3bssjyd.onion:18083",
-          "plowsof3t5hogddwabaeiyrno25efmzfxyro2vligremt7sxpsclfaid.onion:18083",
-          "plowsoffjexmxalw73tkjmf422gq6575fc7vicuu4javzn2ynnte6tyd.onion:18083",
-          "plowsofe6cleftfmk2raiw5h2x66atrik3nja4bfd3zrfa2hdlgworad.onion:18083",
-          "aclc4e2jhhtr44guufbnwk5bzwhaecinax4yip4wr4tjn27sjsfg6zqd.onion:18083",
+          "77uase4p6y6jsjdf6z2kdgpxgh7nkvywagvhurzphbm7vrkyj2d2gdid.onion:34566",
+          "jhy4hqymdkfj2u7bdi7m2vr5qheom7gjyg7fraktnlyksalhmpbemiqd.onion:34566",
+          "ukpgpdd5gqvholcctejvaaig5hb266td6zaszt55eivuf7docoox5lid.onion:34566",
         };
       }
       return {};
@@ -874,9 +863,6 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "uqj3aphckqtjsitz7kxx5flqpwjlq5ppr3chazfued7xucv3nheq.b32.i2p",
-          "vdmnehdjkpkg57nthgnjfuaqgku673r5bpbqg56ix6fyqoywgqrq.b32.i2p",
-          "ugnlcdciyhghh2zert7c3kl4biwkirc43ke33jiy5slnd3mv2trq.b32.i2p",
         };
       }
       return {};
@@ -2032,13 +2018,6 @@ namespace nodetool
       return true;
 
     static const std::vector<std::string> dns_urls = {
-      "blocklist.moneropulse.se"
-    , "blocklist.moneropulse.org"
-    , "blocklist.moneropulse.net"
-    , "blocklist.moneropulse.no"
-    , "blocklist.moneropulse.fr"
-    , "blocklist.moneropulse.de"
-    , "blocklist.moneropulse.ch"
     };
 
     std::vector<std::string> records;
@@ -2100,7 +2079,7 @@ namespace nodetool
         }
         else
         {
-          const el::Level level = el::Level::Warning;
+          const el::Level level = el::Level::Debug;
           MCLOG_RED(level, "global", "No incoming connections - check firewalls/routers allow port " << get_this_peer_port());
         }
       }
@@ -2989,7 +2968,8 @@ namespace nodetool
     UPNPUrls urls;
     IGDdatas igdData;
     char lanAddress[64];
-    result = UPNP_GetValidIGD(deviceList, &urls, &igdData, lanAddress, sizeof lanAddress);
+  	char wanaddr[64];	/* up address of the IGD on the WAN */
+    result = UPNP_GetValidIGD(deviceList, &urls, &igdData, lanAddress, sizeof lanAddress, wanaddr, sizeof wanaddr);
     freeUPNPDevlist(deviceList);
     if (result > 0) {
       if (result == 1) {
@@ -3057,7 +3037,8 @@ namespace nodetool
     UPNPUrls urls;
     IGDdatas igdData;
     char lanAddress[64];
-    result = UPNP_GetValidIGD(deviceList, &urls, &igdData, lanAddress, sizeof lanAddress);
+  	char wanaddr[64];	/* up address of the IGD on the WAN */
+    result = UPNP_GetValidIGD(deviceList, &urls, &igdData, lanAddress, sizeof lanAddress, wanaddr, sizeof wanaddr);
     freeUPNPDevlist(deviceList);
     if (result > 0) {
       if (result == 1) {

@@ -190,9 +190,9 @@ namespace cryptonote
           CHECK_AND_ASSERT_MES(n_amounts == rv.outPk.size(), false, "Internal error filling out V");
           rv.p.bulletproofs_plus[0].V.resize(n_amounts);
           for (size_t i = 0; i < n_amounts; ++i)
-            rv.p.bulletproofs_plus[0].V[i] = rct::scalarmultKey(rv.outPk[i].mask, rct::INV_EIGHT);
+            rv.p.bulletproofs_plus[0].V[i] = rv.outPk[i].mask;
         }
-        else if (bulletproof)
+        if (rct::is_rct_new_bulletproof(rv.type))
         {
           if (rv.p.bulletproofs.size() != 1)
           {
@@ -205,7 +205,7 @@ namespace cryptonote
             return false;
           }
           const size_t max_outputs = 1 << (rv.p.bulletproofs[0].L.size() - 6);
-          if (max_outputs < tx.vout.size())
+          if (max_outputs < tx.vout.size() && rv.type == rct::RCTTypeBulletproof)
           {
             LOG_PRINT_L1("Failed to parse transaction from blob, bad bulletproofs max outputs in tx " << get_transaction_hash(tx));
             return false;
@@ -215,6 +215,26 @@ namespace cryptonote
           rv.p.bulletproofs[0].V.resize(n_amounts);
           for (size_t i = 0; i < n_amounts; ++i)
             rv.p.bulletproofs[0].V[i] = rct::scalarmultKey(rv.outPk[i].mask, rct::INV_EIGHT);
+        }
+        else if (bulletproof)
+        {
+          if (rct::n_bulletproof_v1_amounts(rv.p.bulletproofs) != tx.vout.size())
+          {
+            LOG_PRINT_L1("Failed to parse transaction from blob, bad bulletproofs size in tx " << get_transaction_hash(tx));
+            return false;
+          }
+          size_t idx = 0;
+          for (size_t n = 0; n < rv.outPk.size(); ++n)
+          {
+            //rv.p.bulletproofs[n].V.resize(1);
+            //rv.p.bulletproofs[n].V[0] = rv.outPk[n].mask;
+            CHECK_AND_ASSERT_MES(rv.p.bulletproofs[n].L.size() >= 6, false, "Bad bulletproofs L size"); // at least 64 bits
+            const size_t n_amounts = rct::n_bulletproof_v1_amounts(rv.p.bulletproofs[n]);
+            CHECK_AND_ASSERT_MES(idx + n_amounts <= rv.outPk.size(), false, "Internal error filling out V");
+            rv.p.bulletproofs[n].V.resize(n_amounts);
+            for (size_t i = 0; i < n_amounts; ++i)
+              rv.p.bulletproofs[n].V[i] = rv.outPk[idx++].mask;
+          }
         }
       }
     }
@@ -292,7 +312,7 @@ namespace cryptonote
     bool r = hwdev.generate_key_derivation(tx_public_key, ack.m_view_secret_key, recv_derivation);
     if (!r)
     {
-      MWARNING("key image helper: failed to generate_key_derivation(" << tx_public_key << ", " << ack.m_view_secret_key << ")");
+      MWARNING("key image helper: failed to generate_key_derivation(" << tx_public_key << ", <viewkey>)");
       memcpy(&recv_derivation, rct::identity().bytes, sizeof(recv_derivation));
     }
 
@@ -303,7 +323,7 @@ namespace cryptonote
       r = hwdev.generate_key_derivation(additional_tx_public_keys[i], ack.m_view_secret_key, additional_recv_derivation);
       if (!r)
       {
-        MWARNING("key image helper: failed to generate_key_derivation(" << additional_tx_public_keys[i] << ", " << ack.m_view_secret_key << ")");
+        MWARNING("key image helper: failed to generate_key_derivation(" << additional_tx_public_keys[i] << ", <viewkey>)");
       }
       else
       {
@@ -450,6 +470,11 @@ namespace cryptonote
     const bool bulletproof = rct::is_rct_bulletproof(rv.type);
     const bool bulletproof_plus = rct::is_rct_bulletproof_plus(rv.type);
     if (!bulletproof && !bulletproof_plus)
+      return blob_size;
+    const size_t n_outputs = tx.vout.size();
+    if (n_outputs <= 2)
+      return blob_size;
+    if (rct::is_rct_old_bulletproof(rv.type))
       return blob_size;
     const size_t n_padded_outputs = bulletproof_plus ? rct::n_bulletproof_plus_max_amounts(rv.p.bulletproofs_plus) : rct::n_bulletproof_max_amounts(rv.p.bulletproofs);
     uint64_t bp_clawback = get_transaction_weight_clawback(tx, n_padded_outputs);
@@ -1113,10 +1138,10 @@ namespace cryptonote
   {
     switch (decimal_point)
     {
-      case 12:
-      case 9:
-      case 6:
-      case 3:
+      case 11:
+      case 8:
+      case 5:
+      case 2:
       case 0:
         default_decimal_point = decimal_point;
         break;
@@ -1136,16 +1161,16 @@ namespace cryptonote
       decimal_point = default_decimal_point;
     switch (decimal_point)
     {
-      case 12:
-        return "monero";
-      case 9:
-        return "millinero";
-      case 6:
-        return "micronero";
-      case 3:
-        return "nanonero";
+      case 11:
+        return "wownero";
+      case 8:
+        return "verywow";
+      case 5:
+        return "muchwow";
+      case 2:
+        return "suchwow";
       case 0:
-        return "piconero";
+        return "dust";
       default:
         ASSERT_MES_AND_THROW("Invalid decimal point specification: " << decimal_point);
     }
@@ -1461,33 +1486,6 @@ namespace cryptonote
     if (!hash_result)
       return false;
 
-    if (b.miner_tx.vin.size() == 1 && b.miner_tx.vin[0].type() == typeid(cryptonote::txin_gen))
-    {
-      const cryptonote::txin_gen &txin_gen = boost::get<cryptonote::txin_gen>(b.miner_tx.vin[0]);
-      if (txin_gen.height != 202612)
-        return true;
-    }
-
-    // EXCEPTION FOR BLOCK 202612
-    const std::string correct_blob_hash_202612 = "3a8a2b3a29b50fc86ff73dd087ea43c6f0d6b8f936c849194d5c84c737903966";
-    const std::string existing_block_id_202612 = "bbd604d2ba11ba27935e006ed39c9bfdd99b76bf4a50654bc1e1e61217962698";
-    crypto::hash block_blob_hash = get_blob_hash(*blob);
-
-    if (string_tools::pod_to_hex(block_blob_hash) == correct_blob_hash_202612)
-    {
-      string_tools::hex_to_pod(existing_block_id_202612, res);
-      return true;
-    }
-
-    {
-      // make sure that we aren't looking at a block with the 202612 block id but not the correct blobdata
-      if (string_tools::pod_to_hex(res) == existing_block_id_202612)
-      {
-        LOG_ERROR("Block with block id for 202612 but incorrect block blob hash found!");
-        res = null_hash;
-        return false;
-      }
-    }
     return hash_result;
   }
   //---------------------------------------------------------------
@@ -1515,6 +1513,25 @@ namespace cryptonote
     crypto::hash p = null_hash;
     get_block_hash(b, p);
     return p;
+  }
+  //---------------------------------------------------------------
+  crypto::hash get_sig_data(const block& b)
+  {
+    crypto::hash sig_data;
+    blobdata blob = get_block_hashing_blob_sig_data(b);
+    crypto::cn_fast_hash(blob.data(), blob.size(), sig_data);
+    return sig_data;
+  }
+  //---------------------------------------------------------------
+  blobdata get_block_hashing_blob_sig_data(const block& b)
+  {
+    block_header tmp = static_cast<const block_header&>(b);
+    memset(&tmp.signature, 0, sizeof(tmp.signature));
+    blobdata blob = t_serializable_object_to_blob(tmp);
+    crypto::hash tree_root_hash = get_tx_tree_hash(b);
+    blob.append(reinterpret_cast<const char*>(&tree_root_hash), sizeof(tree_root_hash));
+    blob.append(tools::get_varint_data(b.tx_hashes.size()+1));
+    return blob;
   }
   //---------------------------------------------------------------
   std::vector<uint64_t> relative_output_offsets_to_absolute(const std::vector<uint64_t>& off)

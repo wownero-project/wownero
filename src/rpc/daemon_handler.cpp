@@ -552,7 +552,7 @@ namespace rpc
     res.info.block_size_median = res.info.block_weight_median = m_core.get_blockchain_storage().get_current_cumulative_block_weight_median();
     res.info.adjusted_time = m_core.get_blockchain_storage().get_adjusted_time(res.info.height);
     res.info.start_time = (uint64_t)m_core.get_start_time();
-    res.info.version = MONERO_VERSION;
+    res.info.version = MONERO_VERSION_FULL;
 
     res.status = Message::STATUS_OK;
     res.error_details = "";
@@ -907,6 +907,11 @@ namespace rpc
     header.minor_version = b.minor_version;
     header.timestamp = b.timestamp;
     header.nonce = b.nonce;
+    if (b.major_version >= HF_VERSION_BLOCK_HEADER_MINER_SIG)
+    {
+      header.signature = b.signature;
+      header.vote = b.vote;
+    }
     header.prev_id = b.prev_id;
 
     header.depth = m_core.get_current_blockchain_height() - header.height - 1;

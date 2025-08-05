@@ -26,7 +26,6 @@ Unlike Opposing Projects.
 
 - [NonKYC](https://nonkyc.io/market/WOW_BTC)
 - [AltQuick](https://altquick.com/market/Wownero)
-- [Majestic Bank](https://majesticbank.sc)
 - [TradeOgre](https://tradeogre.com/exchange/BTC-WOW)
 
 ## Wallets

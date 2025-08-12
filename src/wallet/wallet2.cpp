@@ -3451,15 +3451,23 @@ void check_block_hard_fork_version(cryptonote::network_type nettype, uint8_t hf_
   const hardfork_t *wallet_hard_forks = nettype == TESTNET ? testnet_hard_forks
     : nettype == STAGENET ? stagenet_hard_forks : mainnet_hard_forks;
 
-  wallet_is_outdated = static_cast<size_t>(hf_version) > wallet_num_hard_forks;
+  // Wownero's genesis block starts at version 7
+  if (hf_version < 7) {
+    wallet_is_outdated = true;
+     return;
+  }
+
+  uint8_t adjusted_hf_version = hf_version - 7;
+
+  wallet_is_outdated = static_cast<size_t>(adjusted_hf_version) >= wallet_num_hard_forks;
   if (wallet_is_outdated)
     return;
 
   // check block's height falls within wallet's expected range for block's given version
-  uint64_t start_height = hf_version == 1 ? 0 : wallet_hard_forks[hf_version - 1].height;
-  uint64_t end_height = static_cast<size_t>(hf_version) + 1 > wallet_num_hard_forks
-    ? std::numeric_limits<uint64_t>::max()
-    : wallet_hard_forks[hf_version].height;
+  uint64_t start_height = adjusted_hf_version == 0 ? 0 : wallet_hard_forks[adjusted_hf_version - 1].height;
+  uint64_t end_height = (adjusted_hf_version + 1) >= wallet_num_hard_forks
+   ? std::numeric_limits<uint64_t>::max()
+   : wallet_hard_forks[adjusted_hf_version + 1].height;
 
   daemon_is_outdated = height < start_height || height >= end_height;
 }

@@ -201,7 +201,10 @@ namespace cryptonote {
       return check_hash_128(hash, difficulty);
   }
 
-  difficulty_type next_difficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds, uint64_t HEIGHT) {
+  difficulty_type next_difficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds, uint64_t HEIGHT, network_type nettype) {
+    if ((nettype == TESTNET || nettype == STAGENET) && HEIGHT <= DIFFICULTY_WINDOW) {
+      return 100;
+    }
     //cutoff DIFFICULTY_LAG
     if(timestamps.size() > DIFFICULTY_WINDOW)
     {
@@ -216,7 +219,8 @@ namespace cryptonote {
       return 1;
     }
     // reset difficulty for solo mining to 100 million
-    if (HEIGHT <= 331170 + DIFFICULTY_WINDOW && HEIGHT >= 331170) { return 100000000; }
+    if (nettype == MAINNET && HEIGHT <= 331170 + DIFFICULTY_WINDOW && HEIGHT >= 331170) { return 100000000; }
+
     static_assert(DIFFICULTY_WINDOW >= 2, "Window is too small");
     assert(length <= DIFFICULTY_WINDOW);
     sort(timestamps.begin(), timestamps.end());
@@ -260,9 +264,12 @@ namespace cryptonote {
   // LWMA difficulty algorithm
   // Background:  https://github.com/zawy12/difficulty-algorithms/issues/3
   // Copyright (c) 2017-2018 Zawy
-  difficulty_type next_difficulty_v2(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds, uint64_t HEIGHT) {
+  difficulty_type next_difficulty_v2(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds, uint64_t HEIGHT, network_type nettype) {
     const int64_t T = static_cast<int64_t>(target_seconds);
     size_t N = DIFFICULTY_WINDOW_V2;
+    if ((nettype == TESTNET || nettype == STAGENET) && HEIGHT <= DIFFICULTY_WINDOW) {
+      return 100;
+    }
     if (timestamps.size() < 4) {
         return 1;
     } else if ( timestamps.size() < N+1 ) {
@@ -293,10 +300,13 @@ namespace cryptonote {
   }
 
   // LWMA-2
-  difficulty_type next_difficulty_v3(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, uint64_t HEIGHT) {
+  difficulty_type next_difficulty_v3(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, uint64_t HEIGHT, network_type nettype) {
     int64_t T = DIFFICULTY_TARGET_V2;
     int64_t N = DIFFICULTY_WINDOW_V2;
     int64_t  L(0), ST, sum_3_ST(0), next_D, prev_D;
+    if ((nettype == TESTNET || nettype == STAGENET) && HEIGHT <= DIFFICULTY_WINDOW) {
+      return 100;
+    }
     assert(timestamps.size() == cumulative_difficulties.size() && timestamps.size() <= static_cast<uint64_t>(N+1) );
     for ( int64_t i = 1; i <= N; i++ ) {
       ST = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i-1]);
@@ -316,12 +326,15 @@ namespace cryptonote {
   }
 
   // LWMA-4
-  difficulty_type next_difficulty_v4(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, uint64_t HEIGHT) {
+  difficulty_type next_difficulty_v4(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, uint64_t HEIGHT, network_type nettype) {
     uint64_t T = DIFFICULTY_TARGET_V2;
     uint64_t N = DIFFICULTY_WINDOW_V2;
     uint64_t L(0), ST(0), next_D, prev_D, avg_D, i;
+    if ((nettype == TESTNET || nettype == STAGENET) && HEIGHT <= DIFFICULTY_WINDOW) {
+      return 100;
+    }
     assert(timestamps.size() == cumulative_difficulties.size() && timestamps.size() <= N+1 );
-    if (HEIGHT <= 63469 + 1) { return 100000069; }
+    if (nettype == MAINNET && HEIGHT <= 63469 + 1) { return 100000069; }
     std::vector<uint64_t>TS(N+1);
     TS[0] = timestamps[0];
     for ( i = 1; i <= N; i++) {
@@ -363,21 +376,24 @@ namespace cryptonote {
   // LWMA-1 difficulty algorithm
   // Copyright (c) 2017-2019 Zawy, MIT License
   // https://github.com/zawy12/difficulty-algorithms/issues/3
-  difficulty_type next_difficulty_v5(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, uint64_t HEIGHT) {
+  difficulty_type next_difficulty_v5(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, uint64_t HEIGHT, network_type nettype) {
     uint64_t T = DIFFICULTY_TARGET_V2;
     uint64_t N = DIFFICULTY_WINDOW_V3;
+    if ((nettype == TESTNET || nettype == STAGENET) && HEIGHT <= DIFFICULTY_WINDOW) {
+      return 100;
+    }
     assert(timestamps.size() == cumulative_difficulties.size() && timestamps.size() <= N+1 );
 
-    if (HEIGHT >= 81769 && HEIGHT < 81769 + N) { return 10000000; }
+    if (nettype == MAINNET && HEIGHT >= 81769 && HEIGHT < 81769 + N) { return 10000000; }
     assert(timestamps.size() == N+1);
 
     // hardcoding previously erroneously calculated difficulty entries
-    if(HEIGHT == 307686) return 25800000;
-    if(HEIGHT == 307692) return 1890000;
-    if(HEIGHT == 307735) return 17900000;
-    if(HEIGHT == 307742) return 21300000;
-    if(HEIGHT == 307750) return 10900000;
-    if(HEIGHT == 307766) return 2960000;
+    if(nettype == MAINNET && HEIGHT == 307686) return 25800000;
+    if(nettype == MAINNET && HEIGHT == 307692) return 1890000;
+    if(nettype == MAINNET && HEIGHT == 307735) return 17900000;
+    if(nettype == MAINNET && HEIGHT == 307742) return 21300000;
+    if(nettype == MAINNET && HEIGHT == 307750) return 10900000;
+    if(nettype == MAINNET && HEIGHT == 307766) return 2960000;
 
     uint64_t  i, this_timestamp(0), previous_timestamp(0);
     difficulty_type L(0), next_D, avg_D;
@@ -411,7 +427,10 @@ namespace cryptonote {
     return  next_D;
   }
 
-  difficulty_type next_difficulty_v6(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
+  difficulty_type next_difficulty_v6(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds, uint64_t HEIGHT, network_type nettype) {
+    if ((nettype == TESTNET || nettype == STAGENET) && HEIGHT <= DIFFICULTY_WINDOW) {
+      return 100;
+    }
     if(timestamps.size() > DIFFICULTY_WINDOW_V3)
     {
         timestamps.resize(DIFFICULTY_WINDOW_V3);

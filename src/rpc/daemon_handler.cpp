@@ -524,7 +524,7 @@ namespace rpc
 
     auto& chain = m_core.get_blockchain_storage();
 
-    res.info.wide_difficulty = chain.get_difficulty_for_next_block();
+    res.info.wide_difficulty = chain.get_difficulty_for_next_block(m_core.get_nettype());
     res.info.difficulty = (res.info.wide_difficulty & 0xffffffffffffffff).convert_to<uint64_t>();
 
     res.info.target = chain.get_difficulty_target();

@@ -386,7 +386,7 @@ bool Blockchain::init(BlockchainDB* db, const network_type nettype, bool offline
     load_compiled_in_block_hashes(get_checkpoints);
 #endif
 
-  MINFO("Blockchain initialized. last block: " << m_db->height() - 1 << ", " << epee::misc_utils::get_time_interval_string(timestamp_diff) << " time ago, current difficulty: " << get_difficulty_for_next_block());
+  MINFO("Blockchain initialized. last block: " << m_db->height() - 1 << ", " << epee::misc_utils::get_time_interval_string(timestamp_diff) << " time ago, current difficulty: " << get_difficulty_for_next_block(m_nettype));
 
   rtxn_guard.stop();
 
@@ -852,7 +852,7 @@ bool Blockchain::get_block_by_hash(const crypto::hash &h, block &blk, bool *orph
 // last DIFFICULTY_BLOCKS_COUNT blocks and passes them to next_difficulty,
 // returning the result of that call.  Ignores the genesis block, and can use
 // less blocks than desired if there aren't enough.
-difficulty_type Blockchain::get_difficulty_for_next_block()
+difficulty_type Blockchain::get_difficulty_for_next_block(const network_type nettype)
 {
   if (m_fixed_difficulty)
   {
@@ -930,17 +930,17 @@ difficulty_type Blockchain::get_difficulty_for_next_block()
   uint64_t HEIGHT = m_db->height();
   difficulty_type diff;
   if (version >= 20) {
-    diff = next_difficulty_v6(timestamps, difficulties, target);
+    diff = next_difficulty_v6(timestamps, difficulties, target, HEIGHT, m_nettype);
   } else if (version <= 17 && version >= 11) {
-    diff = next_difficulty_v5(timestamps, difficulties, HEIGHT);
+    diff = next_difficulty_v5(timestamps, difficulties, HEIGHT, m_nettype);
   } else if (version == 10) {
-    diff = next_difficulty_v4(timestamps, difficulties, HEIGHT);
+    diff = next_difficulty_v4(timestamps, difficulties, HEIGHT, m_nettype);
   } else if (version == 9) {
-    diff = next_difficulty_v3(timestamps, difficulties, HEIGHT);
+    diff = next_difficulty_v3(timestamps, difficulties, HEIGHT, m_nettype);
   } else if (version == 8) {
-    diff = next_difficulty_v2(timestamps, difficulties, target, HEIGHT);
+    diff = next_difficulty_v2(timestamps, difficulties, target, HEIGHT, m_nettype);
   } else {
-    diff = next_difficulty(timestamps, difficulties, target, HEIGHT);
+    diff = next_difficulty(timestamps, difficulties, target, HEIGHT, m_nettype);
   }
 
   CRITICAL_REGION_LOCAL1(m_difficulty_lock);
@@ -1002,17 +1002,17 @@ size_t Blockchain::recalculate_difficulties(boost::optional<uint64_t> start_heig
     uint64_t HEIGHT = m_db->height();
     difficulty_type recalculated_diff;
     if (version >= 20) {
-      recalculated_diff = next_difficulty_v6(timestamps, difficulties, target);
+      recalculated_diff = next_difficulty_v6(timestamps, difficulties, target, HEIGHT, m_nettype);
     } else if (version <= 17 && version >= 11) {
-      recalculated_diff = next_difficulty_v5(timestamps, difficulties, HEIGHT);
+      recalculated_diff = next_difficulty_v5(timestamps, difficulties, HEIGHT, m_nettype);
     } else if (version == 10) {
-      recalculated_diff = next_difficulty_v4(timestamps, difficulties, HEIGHT);
+      recalculated_diff = next_difficulty_v4(timestamps, difficulties, HEIGHT, m_nettype);
     } else if (version == 9) {
-      recalculated_diff = next_difficulty_v3(timestamps, difficulties, HEIGHT);
+      recalculated_diff = next_difficulty_v3(timestamps, difficulties, HEIGHT, m_nettype);
     } else if (version == 8) {
-      recalculated_diff = next_difficulty_v2(timestamps, difficulties, target, HEIGHT);
+      recalculated_diff = next_difficulty_v2(timestamps, difficulties, target, HEIGHT, m_nettype);
     } else {
-      recalculated_diff = next_difficulty(timestamps, difficulties, target, HEIGHT);
+      recalculated_diff = next_difficulty(timestamps, difficulties, target, HEIGHT, m_nettype);
     }
 
     boost::multiprecision::uint256_t recalculated_cum_diff_256 = boost::multiprecision::uint256_t(recalculated_diff) + last_cum_diff;
@@ -1323,17 +1323,17 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   uint64_t HEIGHT = m_db->height();
   difficulty_type next_diff;
   if (version >= 20) {
-    next_diff = next_difficulty_v6(timestamps, cumulative_difficulties, target);
+    next_diff = next_difficulty_v6(timestamps, cumulative_difficulties, target, HEIGHT, m_nettype);
   } else if (version <= 17 && version >= 11) {
-    next_diff = next_difficulty_v5(timestamps, cumulative_difficulties, HEIGHT);
+    next_diff = next_difficulty_v5(timestamps, cumulative_difficulties, HEIGHT, m_nettype);
   } else if (version == 10) {
-    next_diff = next_difficulty_v4(timestamps, cumulative_difficulties, HEIGHT);
+    next_diff = next_difficulty_v4(timestamps, cumulative_difficulties, HEIGHT, m_nettype);
   } else if (version == 9) {
-    next_diff = next_difficulty_v3(timestamps, cumulative_difficulties, HEIGHT);
+    next_diff = next_difficulty_v3(timestamps, cumulative_difficulties, HEIGHT, m_nettype);
   } else if (version == 8) {
-    next_diff = next_difficulty_v2(timestamps, cumulative_difficulties, target, HEIGHT);
+    next_diff = next_difficulty_v2(timestamps, cumulative_difficulties, target, HEIGHT, m_nettype);
   } else {
-    next_diff = next_difficulty(timestamps, cumulative_difficulties, target, HEIGHT);
+    next_diff = next_difficulty(timestamps, cumulative_difficulties, target, HEIGHT, m_nettype);
   }
   return next_diff;
 }
@@ -1659,7 +1659,7 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
     b.minor_version = m_hardfork->get_ideal_version();
     b.prev_id = get_tail_id();
     median_weight = m_current_block_cumul_weight_limit / 2;
-    diffic = get_difficulty_for_next_block();
+    diffic = get_difficulty_for_next_block(m_nettype);
     already_generated_coins = m_db->get_block_already_generated_coins(height - 1);
     if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
     {
@@ -1826,7 +1826,7 @@ bool Blockchain::get_miner_data(uint8_t& major_version, uint64_t& height, crypto
     seed_hash = get_block_id_by_height(seed_height);
   }
 
-  difficulty = get_difficulty_for_next_block();
+  difficulty = get_difficulty_for_next_block(m_nettype);
   median_weight = m_current_block_cumul_weight_median;
   already_generated_coins = m_db->get_block_already_generated_coins(height - 1);
 
@@ -4177,7 +4177,7 @@ leave:
   // so we need to check the return type.
   // FIXME: get_difficulty_for_next_block can also assert, look into
   // changing this to throwing exceptions instead so we can clean up.
-  difficulty_type current_diffic = get_difficulty_for_next_block();
+  difficulty_type current_diffic = get_difficulty_for_next_block(m_nettype);
   CHECK_AND_ASSERT_MES(current_diffic, false, "!!!!!!!!! difficulty overhead !!!!!!!!!");
 
   TIME_MEASURE_FINISH(target_calculating_time);
@@ -4573,7 +4573,7 @@ leave:
 
   // appears to be a NOP *and* is called elsewhere.  wat?
   m_tx_pool.on_blockchain_inc(new_height, id);
-  get_difficulty_for_next_block(); // just to cache it
+  get_difficulty_for_next_block(m_nettype); // just to cache it
   invalidate_block_template_cache();
 
   const uint8_t new_hf_version = get_current_hard_fork_version();
@@ -5826,7 +5826,7 @@ void Blockchain::send_miner_notifications(uint64_t height, const crypto::hash &s
     return;
 
   const uint8_t major_version = m_hardfork->get_ideal_version(height);
-  const difficulty_type diff = get_difficulty_for_next_block();
+  const difficulty_type diff = get_difficulty_for_next_block(m_nettype);
   const uint64_t median_weight = m_current_block_cumul_weight_median;
 
   std::vector<tx_block_template_backlog_entry> tx_backlog;

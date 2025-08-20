@@ -335,7 +335,7 @@ namespace cryptonote
      *
      * @return the target
      */
-    difficulty_type get_difficulty_for_next_block();
+    difficulty_type get_difficulty_for_next_block(const network_type nettype);
 
     /**
      * @brief check currently stored difficulties against difficulty checkpoints

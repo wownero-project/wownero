@@ -521,7 +521,7 @@ namespace cryptonote
     ++res.height; // turn top block height into blockchain height
     res.top_block_hash = string_tools::pod_to_hex(top_hash);
     res.target_height = m_p2p.get_payload_object().is_synchronized() ? 0 : m_core.get_target_blockchain_height();
-    store_difficulty(m_core.get_blockchain_storage().get_difficulty_for_next_block(), res.difficulty, res.wide_difficulty, res.difficulty_top64);
+    store_difficulty(m_core.get_blockchain_storage().get_difficulty_for_next_block(m_core.get_nettype()), res.difficulty, res.wide_difficulty, res.difficulty_top64);
     res.target = m_core.get_blockchain_storage().get_difficulty_target();
     res.tx_count = m_core.get_blockchain_storage().get_total_transactions() - res.height; //without coinbase
     res.tx_pool_size = m_core.get_pool_transactions_count(!restricted);
@@ -1474,7 +1474,7 @@ namespace cryptonote
     const miner& lMiner = m_core.get_miner();
     res.active = lMiner.is_mining();
     res.is_background_mining_enabled = lMiner.get_is_background_mining_enabled();
-    store_difficulty(m_core.get_blockchain_storage().get_difficulty_for_next_block(), res.difficulty, res.wide_difficulty, res.difficulty_top64);
+    store_difficulty(m_core.get_blockchain_storage().get_difficulty_for_next_block(m_core.get_nettype()), res.difficulty, res.wide_difficulty, res.difficulty_top64);
     
     res.block_target = m_core.get_blockchain_storage().get_current_hard_fork_version() < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
     if ( lMiner.is_mining() ) {
@@ -3565,7 +3565,7 @@ namespace cryptonote
     if (!stale)
     {
       // it might be a valid block!
-      const difficulty_type current_difficulty = m_core.get_blockchain_storage().get_difficulty_for_next_block();
+      const difficulty_type current_difficulty = m_core.get_blockchain_storage().get_difficulty_for_next_block(m_core.get_nettype());
       if (check_hash(hash, current_difficulty))
       {
         MINFO("This payment meets the current network difficulty");

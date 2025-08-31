@@ -524,6 +524,7 @@ namespace cryptonote
   {
     const uint32_t th_local_index = m_thread_index++; // atomically increment, getting value before increment
     bool rx_set = false;
+    bool cn_allocated = false;
 
     MLOG_SET_THREAD_NAME(std::string("[miner ") + std::to_string(th_local_index) + "]");
     MGINFO("Miner thread was started ["<< th_local_index << "]");
@@ -532,7 +533,6 @@ namespace cryptonote
     difficulty_type local_diff = 0;
     uint32_t local_template_ver = 0;
     block b;
-    slow_hash_allocate_state();
     ++m_threads_active;
     while(!m_stop)
     {
@@ -582,6 +582,12 @@ namespace cryptonote
         rx_set = true;
       }
 
+      if ((b.major_version < RX_BLOCK_VERSION) && !cn_allocated)
+      {
+        slow_hash_allocate_state();
+        cn_allocated = true;
+      }
+
       m_gbh(b, height, NULL, tools::get_max_concurrency(), h);
 
       if(check_hash(h, local_diff))
@@ -604,7 +610,7 @@ namespace cryptonote
       ++m_hashes;
       ++m_total_hashes;
     }
-    slow_hash_free_state();
+    if (cn_allocated) slow_hash_free_state();
     MGINFO("Miner thread stopped ["<< th_local_index << "]");
     --m_threads_active;
     return true;

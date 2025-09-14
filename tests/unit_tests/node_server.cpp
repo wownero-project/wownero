@@ -519,7 +519,7 @@ TEST(cryptonote_protocol_handler, race_condition)
       hardfork
     );
     block.miner_tx.vout.push_back(cryptonote::tx_out{reward, cryptonote::txout_to_key{}});
-    diff = storage.get_difficulty_for_next_block();
+    diff = storage.get_difficulty_for_next_block(cryptonote::network_type::MAINNET);
   };
   struct stat {
     struct chain {
